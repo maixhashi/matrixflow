@@ -9,6 +9,8 @@ services:
       target: php83 # php83 or php82 or php81 or php80 or php74 or php73(app/Dockerfileの指定のバージョンのコメントアウトを解除してください)
     volumes:
       - ./src:/var/www
+    ports:
+      - "5173:5173"
     working_dir: /var/www
 
   # webサーバーのコンテナ
