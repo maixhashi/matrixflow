@@ -34,3 +34,6 @@ Route::post('/api/members', [MemberController::class, 'store']);
 use App\Http\Controllers\FlowstepController;
 Route::get('/api/flowsteps', [FlowstepController::class, 'index']);
 Route::post('/api/flowsteps', [FlowstepController::class, 'store']);
+
+use App\Http\Controllers\FlowstepMemberController;
+Route::post('/api/assign-flowstep', [FlowstepMemberController::class, 'store']);
