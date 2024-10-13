@@ -5,13 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Member extends Model
+class Workflow extends Model
 {
-    use HasFactory;
-
-    // ホワイトリストで設定する属性
-    protected $fillable = ['name'];
-
     public function flowsteps()
     {
         return $this->belongsToMany(Flowstep::class);
