@@ -3,34 +3,48 @@ import FlowStep from './FlowStep'; // FlowStep コンポーネントをインポ
 
 const FlowstepList = ({ onFlowStepUpdated }) => {
     const [flowsteps, setFlowsteps] = useState([]);
+    const [newFlowStepName, setNewFlowStepName] = useState('');
+
+    const handleAddFlowStep = async () => {
+        const response = await fetch('/api/flowsteps', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: newFlowStepName }),
+        });
+        const data = await response.json();
+        setFlowsteps([...flowsteps, data]);
+        onFlowStepUpdated(); // フローステップが更新されたことを親コンポーネントに通知
+        setNewFlowStepName(''); // フォームをクリア
+    };
 
     useEffect(() => {
         const fetchFlowsteps = async () => {
-            try {
-                const response = await fetch('/api/flowsteps');
-                const data = await response.json();
-                setFlowsteps(data);
-                onFlowStepUpdated(); // フローステップが更新されたことを親コンポーネントに通知
-            } catch (error) {
-                console.error('Error fetching flowsteps:', error);
-            }
+            const response = await fetch('/api/flowsteps');
+            const data = await response.json();
+            setFlowsteps(data);
         };
-
         fetchFlowsteps();
-    }, [onFlowStepUpdated]);
+    }, []);
 
     return (
-        <ul>
-            {flowsteps.length > 0 ? (
-                flowsteps.map((flowstep) => (
+        <div>
+            <input
+                type="text"
+                value={newFlowStepName}
+                onChange={(e) => setNewFlowStepName(e.target.value)}
+                placeholder="New FlowStep"
+            />
+            <button onClick={handleAddFlowStep}>Add FlowStep</button>
+            <ul>
+                {flowsteps.map((flowstep) => (
                     <li key={flowstep.id}>
-                        <FlowStep name={flowstep.name} /> {/* FlowStep コンポーネントを使用 */}
+                        <FlowStep name={flowstep.name} flowstep={flowstep} /> {/* FlowStep コンポーネントを使用 */}
                     </li>
-                ))
-            ) : (
-                <li>No flow steps available.</li> // フローステップがない場合のメッセージ
-            )}
-        </ul>
+                ))}
+            </ul>
+        </div>
     );
 };
 

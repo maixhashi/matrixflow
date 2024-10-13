@@ -6,10 +6,13 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux'; // ReduxのProviderをインポート
 import store from './store/store'; // Reduxのstoreをインポート
 import axios from 'axios';
+import { DndProvider } from 'react-dnd'; // react-dnd の DndProvider をインポート
+import { HTML5Backend } from 'react-dnd-html5-backend'; // HTML5Backend をインポート
 
-// CSRFトークンを取得する関数
+// CSRFトークンを取得する関数（nullチェックを追加）
 const csrfToken = () => {
-    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute('content') : '';
 };
 
 // Axiosのデフォルトヘッダーを設定
@@ -30,7 +33,9 @@ createInertiaApp({
 
         root.render(
             <Provider store={store}> {/* ReduxのProviderでアプリ全体をラップ */}
-                <App {...props} />
+                <DndProvider backend={HTML5Backend}> {/* react-dnd の DndProvider でラップ */}
+                    <App {...props} />
+                </DndProvider>
             </Provider>
         );
     },
