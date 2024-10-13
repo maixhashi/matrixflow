@@ -5,7 +5,7 @@ import AddFlowStepForm from '../Components/AddFlowStepForm';
 import FlowstepList from '../Components/FlowstepList';
 import MatrixView from '../Components/MatrixView';
 
-const App = () => {
+const Welcome = () => {
     const [members, setMembers] = useState([]);
     const [flowsteps, setFlowsteps] = useState([]);
     const [membersUpdated, setMembersUpdated] = useState(false);
@@ -48,7 +48,7 @@ const App = () => {
             <MemberList key={membersUpdated} /> {/* ステート変更でリストをリフレッシュ */}
 
             <h1>Flowstep Management</h1>
-            <AddFlowStepForm onFlowStepAdded={handleFlowStepAdded} />
+            <AddFlowStepForm members={members} onFlowStepAdded={handleFlowStepAdded} />
             <FlowstepList onFlowStepUpdated={handleFlowStepAdded} /> {/* フローステップリストを表示 */}
 
             <h2>Matrix View</h2>
@@ -57,4 +57,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default Welcome;
