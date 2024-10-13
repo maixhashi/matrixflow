@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import FlowStep from './FlowStep'; // FlowStep コンポーネントをインポート
 
 const FlowstepList = ({ onFlowStepUpdated }) => {
     const [flowsteps, setFlowsteps] = useState([]);
 
     useEffect(() => {
         const fetchFlowsteps = async () => {
-            const response = await fetch('/api/flowsteps');
-            const data = await response.json();
-            setFlowsteps(data);
-            onFlowStepUpdated(); // フローステップが更新されたことを親コンポーネントに通知
+            try {
+                const response = await fetch('/api/flowsteps');
+                const data = await response.json();
+                setFlowsteps(data);
+                onFlowStepUpdated(); // フローステップが更新されたことを親コンポーネントに通知
+            } catch (error) {
+                console.error('Error fetching flowsteps:', error);
+            }
         };
 
         fetchFlowsteps();
@@ -16,9 +21,15 @@ const FlowstepList = ({ onFlowStepUpdated }) => {
 
     return (
         <ul>
-            {flowsteps.map((flowstep) => (
-                <li key={flowstep.id}>{flowstep.name}</li>
-            ))}
+            {flowsteps.length > 0 ? (
+                flowsteps.map((flowstep) => (
+                    <li key={flowstep.id}>
+                        <FlowStep name={flowstep.name} /> {/* FlowStep コンポーネントを使用 */}
+                    </li>
+                ))
+            ) : (
+                <li>No flow steps available.</li> // フローステップがない場合のメッセージ
+            )}
         </ul>
     );
 };
