@@ -21,6 +21,30 @@ const Welcome = () => {
         setFlowstepsUpdated(!flowstepsUpdated); // ステートをトグルしてリストを再レンダリング
     };
 
+    // FlowStepをメンバーに割り当てる関数を追加
+    const handleAssignFlowStep = async (memberId, flowstepId) => {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        try {
+            const response = await fetch('/api/assign-flowstep', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token, // CSRFトークンをヘッダーに追加
+                },
+                body: JSON.stringify({ memberId, flowstepId }),
+            });
+
+            if (response.ok) {
+                console.log(`Assigned FlowStep ${flowstepId} to Member ${memberId}`);
+                // ここで必要に応じてメンバーやフローステップの状態を更新することができます
+            } else {
+                console.error("Failed to assign FlowStep");
+            }
+        } catch (error) {
+            console.error("Error assigning FlowStep:", error);
+        }
+    };
+
     useEffect(() => {
         const fetchMembers = async () => {
             const response = await fetch('/api/members');
@@ -52,7 +76,7 @@ const Welcome = () => {
             <FlowstepList onFlowStepUpdated={handleFlowStepAdded} /> {/* フローステップリストを表示 */}
 
             <h2>Matrix View</h2>
-            <MatrixView members={members} flowsteps={flowsteps} />
+            <MatrixView members={members} flowsteps={flowsteps} onAssignFlowStep={handleAssignFlowStep} />
         </div>
     );
 };
