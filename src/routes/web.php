@@ -25,3 +25,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+use App\Http\Controllers\MemberController;
+
+Route::get('/api/members', [MemberController::class, 'index']);
+Route::post('/api/members', [MemberController::class, 'store']);
