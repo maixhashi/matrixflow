@@ -1,0 +1,21 @@
+/* Flowstep.css */
+
+.flow-step {
+  background-color: #f0f8ff; /* Light blue background */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 10px; /* Padding around the text */
+  margin: 5px; /* Margin between flow steps */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.flow-step:hover {
+  background-color: #e0f7fa; /* Slightly darker blue on hover */
+}
+
+.flow-step-name {
+  color: #333; /* Darker text color */
+  font-size: 1.2em; /* Larger font size */
+  text-align: center; /* Center the text */
+  margin: 0; /* Remove default margin */
+}

@@ -7,28 +7,31 @@ use Illuminate\Http\Request;
 
 class FlowstepController extends Controller
 {
-    // 全てのフローステップを取得する
     public function index()
     {
-        $flowsteps = Flowstep::all();
+        // 各フローステップに関連するメンバー情報も取得する
+        $flowsteps = Flowstep::with('members')->get();
         return response()->json($flowsteps);
     }
 
-    // 新しいフローステップを作成する
     public function store(Request $request)
     {
-        // バリデーション
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'flow_number' => 'nullable|integer',
+        $request->validate([
+            'name' => 'required|string',
+            'flow_number' => 'required|integer',
+            'member_id' => 'required|array', // 複数のメンバーIDを受け取れるように
+            'member_id.*' => 'exists:members,id', // 各メンバーIDの存在確認
         ]);
-
-        // 新しいフローステップの作成
-        $flowstep = Flowstep::create([
-            'name' => $validatedData['name'],
-            'flow_number' => $validatedData['flow_number'] ?? null,
-        ]);
-
-        return response()->json($flowstep, 201);  // 作成したデータを返す
+    
+        // FlowStepの作成
+        $flowStep = FlowStep::create($request->only(['name', 'flow_number']));
+    
+        // FlowstepMemberに関連メンバーを追加
+        foreach ($request->member_id as $memberId) {
+            $flowStep->members()->attach($memberId);
+        }
+    
+        return response()->json(['message' => 'Flow step added successfully']);
     }
+    
 }
