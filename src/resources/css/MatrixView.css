@@ -1,5 +1,3 @@
-/* MatrixView.css */
-
 .matrix-table {
   width: 100%;
   border-collapse: collapse;
@@ -8,7 +6,22 @@
 .matrix-header {
   background-color: #f2f2f2;
   padding: 10px;
-  text-align: left;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.matrix-corner-header {
+  background-color: #f2f2f2;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+  width: 100px;
+}
+
+.matrix-side-header {
+  background-color: #f2f2f2;
+  padding: 10px;
+  text-align: center;
   border: 1px solid #ddd;
 }
 
@@ -17,10 +30,20 @@
   border: 1px solid #ddd;
 }
 
-/* メンバーのセルに色を塗る */
 .member-cell {
   background-color: #f2f2f2;
-  font-weight: bold;
+  display: flex;                     /* Use flexbox for layout */
+  justify-content: space-between;    /* Space between items: name on left, icon on right */
+  align-items: center;               /* Center items vertically */
+  padding: 10px;                     /* Add some padding for aesthetics */
+}
+
+.member-name {
+  flex-grow: 1;                      /* Allow the name to take up available space */
+}
+
+.member-icon {
+  margin-left: 8px;                 /* Optional: Add space between name and icon */
 }
 
 
