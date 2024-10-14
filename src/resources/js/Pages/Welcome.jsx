@@ -22,19 +22,26 @@ const Welcome = () => {
     };
 
     // FlowStepをメンバーに割り当てる関数を追加
-    const handleAssignFlowStep = async (memberId, flowstepId) => {
+    const handleAssignFlowStep = async (memberId, flowstepId, assignedMembersBeforeDrop) => {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
         try {
+            // サーバーに送信するデータにドロップ前のメンバー情報を追加
             const response = await fetch('/api/assign-flowstep', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': token, // CSRFトークンをヘッダーに追加
                 },
-                body: JSON.stringify({ memberId, flowstepId }),
+                body: JSON.stringify({
+                    memberId,
+                    flowstepId,
+                    assignedMembersBeforeDrop, // ドロップ前のメンバーIDをサーバーに送信
+                }),
             });
-
+    
             if (response.ok) {
+                console.log(`Member Id from ${assignedMembersBeforeDrop} to ${memberId}`);
                 console.log(`Assigned FlowStep ${flowstepId} to Member ${memberId}`);
                 // ここで必要に応じてメンバーやフローステップの状態を更新することができます
             } else {
@@ -44,7 +51,7 @@ const Welcome = () => {
             console.error("Error assigning FlowStep:", error);
         }
     };
-
+    
     useEffect(() => {
         const fetchMembers = async () => {
             const response = await fetch('/api/members');
