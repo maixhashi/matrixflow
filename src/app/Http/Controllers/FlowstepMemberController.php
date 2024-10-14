@@ -14,9 +14,18 @@ class FlowstepMemberController extends Controller
           $request->validate([
               'memberId' => 'required|exists:members,id',
               'flowstepId' => 'required|exists:flowsteps,id',
+              'assignedMembersBeforeDrop' => 'array', // ドロップ前のメンバーのリストを検証
+              'assignedMembersBeforeDrop.*' => 'exists:members,id', // 各IDが有効であることを検証
           ]);
 
-          // フローステップの割り当てを行う
+          // ドロップ前のメンバー関連を削除する
+          if ($request->has('assignedMembersBeforeDrop')) {
+              FlowstepMember::where('flowstep_id', $request->flowstepId)
+                  ->whereIn('member_id', $request->assignedMembersBeforeDrop)
+                  ->delete();
+          }
+
+          // 新しいメンバー関連付けを作成または更新
           FlowstepMember::updateOrCreate(
               ['member_id' => $request->memberId, 'flowstep_id' => $request->flowstepId]
           );

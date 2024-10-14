@@ -7,6 +7,7 @@ import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
+// MatrixView.jsx
 const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
     return (
         <DndProvider backend={HTML5Backend}>
@@ -38,12 +39,19 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
                                         </div>
                                     </td>
                                     {flowsteps.map((flowstep) => {
-                                        // ドロップ処理をここで設定
+                                        // 事前に関連するメンバーIDを取得
+                                        const assignedMembersBeforeDrop = flowstep.members ? flowstep.members.map(m => m.id) : [];
+
+                                        // ドロップ処理を設定
                                         const [{ isOver }, drop] = useDrop({
                                             accept: 'FLOWSTEP',
                                             drop: (item) => {
                                                 // メンバーIDを取得
-                                                onAssignFlowStep(member.id, item.id);
+                                                onAssignFlowStep(
+                                                    member.id, 
+                                                    item.id, 
+                                                    assignedMembersBeforeDrop // ドロップ前の関連メンバーIDを渡す
+                                                );
                                             },
                                             collect: (monitor) => ({
                                                 isOver: monitor.isOver(),
