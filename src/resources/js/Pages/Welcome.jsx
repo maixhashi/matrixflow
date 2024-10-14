@@ -26,7 +26,6 @@ const Welcome = () => {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
         try {
-            // サーバーに送信するデータにドロップ前のメンバー情報を追加
             const response = await fetch('/api/assign-flowstep', {
                 method: 'POST',
                 headers: {
@@ -41,9 +40,12 @@ const Welcome = () => {
             });
     
             if (response.ok) {
-                console.log(`Member Id from ${assignedMembersBeforeDrop} to ${memberId}`);
                 console.log(`Assigned FlowStep ${flowstepId} to Member ${memberId}`);
-                // ここで必要に応じてメンバーやフローステップの状態を更新することができます
+                
+                // メンバーまたはフローステップに変更があったことを通知
+                setMembersUpdated(!membersUpdated);
+                setFlowstepsUpdated(!flowstepsUpdated);
+    
             } else {
                 console.error("Failed to assign FlowStep");
             }
@@ -51,7 +53,7 @@ const Welcome = () => {
             console.error("Error assigning FlowStep:", error);
         }
     };
-    
+        
     useEffect(() => {
         const fetchMembers = async () => {
             const response = await fetch('/api/members');
