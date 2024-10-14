@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import '../../css/AddFlowStepForm.css';  // スタイルをインポート
 
-const AddFlowStepForm = ({ members, onFlowStepAdded }) => {
+const AddFlowStepForm = ({ members = [], onFlowStepAdded }) => {
     const [name, setName] = useState('');
     const [flowNumber, setFlowNumber] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
@@ -10,13 +11,11 @@ const AddFlowStepForm = ({ members, onFlowStepAdded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // フォームの状態をデバッグ出力
         console.log('Submitting Flow Step:');
         console.log('Name:', name);
         console.log('Flow Number:', flowNumber);
         console.log('Selected Members:', selectedMembers);
 
-        // 送信するJSONデータをデバッグ出力
         const jsonData = {
             name: name,
             flow_number: flowNumber,
@@ -34,7 +33,6 @@ const AddFlowStepForm = ({ members, onFlowStepAdded }) => {
                 body: JSON.stringify(jsonData), // JSONデータを送信
             });
 
-            // レスポンスのステータスをデバッグ出力
             console.log('Response Status:', response.status);
 
             if (!response.ok) {
@@ -66,7 +64,7 @@ const AddFlowStepForm = ({ members, onFlowStepAdded }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="form-container" onSubmit={handleSubmit}>
             <div>
                 <label>Flow Step Name:</label>
                 <input
@@ -82,7 +80,6 @@ const AddFlowStepForm = ({ members, onFlowStepAdded }) => {
                     type="number"
                     value={flowNumber}
                     onChange={(e) => setFlowNumber(e.target.value)}
-                    required
                 />
             </div>
             <div>
@@ -93,11 +90,15 @@ const AddFlowStepForm = ({ members, onFlowStepAdded }) => {
                     onChange={handleMemberChange}
                     required
                 >
-                    {members.map((member) => (
-                        <option key={member.id} value={member.id}>
-                            {member.name}
-                        </option>
-                    ))}
+                    {members.length > 0 ? (
+                        members.map((member) => (
+                            <option key={member.id} value={member.id}>
+                                {member.name}
+                            </option>
+                        ))
+                    ) : (
+                        <option disabled>No members available</option>
+                    )}
                 </select>
             </div>
             <button type="submit">Add Flow Step</button>

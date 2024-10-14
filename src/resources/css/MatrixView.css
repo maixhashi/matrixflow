@@ -58,3 +58,9 @@
 .matrix-cell:hover .flow-step {
   background-color: #d1e7ff; /* ホバー時のフローステップの背景色 */
 }
+
+.next-step-column {
+  background-color: #BBBBBB; /* 薄い灰色 */
+  font-weight: bold; /* 強調するために太字にする */
+  border: 2px dotted #DDDDDD; /* 黒の点線枠線 */
+}
