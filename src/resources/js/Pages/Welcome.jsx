@@ -1,3 +1,4 @@
+// Welcome.jsx
 import React, { useState, useEffect } from 'react';
 import MemberList from '../Components/MembersList';
 import AddMemberForm from '../Components/AddMemberForm';
@@ -91,15 +92,20 @@ const Welcome = () => {
         <div>
             <h1>Member Management</h1>
             <AddMemberForm onMemberAdded={handleMemberAdded} />
-            <MemberList key={membersUpdated} /> {/* ステート変更でリストをリフレッシュ */}
+            <MemberList key={membersUpdated} />
 
             <h1>Flowstep Management</h1>
             <AddFlowStepForm members={members} onFlowStepAdded={handleFlowStepAdded} />
-            <FlowstepList onFlowStepUpdated={handleFlowStepAdded} /> {/* フローステップリストを表示 */}
+            <FlowstepList onFlowStepUpdated={handleFlowStepAdded} />
 
-            <FlashMessage message={flashMessage} />
+            <FlashMessage message={flashMessage} /> {/* フラッシュメッセージを表示 */}
             <h2>Matrix View</h2>
-            <MatrixView members={members} flowsteps={flowsteps} onAssignFlowStep={handleAssignFlowStep} />
+            <MatrixView
+                members={members}
+                flowsteps={flowsteps}
+                onAssignFlowStep={handleAssignFlowStep}
+                onMemberAdded={handleMemberAdded}
+            />
         </div>
     );
 };
