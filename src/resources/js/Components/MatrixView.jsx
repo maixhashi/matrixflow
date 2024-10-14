@@ -6,8 +6,8 @@ import FlowStep from '../Components/Flowstep';
 import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
+import AddMemberForm from '../Components/AddMemberForm'; // Import your AddMemberForm component
 
-// MatrixView.jsx
 const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
     return (
         <DndProvider backend={HTML5Backend}>
@@ -75,6 +75,19 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
                                     })}
                                 </tr>
                             ))}
+                            {/* Add the AddMemberForm row */}
+                            <tr>
+                                <td className="matrix-side-header">
+                                    <div className="member-cell">
+                                        <AddMemberForm /> {/* Render your AddMemberForm component here */}
+                                    </div>
+                                </td>
+                                {flowsteps.map((flowstep) => (
+                                    <td key={flowstep.id} className="matrix-cell">
+                                        <div></div> {/* Empty cell for alignment */}
+                                    </td>
+                                ))}
+                            </tr>
                         </tbody>
                     </table>
                 )}
