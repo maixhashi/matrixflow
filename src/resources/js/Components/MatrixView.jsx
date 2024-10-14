@@ -1,14 +1,27 @@
-// MatrixView.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
+import AddMemberForm from '../Components/AddMemberForm';
 
-// MatrixView.jsx
-const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
+const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded }) => {
+    // 先にフックを呼び出す
+    const dropRefs = flowsteps.map(() => useDrop({
+        accept: 'FLOWSTEP',
+        drop: (item, monitor, index) => {
+            const assignedMembersBeforeDrop = flowsteps[index].members 
+                ? flowsteps[index].members.map(m => m.id) 
+                : [];
+            onAssignFlowStep(members[index].id, item.id, assignedMembersBeforeDrop);
+        },
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+        }),
+    }));
+
     return (
         <DndProvider backend={HTML5Backend}>
             <div>
@@ -26,7 +39,7 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {members.map((member) => (
+                            {members.map((member, memberIndex) => (
                                 <tr key={member.id}>
                                     <td className="matrix-side-header">
                                         <div className="member-cell">
@@ -38,32 +51,15 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
                                             </div>
                                         </div>
                                     </td>
-                                    {flowsteps.map((flowstep) => {
-                                        // 事前に関連するメンバーIDを取得
-                                        const assignedMembersBeforeDrop = flowstep.members ? flowstep.members.map(m => m.id) : [];
-
-                                        // ドロップ処理を設定
-                                        const [{ isOver }, drop] = useDrop({
-                                            accept: 'FLOWSTEP',
-                                            drop: (item) => {
-                                                // メンバーIDを取得
-                                                onAssignFlowStep(
-                                                    member.id, 
-                                                    item.id, 
-                                                    assignedMembersBeforeDrop // ドロップ前の関連メンバーIDを渡す
-                                                );
-                                            },
-                                            collect: (monitor) => ({
-                                                isOver: monitor.isOver(),
-                                            }),
-                                        });
+                                    {flowsteps.map((flowstep, flowstepIndex) => {
+                                        const [{ isOver }, drop] = dropRefs[flowstepIndex];
 
                                         return (
                                             <td 
                                                 key={flowstep.id} 
                                                 className="matrix-cell" 
                                                 ref={drop}
-                                                style={{ backgroundColor: isOver ? '#f0f0f0' : 'white' }} // ドロップエリアの色を変更
+                                                style={{ backgroundColor: isOver ? '#f0f0f0' : 'white' }}
                                             >
                                                 {flowstep.members && flowstep.members.some(m => m.id === member.id) ? (
                                                     <FlowStep flowstep={flowstep} />
@@ -75,6 +71,18 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep }) => {
                                     })}
                                 </tr>
                             ))}
+                            <tr>
+                                <td className="matrix-side-header">
+                                    <div className="member-cell">
+                                        <AddMemberForm onMemberAdded={onMemberAdded} />
+                                    </div>
+                                </td>
+                                {flowsteps.map((flowstep) => (
+                                    <td key={flowstep.id} className="matrix-cell">
+                                        <div></div>
+                                    </td>
+                                ))}
+                            </tr>
                         </tbody>
                     </table>
                 )}

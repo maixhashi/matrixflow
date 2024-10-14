@@ -1,3 +1,4 @@
+// Welcome.jsx
 import React, { useState, useEffect } from 'react';
 import MemberList from '../Components/MembersList';
 import AddMemberForm from '../Components/AddMemberForm';
@@ -13,15 +14,18 @@ const Welcome = () => {
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
 
-
-    // メンバーが追加されたときにメンバーリストを更新
-    const handleMemberAdded = () => {
+    // メンバーが追加されたときの処理
+    const handleMemberAdded = (memberName) => {
         setMembersUpdated(!membersUpdated); // ステートをトグルしてリストを再レンダリング
+        setFlashMessage(`メンバーを追加しました：${memberName}`); // 追加したメンバーの名前を表示
+        setTimeout(() => setFlashMessage(''), 5000); // 5秒後にメッセージを消す
     };
 
     // フローステップが追加されたときにフローステップリストを更新
     const handleFlowStepAdded = () => {
         setFlowstepsUpdated(!flowstepsUpdated); // ステートをトグルしてリストを再レンダリング
+        setFlashMessage('FlowStep added successfully!'); // フラッシュメッセージを設定
+        setTimeout(() => setFlashMessage(''), 5000); // 5秒後にメッセージを消す
     };
 
     // FlowStepをメンバーに割り当てる関数を追加
@@ -43,16 +47,12 @@ const Welcome = () => {
             });
     
             if (response.ok) {
-                // memberId に対応するメンバー名を取得
                 const assignedMember = members.find(member => member.id === memberId);
                 const memberName = assignedMember ? assignedMember.name : 'Unknown Member';
                 
                 console.log(`Assigned FlowStep ${flowstepId} to Member ${memberName}`);
-                
-                // メッセージを設定して表示
                 setFlashMessage(`担当者を ${memberName} に変更しました。`);
                 
-                // メンバーとフローステップの状態を更新
                 setMembersUpdated(!membersUpdated);
                 setFlowstepsUpdated(!flowstepsUpdated);
             } else {
@@ -63,7 +63,6 @@ const Welcome = () => {
             console.error("Error assigning FlowStep:", error);
         }
         
-        // 5秒後にメッセージを消す
         setTimeout(() => setFlashMessage(''), 5000);
     };
                 
@@ -91,15 +90,20 @@ const Welcome = () => {
         <div>
             <h1>Member Management</h1>
             <AddMemberForm onMemberAdded={handleMemberAdded} />
-            <MemberList key={membersUpdated} /> {/* ステート変更でリストをリフレッシュ */}
+            <MemberList key={membersUpdated} />
 
             <h1>Flowstep Management</h1>
             <AddFlowStepForm members={members} onFlowStepAdded={handleFlowStepAdded} />
-            <FlowstepList onFlowStepUpdated={handleFlowStepAdded} /> {/* フローステップリストを表示 */}
+            <FlowstepList onFlowStepUpdated={handleFlowStepAdded} />
 
             <FlashMessage message={flashMessage} />
             <h2>Matrix View</h2>
-            <MatrixView members={members} flowsteps={flowsteps} onAssignFlowStep={handleAssignFlowStep} />
+            <MatrixView
+                members={members}
+                flowsteps={flowsteps}
+                onAssignFlowStep={handleAssignFlowStep}
+                onMemberAdded={handleMemberAdded}
+            />
         </div>
     );
 };

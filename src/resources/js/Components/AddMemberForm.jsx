@@ -10,7 +10,7 @@ const AddMemberForm = ({ onMemberAdded }) => {
             const response = await axios.post('/api/members', { name });
             setName(''); // フォームをクリア
             if (onMemberAdded) {
-                onMemberAdded(); // 親コンポーネントのコールバックを呼び出し
+                onMemberAdded(name); // 追加したメンバーの名前を親コンポーネントに渡す
             }
         } catch (error) {
             console.error('Error adding member:', error);
