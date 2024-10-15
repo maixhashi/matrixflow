@@ -103,6 +103,7 @@ const Welcome = () => {
                 flowsteps={flowsteps}
                 onAssignFlowStep={handleAssignFlowStep}
                 onMemberAdded={handleMemberAdded}
+                onFlowStepAdded={handleFlowStepAdded}
             />
         </div>
     );
