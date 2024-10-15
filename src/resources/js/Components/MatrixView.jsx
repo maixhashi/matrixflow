@@ -9,7 +9,66 @@ import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAddFlowStep }) => {
+// MatrixColコンポーネント
+const MatrixCol = ({ flowstep, members, onAssignFlowStep, openModal }) => {
+    return (
+        <td className="matrix-cell">
+            {members.map((member) => {
+                const isAssigned = flowstep.members && flowstep.members.some(m => m.id === member.id);
+                return (
+                    <div key={member.id} className="member-cell">
+                        {isAssigned ? (
+                            <FlowStep flowstep={flowstep} />
+                        ) : (
+                            <button 
+                                className="add-step-button" 
+                                onClick={() => openModal(member, flowstep.flow_number)}
+                            >
+                                <FontAwesomeIcon icon={faPlus} />
+                            </button>
+                        )}
+                    </div>
+                );
+            })}
+        </td>
+    );
+};
+
+// MatrixRowコンポーネント
+const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, nextStepNumber }) => {
+    return (
+        <tr>
+            <td className="matrix-side-header">
+                <div className="member-cell">
+                    <div>{member.name}</div>
+                    <div className="member-icon">
+                        <FontAwesomeIcon icon={faUser} size="2x" />
+                    </div>
+                </div>
+            </td>
+            {flowsteps.map((flowstep) => (
+                <MatrixCol 
+                    key={flowstep.id} 
+                    flowstep={flowstep} 
+                    members={[member]} 
+                    onAssignFlowStep={onAssignFlowStep} 
+                    openModal={openModal} 
+                />
+            ))}
+            <td className="matrix-cell next-step-column">
+                <button 
+                    className="add-step-button" 
+                    onClick={() => openModal(member, nextStepNumber)}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </button>
+            </td>
+        </tr>
+    );
+};
+
+// MatrixViewコンポーネント
+const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [isModalOpen, setIsModalOpen] = useState(false); // モーダルの表示状態
     const [selectedMember, setSelectedMember] = useState(null); // 選択されたメンバー
     const [selectedStepNumber, setSelectedStepNumber] = useState(null); // 選択されたSTEP番号
@@ -53,19 +112,18 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAdd
                                 {flowsteps.map((flowstep) => (
                                     <th key={flowstep.id} className="matrix-header">STEP {flowstep.flow_number}</th>
                                 ))}
-                                {/* STEP n+1 を表示し、スタイルを追加 */}
                                 <th className="matrix-header next-step-column">STEP {nextStepNumber}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {members.map((member) => (
-                                <MemberRow 
+                                <MatrixRow 
                                     key={member.id} 
                                     member={member} 
                                     flowsteps={flowsteps} 
                                     onAssignFlowStep={onAssignFlowStep} 
-                                    openModal={openModal} // モーダルを開く関数を渡す
-                                    nextStepNumber={nextStepNumber} // 次のSTEP番号を渡す
+                                    openModal={openModal} 
+                                    nextStepNumber={nextStepNumber} 
                                 />
                             ))}
                             <tr>
@@ -79,11 +137,10 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAdd
                                         <div></div>
                                     </td>
                                 ))}
-                                {/* STEP n+1 の最後のセルにスタイルを追加 */}
                                 <td className="matrix-cell next-step-column">
                                     <button 
                                         className="add-step-button" 
-                                        onClick={() => openModal(null, nextStepNumber)} // STEP n+1 を追加
+                                        onClick={() => openModal(null, nextStepNumber)}
                                     >
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
@@ -100,69 +157,11 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAdd
                         member={selectedMember}
                         stepNumber={selectedStepNumber} // 選択されたSTEP番号を渡す
                         nextStepNumber={nextStepNumber} // 次のSTEP番号を渡す
-                        onAddFlowStep={onAddFlowStep}
+                        onFlowStepAdded={onFlowStepAdded}
                     />
                 </ModalforAddFlowStepForm>
             </div>
         </DndProvider>
-    );
-};
-
-const MemberRow = ({ member, flowsteps, onAssignFlowStep, openModal, nextStepNumber }) => {
-    return (
-        <tr>
-            <td className="matrix-side-header">
-                <div className="member-cell">
-                    <div>{member.name}</div>
-                    <div className="member-icon">
-                        <FontAwesomeIcon icon={faUser} size="2x" />
-                    </div>
-                </div>
-            </td>
-            {flowsteps.map((flowstep) => {
-                const assignedMembersBeforeDrop = flowstep.members ? flowstep.members.map(m => m.id) : [];
-
-                const [{ isOver }, drop] = useDrop({
-                    accept: 'FLOWSTEP',
-                    drop: (item) => {
-                        onAssignFlowStep(member.id, item.id, assignedMembersBeforeDrop);
-                    },
-                    collect: (monitor) => ({
-                        isOver: monitor.isOver(),
-                    }),
-                });
-
-                return (
-                    <td 
-                        key={flowstep.id} 
-                        className="matrix-cell" 
-                        ref={drop}
-                        style={{ backgroundColor: isOver ? '#f0f0f0' : 'white' }}
-                    >
-                        {/* FlowStep がある場合は FlowStep を表示し、ない場合は + アイコンを表示 */}
-                        {flowstep.members && flowstep.members.some(m => m.id === member.id) ? (
-                            <FlowStep flowstep={flowstep} />
-                        ) : (
-                            <button 
-                                className="add-step-button" 
-                                onClick={() => openModal(member, flowstep.flow_number)} // メンバーとステップ番号を渡す
-                            >
-                                <FontAwesomeIcon icon={faPlus} />
-                            </button>
-                        )}
-                    </td>
-                );
-            })}
-            {/* STEP n+1 のセルに + アイコンを表示し、スタイルを追加 */}
-            <td className="matrix-cell next-step-column">
-                <button 
-                    className="add-step-button" 
-                    onClick={() => openModal(member, nextStepNumber)} // メンバーと次のSTEP番号を渡す
-                >
-                    <FontAwesomeIcon icon={faPlus} />
-                </button>
-            </td>
-        </tr>
     );
 };
 
