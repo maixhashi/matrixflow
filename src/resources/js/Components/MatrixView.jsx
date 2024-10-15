@@ -10,19 +10,22 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
 // MatrixColコンポーネント
-const MatrixCol = ({ flowstep, members, onAssignFlowStep, openModal }) => {
+const MatrixCol = ({ flowsteps, members, openModal, flowNumber }) => {
     return (
         <td className="matrix-cell">
             {members.map((member) => {
-                const isAssigned = flowstep.members && flowstep.members.some(m => m.id === member.id);
+                // 対応するflowstepを探す（flow_numberが一致して、かつそのmemberに割り当てられているか）
+                const flowstep = flowsteps.find(
+                    step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)
+                );
                 return (
                     <div key={member.id} className="member-cell">
-                        {isAssigned ? (
+                        {flowstep ? (
                             <FlowStep flowstep={flowstep} />
                         ) : (
                             <button 
                                 className="add-step-button" 
-                                onClick={() => openModal(member, flowstep.flow_number)}
+                                onClick={() => openModal(member, flowNumber)}
                             >
                                 <FontAwesomeIcon icon={faPlus} />
                             </button>
@@ -35,7 +38,9 @@ const MatrixCol = ({ flowstep, members, onAssignFlowStep, openModal }) => {
 };
 
 // MatrixRowコンポーネント
-const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, nextStepNumber }) => {
+const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber }) => {
+    const uniqueFlowNumbers = Array.from(new Set(flowsteps.map(step => step.flow_number)));
+
     return (
         <tr>
             <td className="matrix-side-header">
@@ -46,19 +51,19 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, nextStepNum
                     </div>
                 </div>
             </td>
-            {flowsteps.map((flowstep) => (
-                <MatrixCol 
-                    key={flowstep.id} 
-                    flowstep={flowstep} 
-                    members={[member]} 
-                    onAssignFlowStep={onAssignFlowStep} 
-                    openModal={openModal} 
+            {uniqueFlowNumbers.map((flowNumber) => (
+                <MatrixCol
+                    key={flowNumber}
+                    flowsteps={flowsteps}
+                    members={[member]}
+                    openModal={openModal}
+                    flowNumber={flowNumber}
                 />
             ))}
             <td className="matrix-cell next-step-column">
-                <button 
-                    className="add-step-button" 
-                    onClick={() => openModal(member, nextStepNumber)}
+                <button
+                    className="add-step-button"
+                    onClick={() => openModal(member, maxFlowNumber + 1)}
                 >
                     <FontAwesomeIcon icon={faPlus} />
                 </button>
@@ -69,29 +74,27 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, nextStepNum
 
 // MatrixViewコンポーネント
 const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false); // モーダルの表示状態
-    const [selectedMember, setSelectedMember] = useState(null); // 選択されたメンバー
-    const [selectedStepNumber, setSelectedStepNumber] = useState(null); // 選択されたSTEP番号
-    const [nextStepNumber, setNextStepNumber] = useState(1); // 次のSTEP番号を初期値として1に設定
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const [selectedMember, setSelectedMember] = useState(null); 
+    const [selectedStepNumber, setSelectedStepNumber] = useState(null); 
+    const [maxFlowNumber, setMaxFlowNumber] = useState(1); 
 
-    // flowsteps の最大 flow_number + 1 を次のSTEP番号に設定
+    // 最大の flow_number を取得
     useEffect(() => {
         if (flowsteps.length > 0) {
             const maxFlowNumber = Math.max(...flowsteps.map(step => step.flow_number));
-            setNextStepNumber(maxFlowNumber + 1);
+            setMaxFlowNumber(maxFlowNumber);
         } else {
-            setNextStepNumber(1); // flowsteps が空の場合、デフォルトで 1
+            setMaxFlowNumber(1);
         }
     }, [flowsteps]);
 
-    // モーダルを開く関数（メンバーとステップ番号を渡す）
     const openModal = (member, stepNumber) => {
-        setSelectedMember(member); // 選択されたメンバーを設定
-        setSelectedStepNumber(stepNumber); // 選択されたSTEP番号を設定
-        setIsModalOpen(true); // モーダルを開く
+        setSelectedMember(member);
+        setSelectedStepNumber(stepNumber);
+        setIsModalOpen(true);
     };
 
-    // モーダルを閉じる関数
     const closeModal = () => {
         setSelectedMember(null);
         setSelectedStepNumber(null);
@@ -109,21 +112,22 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                         <thead>
                             <tr>
                                 <th className="matrix-corner-header">Members / FlowStep</th>
-                                {flowsteps.map((flowstep) => (
-                                    <th key={flowstep.id} className="matrix-header">STEP {flowstep.flow_number}</th>
+                                {/* ユニークなflow_numberごとに列を生成 */}
+                                {Array.from(new Set(flowsteps.map(step => step.flow_number))).map((flowNumber) => (
+                                    <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
                                 ))}
-                                <th className="matrix-header next-step-column">STEP {nextStepNumber}</th>
+                                <th className="matrix-header next-step-column">STEP {maxFlowNumber + 1}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {members.map((member) => (
-                                <MatrixRow 
-                                    key={member.id} 
-                                    member={member} 
-                                    flowsteps={flowsteps} 
-                                    onAssignFlowStep={onAssignFlowStep} 
-                                    openModal={openModal} 
-                                    nextStepNumber={nextStepNumber} 
+                                <MatrixRow
+                                    key={member.id}
+                                    member={member}
+                                    flowsteps={flowsteps}
+                                    onAssignFlowStep={onAssignFlowStep}
+                                    openModal={openModal}
+                                    maxFlowNumber={maxFlowNumber}
                                 />
                             ))}
                             <tr>
@@ -132,15 +136,15 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                                         <AddMemberForm onMemberAdded={onMemberAdded} />
                                     </div>
                                 </td>
-                                {flowsteps.map((flowstep) => (
-                                    <td key={flowstep.id} className="matrix-cell">
+                                {Array.from(new Set(flowsteps.map(step => step.flow_number))).map((flowNumber) => (
+                                    <td key={flowNumber} className="matrix-cell">
                                         <div></div>
                                     </td>
                                 ))}
                                 <td className="matrix-cell next-step-column">
                                     <button 
                                         className="add-step-button" 
-                                        onClick={() => openModal(null, nextStepNumber)}
+                                        onClick={() => openModal(null, maxFlowNumber + 1)}
                                     >
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
@@ -155,8 +159,8 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                     <AddFlowStepForm
                         members={members}
                         member={selectedMember}
-                        stepNumber={selectedStepNumber} // 選択されたSTEP番号を渡す
-                        nextStepNumber={nextStepNumber} // 次のSTEP番号を渡す
+                        stepNumber={selectedStepNumber}
+                        nextStepNumber={maxFlowNumber + 1}
                         onFlowStepAdded={onFlowStepAdded}
                     />
                 </ModalforAddFlowStepForm>
