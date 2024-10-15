@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../css/AddFlowStepForm.css'; // スタイルをインポート
 
-const AddFlowStepForm = ({ members = [], onFlowStepAdded, member = null, stepNumber = '', nextStepNumber }) => {
+const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber }) => {
     const [name, setName] = useState(''); // フロー名をユーザーが自由に入力
     const [flowNumber, setFlowNumber] = useState(stepNumber); // 初期値として渡された stepNumber
     const [selectedMembers, setSelectedMembers] = useState(member ? [member.id] : []); // 初期メンバーとして選択されたメンバー
@@ -22,13 +22,15 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded, member = null, stepNum
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
+        // フロー名、フロー番号、選択されたメンバー、選択されたステップ番号をログに出力
         console.log('Submitting Flow Step:');
         console.log('Name:', name);
         console.log('Flow Number:', flowNumber);
         console.log('Selected Members:', selectedMembers);
-        console.log('Selected Step Number:', selectedStepNumber); // 選択されたSTEP番号を表示
-
+        console.log('Selected Step Number:', selectedStepNumber);
+    
+        // jsonDataをここで定義
         const jsonData = {
             name: name,
             flow_number: flowNumber,
@@ -36,7 +38,7 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded, member = null, stepNum
             step_number: selectedStepNumber, // 選択されたSTEP番号を送信
         };
         console.log('JSON Data to be sent:', JSON.stringify(jsonData, null, 2)); // JSONをきれいに表示
-
+    
         try {
             const response = await fetch('/api/flowsteps', {
                 method: 'POST',
@@ -46,17 +48,24 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded, member = null, stepNum
                 },
                 body: JSON.stringify(jsonData), // JSONデータを送信
             });
-
+    
             console.log('Response Status:', response.status);
-
+    
             if (!response.ok) {
                 const errorText = await response.text(); // テキストとしてエラーレスポンスを取得
                 throw new Error(`Error: ${response.status} ${errorText}`);
             }
-
+    
             const data = await response.json();
             console.log('Response Data:', data); // レスポンスデータをデバッグ出力
-            onFlowStepAdded();
+    
+            // onFlowStepAddedが関数かどうかを確認
+            if (typeof onFlowStepAdded === 'function') {
+                onFlowStepAdded(); // 親コンポーネントに通知
+            } else {
+                console.error('onFlowStepAdded is not a function', onFlowStepAdded);
+            }
+    
             // フォームをリセット
             setName('');
             setFlowNumber('');
@@ -67,7 +76,7 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded, member = null, stepNum
             console.error('Error submitting flowstep:', error.message);
         }
     };
-
+    
     const handleMemberChange = (e) => {
         const options = e.target.options;
         const value = [];

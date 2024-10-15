@@ -9,51 +9,53 @@ import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAddFlowStep }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false); // モーダルの表示状態
-    const [selectedMember, setSelectedMember] = useState(null); // 選択されたメンバー
-    const [selectedStepNumber, setSelectedStepNumber] = useState(null); // 選択されたSTEP番号
-    const [nextStepNumber, setNextStepNumber] = useState(1); // 次のSTEP番号を初期値として1に設定
+const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedMember, setSelectedMember] = useState(null);
+    const [selectedStepNumber, setSelectedStepNumber] = useState(null);
+    const [nextStepNumber, setNextStepNumber] = useState(1);
+    const [currentFlowSteps, setCurrentFlowSteps] = useState(flowsteps); // Flow Stepsの状態を追加
 
-    // flowsteps の最大 flow_number + 1 を次のSTEP番号に設定
     useEffect(() => {
-        if (flowsteps.length > 0) {
-            const maxFlowNumber = Math.max(...flowsteps.map(step => step.flow_number));
+        if (currentFlowSteps.length > 0) {
+            const maxFlowNumber = Math.max(...currentFlowSteps.map(step => step.flow_number));
             setNextStepNumber(maxFlowNumber + 1);
         } else {
-            setNextStepNumber(1); // flowsteps が空の場合、デフォルトで 1
+            setNextStepNumber(1);
         }
-    }, [flowsteps]);
+    }, [currentFlowSteps]);
 
-    // モーダルを開く関数（メンバーとステップ番号を渡す）
     const openModal = (member, stepNumber) => {
-        setSelectedMember(member); // 選択されたメンバーを設定
-        setSelectedStepNumber(stepNumber); // 選択されたSTEP番号を設定
-        setIsModalOpen(true); // モーダルを開く
+        setSelectedMember(member);
+        setSelectedStepNumber(stepNumber);
+        setIsModalOpen(true);
     };
 
-    // モーダルを閉じる関数
     const closeModal = () => {
         setSelectedMember(null);
         setSelectedStepNumber(null);
         setIsModalOpen(false);
     };
 
+    // Flow Stepを追加する関数
+    const handleAddFlowStep = (newFlowStep) => {
+        setCurrentFlowSteps((prevSteps) => [...prevSteps, newFlowStep]); // 新しいFlow Stepを追加
+    };
+
     return (
         <DndProvider backend={HTML5Backend}>
             <div>
                 <h2>Matrix View</h2>
-                {members.length === 0 || flowsteps.length === 0 ? (
+                {members.length === 0 && currentFlowSteps.length === 0 ? (
                     <p>No data available.</p>
                 ) : (
                     <table className="matrix-table">
                         <thead>
                             <tr>
                                 <th className="matrix-corner-header">Members / FlowStep</th>
-                                {flowsteps.map((flowstep) => (
+                                {currentFlowSteps.map((flowstep) => (
                                     <th key={flowstep.id} className="matrix-header">STEP {flowstep.flow_number}</th>
                                 ))}
-                                {/* STEP n+1 を表示し、スタイルを追加 */}
                                 <th className="matrix-header next-step-column">STEP {nextStepNumber}</th>
                             </tr>
                         </thead>
@@ -62,10 +64,10 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAdd
                                 <MemberRow 
                                     key={member.id} 
                                     member={member} 
-                                    flowsteps={flowsteps} 
+                                    flowsteps={currentFlowSteps} 
                                     onAssignFlowStep={onAssignFlowStep} 
-                                    openModal={openModal} // モーダルを開く関数を渡す
-                                    nextStepNumber={nextStepNumber} // 次のSTEP番号を渡す
+                                    openModal={openModal} 
+                                    nextStepNumber={nextStepNumber} 
                                 />
                             ))}
                             <tr>
@@ -74,16 +76,15 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAdd
                                         <AddMemberForm onMemberAdded={onMemberAdded} />
                                     </div>
                                 </td>
-                                {flowsteps.map((flowstep) => (
+                                {currentFlowSteps.map((flowstep) => (
                                     <td key={flowstep.id} className="matrix-cell">
                                         <div></div>
                                     </td>
                                 ))}
-                                {/* STEP n+1 の最後のセルにスタイルを追加 */}
                                 <td className="matrix-cell next-step-column">
                                     <button 
                                         className="add-step-button" 
-                                        onClick={() => openModal(null, nextStepNumber)} // STEP n+1 を追加
+                                        onClick={() => openModal(null, nextStepNumber)}
                                     >
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
@@ -93,14 +94,13 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onAdd
                     </table>
                 )}
 
-                {/* AddFlowStepFormモーダルを表示 */}
                 <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeModal}>
                     <AddFlowStepForm
                         members={members}
                         member={selectedMember}
-                        stepNumber={selectedStepNumber} // 選択されたSTEP番号を渡す
-                        nextStepNumber={nextStepNumber} // 次のSTEP番号を渡す
-                        onAddFlowStep={onAddFlowStep}
+                        stepNumber={selectedStepNumber}
+                        nextStepNumber={nextStepNumber}
+                        onAddFlowStep={handleAddFlowStep} // 新しいFlow Stepを追加する関数を渡す
                     />
                 </ModalforAddFlowStepForm>
             </div>
