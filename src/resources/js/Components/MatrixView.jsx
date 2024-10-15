@@ -103,7 +103,7 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div>
+            <div className="matrix-container">
                 <h2>Matrix View</h2>
                 {members.length === 0 && flowsteps.length === 0 ? (
                     <p>No data available.</p>
@@ -112,7 +112,6 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                         <thead>
                             <tr>
                                 <th className="matrix-corner-header">Members / FlowStep</th>
-                                {/* ユニークなflow_numberごとに列を生成 */}
                                 {Array.from(new Set(flowsteps.map(step => step.flow_number))).map((flowNumber) => (
                                     <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
                                 ))}
@@ -154,7 +153,6 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                     </table>
                 )}
 
-                {/* AddFlowStepFormモーダルを表示 */}
                 <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeModal}>
                     <AddFlowStepForm
                         members={members}

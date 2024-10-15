@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserPlus, faPlus } from '@fortawesome/free-solid-svg-icons';
+import '../../css/AddMemberForm.css'
+
 
 const AddMemberForm = ({ onMemberAdded }) => {
     const [name, setName] = useState('');
@@ -19,14 +23,22 @@ const AddMemberForm = ({ onMemberAdded }) => {
 
     return (
         <form onSubmit={handleSubmit} className="mb-4">
-            <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Member Name"
-                required
-            />
-            <button type="submit">Add Member</button>
+            <div className="form-row">
+                <div>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Member Name"
+                        required
+                    />
+                </div>
+                <div>
+                    <button type="submit">
+                        <FontAwesomeIcon icon={faUserPlus} size="2x" />
+                    </button>
+                </div>
+            </div>
         </form>
     );
 };

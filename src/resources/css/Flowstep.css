@@ -7,6 +7,8 @@
   padding: 10px; /* Padding around the text */
   margin: 5px; /* Margin between flow steps */
   transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+  min-width: 125px;
+  max-width: 125px;
 }
 
 .flow-step:hover {

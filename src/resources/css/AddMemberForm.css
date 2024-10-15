@@ -1,0 +1,14 @@
+.form-row {
+  display: flex;
+  align-items: center; /* 垂直方向の中央揃え */
+}
+
+.form-row input {
+  margin-right: 10px; /* アイコンとのスペースを調整 */
+}
+
+.form-row button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
