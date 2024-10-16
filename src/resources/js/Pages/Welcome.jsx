@@ -31,7 +31,7 @@ const Welcome = () => {
     // FlowStepをメンバーに割り当てる関数を追加
     const handleAssignFlowStep = async (memberId, flowstepId, assignedMembersBeforeDrop) => {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
+    
         try {
             const response = await fetch('/api/assign-flowstep', {
                 method: 'POST',
@@ -49,12 +49,13 @@ const Welcome = () => {
             if (response.ok) {
                 const assignedMember = members.find(member => member.id === memberId);
                 const memberName = assignedMember ? assignedMember.name : 'Unknown Member';
-                
+    
                 console.log(`Assigned FlowStep ${flowstepId} to Member ${memberName}`);
                 setFlashMessage(`担当者を ${memberName} に変更しました。`);
-                
-                setMembersUpdated(!membersUpdated);
-                setFlowstepsUpdated(!flowstepsUpdated);
+    
+                // 関数形式でステートを更新
+                setMembersUpdated(prevState => !prevState);
+                setFlowstepsUpdated(prevState => !prevState);
             } else {
                 setFlashMessage("Failed to assign FlowStep");
             }
@@ -62,10 +63,10 @@ const Welcome = () => {
             setFlashMessage("Error assigning FlowStep");
             console.error("Error assigning FlowStep:", error);
         }
-        
+    
         setTimeout(() => setFlashMessage(''), 5000);
     };
-                
+                    
     useEffect(() => {
         const fetchMembers = async () => {
             const response = await fetch('/api/members');

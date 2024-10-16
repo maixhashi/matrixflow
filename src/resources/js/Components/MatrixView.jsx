@@ -3,18 +3,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
-import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm'; // モーダルをインポート
-import AddFlowStepForm from '../Components/AddFlowStepForm'; // モーダル内に表示するフォーム
+import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
+import AddFlowStepForm from '../Components/AddFlowStepForm';
 import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-// MatrixColコンポーネント
-const MatrixCol = ({ flowsteps, members, openModal, flowNumber }) => {
+const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep }) => {
+    const [{ isOver }, drop] = useDrop(() => ({
+        accept: 'FLOWSTEP',
+        drop: (item) => {
+            const droppedFlowStepId = item.id;
+            const member = members[0];
+            onAssignFlowStep(member.id, droppedFlowStepId);
+        },
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        }),
+    }));
+
     return (
-        <td className="matrix-cell">
+        <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
             {members.map((member) => {
-                // 対応するflowstepを探す（flow_numberが一致して、かつそのmemberに割り当てられているか）
                 const flowstep = flowsteps.find(
                     step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)
                 );
@@ -37,10 +47,7 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber }) => {
     );
 };
 
-// MatrixRowコンポーネント
 const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber }) => {
-    const uniqueFlowNumbers = Array.from(new Set(flowsteps.map(step => step.flow_number)));
-
     return (
         <tr>
             <td className="matrix-side-header">
@@ -51,13 +58,14 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
                     </div>
                 </div>
             </td>
-            {uniqueFlowNumbers.map((flowNumber) => (
+            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                 <MatrixCol
                     key={flowNumber}
                     flowsteps={flowsteps}
                     members={[member]}
                     openModal={openModal}
                     flowNumber={flowNumber}
+                    onAssignFlowStep={onAssignFlowStep}
                 />
             ))}
             <td className="matrix-cell next-step-column">
@@ -72,20 +80,19 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
     );
 };
 
-// MatrixViewコンポーネント
 const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false); 
-    const [selectedMember, setSelectedMember] = useState(null); 
-    const [selectedStepNumber, setSelectedStepNumber] = useState(null); 
-    const [maxFlowNumber, setMaxFlowNumber] = useState(1); 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedMember, setSelectedMember] = useState(null);
+    const [selectedStepNumber, setSelectedStepNumber] = useState(null);
+    const [maxFlowNumber, setMaxFlowNumber] = useState(0);  // 初期値を1に設定
 
-    // 最大の flow_number を取得
     useEffect(() => {
         if (flowsteps.length > 0) {
-            const maxFlowNumber = Math.max(...flowsteps.map(step => step.flow_number));
+            // flowstepsの最大のflow_numberを取得。最低でも1に設定
+            const maxFlowNumber = Math.max(0, ...flowsteps.map(step => step.flow_number));
             setMaxFlowNumber(maxFlowNumber);
         } else {
-            setMaxFlowNumber(1);
+            setMaxFlowNumber(0);  // flowstepsがない場合も1に設定
         }
     }, [flowsteps]);
 
@@ -112,7 +119,8 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                         <thead>
                             <tr>
                                 <th className="matrix-corner-header">Members / FlowStep</th>
-                                {Array.from(new Set(flowsteps.map(step => step.flow_number))).map((flowNumber) => (
+                                {/* 初期ステップの設定を1からにする */}
+                                {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                                     <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
                                 ))}
                                 <th className="matrix-header next-step-column">STEP {maxFlowNumber + 1}</th>
@@ -135,7 +143,7 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                                         <AddMemberForm onMemberAdded={onMemberAdded} />
                                     </div>
                                 </td>
-                                {Array.from(new Set(flowsteps.map(step => step.flow_number))).map((flowNumber) => (
+                                {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                                     <td key={flowNumber} className="matrix-cell">
                                         <div></div>
                                     </td>
