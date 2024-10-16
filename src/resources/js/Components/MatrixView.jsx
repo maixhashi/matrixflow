@@ -119,13 +119,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     useEffect(() => {
-        const fetchMembers = async () => {
-            const response = await fetch('/api/members');
-            const data = await response.json();
-            setMembers(data); // order_on_matrixを考慮したデータを設定
-        };
-
-        fetchMembers();
+        fetchMembers(); // Initial fetch of members
     }, []);
 
     useEffect(() => {
@@ -136,6 +130,17 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
             setMaxFlowNumber(0);
         }
     }, [flowsteps]);
+
+    const fetchMembers = async () => {
+        const response = await fetch('/api/members');
+        const data = await response.json();
+        setMembers(data); // order_on_matrixを考慮したデータを設定
+    };
+
+    const handleMemberAdded = async (newMember) => {
+        await onMemberAdded(newMember); // Call the provided onMemberAdded function
+        await fetchMembers(); // Fetch updated members
+    };
 
     const openModal = (member, stepNumber) => {
         setSelectedMember(member);
@@ -162,7 +167,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
             console.error('Error saving order:', response.error);
         }
     };
-        
+
     const saveOrderToServer = async (updatedMembers) => {
         try {
             const response = await fetch('/api/save-order', {
@@ -181,7 +186,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
             return { success: false, error };
         }
     };
-    
+
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
@@ -215,7 +220,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm onMemberAdded={onMemberAdded} />
+                                        <AddMemberForm onMemberAdded={handleMemberAdded} />
                                     </div>
                                 </td>
                                 {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
@@ -242,6 +247,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
                         nextStepNumber={maxFlowNumber + 1}
+                        onClose={closeModal}
                         onFlowStepAdded={onFlowStepAdded}
                     />
                 </ModalforAddFlowStepForm>
