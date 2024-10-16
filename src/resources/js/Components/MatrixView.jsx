@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faPlus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -48,13 +48,14 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep
 };
 
 const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow }) => {
+    const [isHovered, setIsHovered] = useState(false);
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
-        item: { index },
+        item: { index, memberId: member.id },
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
         }),
-    }), [index]);
+    }), [index, member.id]);
 
     const [, drop] = useDrop(() => ({
         accept: 'ROW',
@@ -67,13 +68,24 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
     }), [index, moveRow]);
 
     return (
-        <tr ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
-            <td className="matrix-side-header">
+        <tr 
+            ref={(node) => drag(drop(node))} 
+            style={{ opacity: isDragging ? 0.5 : 1 }} 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <td className="matrix-side-header" style={{ position: 'relative' }}>
                 <div className="member-cell">
                     <div>{member.name}</div>
                     <div className="member-icon">
                         <FontAwesomeIcon icon={faUser} size="2x" />
                     </div>
+                    {isHovered && (
+                        <div className="drag-icon">
+                            <FontAwesomeIcon icon={faArrowUp} />
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        </div>
+                    )}
                 </div>
             </td>
             {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
@@ -103,7 +115,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
-    const [members, setMembers] = useState([]); // ここは変更しない
+    const [members, setMembers] = useState([]);
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     useEffect(() => {
@@ -138,17 +150,16 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
     };
 
     const moveRow = async (fromIndex, toIndex) => {
-        const updatedMembers = [...members]; // ここでmembersを参照
+        const updatedMembers = [...members];
         const [movedMember] = updatedMembers.splice(fromIndex, 1);
         updatedMembers.splice(toIndex, 0, movedMember);
-        setMembers(updatedMembers); // membersステートを更新
-    
-        // サーバーに新しい順序を保存
+        setMembers(updatedMembers);
+
         const response = await saveOrderToServer(updatedMembers);
         if (response.success) {
-            console.log('Order saved successfully'); // 成功メッセージ
+            console.log('Order saved successfully');
         } else {
-            console.error('Error saving order:', response.error); // エラーメッセージ
+            console.error('Error saving order:', response.error);
         }
     };
         
@@ -162,22 +173,20 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                 },
                 body: JSON.stringify({ member_ids: updatedMembers.map(member => member.id) }),
             });
-    
-            // レスポンスをJSONとしてパース
+
             const data = await response.json();
-            return data; // レスポンスデータを返す
+            return data;
         } catch (error) {
             console.error('Error saving order:', error);
-            return { success: false, error }; // エラーを返す
+            return { success: false, error };
         }
     };
-    
     
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
                 <h2>Matrix View</h2>
-                {members.length === 0 && flowsteps.length === 0 ? ( // memberListをmembersに変更
+                {members.length === 0 && flowsteps.length === 0 ? (
                     <p>No data available.</p>
                 ) : (
                     <table className="matrix-table">
@@ -191,7 +200,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                             </tr>
                         </thead>
                         <tbody>
-                            {members.map((member, index) => ( // memberListをmembersに変更
+                            {members.map((member, index) => (
                                 <MatrixRow
                                     key={member.id}
                                     member={member}
@@ -199,8 +208,8 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                                     onAssignFlowStep={onAssignFlowStep}
                                     openModal={openModal}
                                     maxFlowNumber={maxFlowNumber}
-                                    index={index} // Pass the index to MatrixRow
-                                    moveRow={moveRow} // Pass moveRow function to MatrixRow
+                                    index={index}
+                                    moveRow={moveRow}
                                 />
                             ))}
                             <tr>
