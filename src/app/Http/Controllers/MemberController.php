@@ -11,7 +11,7 @@ class MemberController extends Controller
     public function index()
     {
         // メンバー情報をすべて取得
-        $members = Member::all();
+        $members = Member::orderBy('order_on_matrix')->get();
 
         // JSON形式で返す（Unicodeエスケープを無効にする）
         return response()->json($members, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -30,5 +30,27 @@ class MemberController extends Controller
         $member->save();
 
         return response()->json(['message' => 'Member created successfully!', 'member' => $member], 201);
-    }       
+    }
+    
+    public function saveOrder(Request $request)
+    {
+        // リクエストボディから member_ids を取得
+        $memberIds = $request->input('member_ids');
+    
+        // デバッグ用: リクエストの内容を表示
+        \Log::info('Received member_ids:', ['member_ids' => $memberIds]); // 修正
+    
+        // memberIds が null または配列でない場合にエラーメッセージを返す
+        if (!$memberIds || !is_array($memberIds)) {
+            return response()->json(['error' => 'Invalid data provided'], 400);
+        }
+    
+        foreach ($memberIds as $order => $id) {
+            // 各メンバーの order_on_matrix カラムを更新
+            Member::where('id', $id)->update(['order_on_matrix' => $order]);
+        }
+    
+        return response()->json(['success' => true]);
+    }
+                
 }

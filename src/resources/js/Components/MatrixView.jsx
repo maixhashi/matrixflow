@@ -5,7 +5,7 @@ import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
-import { DndProvider, useDrop } from 'react-dnd';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
@@ -47,9 +47,27 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep
     );
 };
 
-const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber }) => {
+const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow }) => {
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'ROW',
+        item: { index },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    }), [index]);
+
+    const [, drop] = useDrop(() => ({
+        accept: 'ROW',
+        hover: (item) => {
+            if (item.index !== index) {
+                moveRow(item.index, index);
+                item.index = index; // Update the index to reflect the new position
+            }
+        },
+    }), [index, moveRow]);
+
     return (
-        <tr>
+        <tr ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
             <td className="matrix-side-header">
                 <div className="member-cell">
                     <div>{member.name}</div>
@@ -80,19 +98,30 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
     );
 };
 
-const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
+const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
-    const [maxFlowNumber, setMaxFlowNumber] = useState(0);  // 初期値を1に設定
+    const [maxFlowNumber, setMaxFlowNumber] = useState(0);
+    const [members, setMembers] = useState([]); // ここは変更しない
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            const response = await fetch('/api/members');
+            const data = await response.json();
+            setMembers(data); // order_on_matrixを考慮したデータを設定
+        };
+
+        fetchMembers();
+    }, []);
 
     useEffect(() => {
         if (flowsteps.length > 0) {
-            // flowstepsの最大のflow_numberを取得。最低でも1に設定
             const maxFlowNumber = Math.max(0, ...flowsteps.map(step => step.flow_number));
             setMaxFlowNumber(maxFlowNumber);
         } else {
-            setMaxFlowNumber(0);  // flowstepsがない場合も1に設定
+            setMaxFlowNumber(0);
         }
     }, [flowsteps]);
 
@@ -108,18 +137,53 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
         setIsModalOpen(false);
     };
 
+    const moveRow = async (fromIndex, toIndex) => {
+        const updatedMembers = [...members]; // ここでmembersを参照
+        const [movedMember] = updatedMembers.splice(fromIndex, 1);
+        updatedMembers.splice(toIndex, 0, movedMember);
+        setMembers(updatedMembers); // membersステートを更新
+    
+        // サーバーに新しい順序を保存
+        const response = await saveOrderToServer(updatedMembers);
+        if (response.success) {
+            console.log('Order saved successfully'); // 成功メッセージ
+        } else {
+            console.error('Error saving order:', response.error); // エラーメッセージ
+        }
+    };
+        
+    const saveOrderToServer = async (updatedMembers) => {
+        try {
+            const response = await fetch('/api/save-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ member_ids: updatedMembers.map(member => member.id) }),
+            });
+    
+            // レスポンスをJSONとしてパース
+            const data = await response.json();
+            return data; // レスポンスデータを返す
+        } catch (error) {
+            console.error('Error saving order:', error);
+            return { success: false, error }; // エラーを返す
+        }
+    };
+    
+    
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
                 <h2>Matrix View</h2>
-                {members.length === 0 && flowsteps.length === 0 ? (
+                {members.length === 0 && flowsteps.length === 0 ? ( // memberListをmembersに変更
                     <p>No data available.</p>
                 ) : (
                     <table className="matrix-table">
                         <thead>
                             <tr>
                                 <th className="matrix-corner-header">Members / FlowStep</th>
-                                {/* 初期ステップの設定を1からにする */}
                                 {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                                     <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
                                 ))}
@@ -127,7 +191,7 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                             </tr>
                         </thead>
                         <tbody>
-                            {members.map((member) => (
+                            {members.map((member, index) => ( // memberListをmembersに変更
                                 <MatrixRow
                                     key={member.id}
                                     member={member}
@@ -135,6 +199,8 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                                     onAssignFlowStep={onAssignFlowStep}
                                     openModal={openModal}
                                     maxFlowNumber={maxFlowNumber}
+                                    index={index} // Pass the index to MatrixRow
+                                    moveRow={moveRow} // Pass moveRow function to MatrixRow
                                 />
                             ))}
                             <tr>
