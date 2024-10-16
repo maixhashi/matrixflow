@@ -80,3 +80,41 @@ td.matrix-cell.next-step-column {
   font-weight: bold; /* 強調するために太字にする */
   border: 2px dotted #DDDDDD; /* 黒の点線枠線 */
 }
+
+/* ホバー時のmatrix-side-headerのスタイル */
+.matrix-side-header:hover {
+  background-color: gray; /* ホバー時の背景色 */
+  border: 2px dashed black; /* ダッシュドボーダーでDnD可能なことを強調 */
+}
+
+/* ホバー時のポインターカーソルの変更 */
+.matrix-side-header:hover {
+  cursor: pointer; /* ポインターを変更 */
+}
+
+/* ドラッグアイコンのスタイル */
+.drag-icon {
+  display: none; /* デフォルトでは非表示 */
+  flex-direction: column; /* 縦並び */
+  align-items: center; /* 中央揃え */
+}
+
+/* ホバー時にドラッグアイコンを表示 */
+.matrix-side-header:hover .drag-icon {
+  display: flex; /* ホバー時に表示 */
+  position: absolute; /* 絶対配置 */
+  left: -30px; /* 左側に配置 */
+  top: 50%; /* 縦中央に配置 */
+  transform: translateY(-50%); /* 縦方向で中央揃え */
+  background-color: white; /* 背景色 */
+  padding: 4px; /* パディング */
+  border-radius: 4px; /* 角を丸める */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 影を付ける */
+}
+
+/* 矢印アイコンのスタイル */
+.arrow-icon {
+  font-size: 12px; /* アイコンサイズ */
+  color: #007bff; /* アイコンの色 */
+  margin: 2px 0; /* 上下にマージン */
+}
