@@ -98,16 +98,23 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
     );
 };
 
-const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
+const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
-    const [memberList, setMemberList] = useState(members); // For reordering members
+    const [members, setMembers] = useState([]); // ここは変更しない
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     useEffect(() => {
-        setMemberList(members);
-    }, [members]);
+        const fetchMembers = async () => {
+            const response = await fetch('/api/members');
+            const data = await response.json();
+            setMembers(data); // order_on_matrixを考慮したデータを設定
+        };
+
+        fetchMembers();
+    }, []);
 
     useEffect(() => {
         if (flowsteps.length > 0) {
@@ -130,18 +137,47 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
         setIsModalOpen(false);
     };
 
-    const moveRow = (fromIndex, toIndex) => {
-        const updatedMembers = [...memberList];
+    const moveRow = async (fromIndex, toIndex) => {
+        const updatedMembers = [...members]; // ここでmembersを参照
         const [movedMember] = updatedMembers.splice(fromIndex, 1);
         updatedMembers.splice(toIndex, 0, movedMember);
-        setMemberList(updatedMembers);
+        setMembers(updatedMembers); // membersステートを更新
+    
+        // サーバーに新しい順序を保存
+        const response = await saveOrderToServer(updatedMembers);
+        if (response.success) {
+            console.log('Order saved successfully'); // 成功メッセージ
+        } else {
+            console.error('Error saving order:', response.error); // エラーメッセージ
+        }
     };
-
+        
+    const saveOrderToServer = async (updatedMembers) => {
+        try {
+            const response = await fetch('/api/save-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ member_ids: updatedMembers.map(member => member.id) }),
+            });
+    
+            // レスポンスをJSONとしてパース
+            const data = await response.json();
+            return data; // レスポンスデータを返す
+        } catch (error) {
+            console.error('Error saving order:', error);
+            return { success: false, error }; // エラーを返す
+        }
+    };
+    
+    
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
                 <h2>Matrix View</h2>
-                {memberList.length === 0 && flowsteps.length === 0 ? (
+                {members.length === 0 && flowsteps.length === 0 ? ( // memberListをmembersに変更
                     <p>No data available.</p>
                 ) : (
                     <table className="matrix-table">
@@ -155,7 +191,7 @@ const MatrixView = ({ members, flowsteps, onAssignFlowStep, onMemberAdded, onFlo
                             </tr>
                         </thead>
                         <tbody>
-                            {memberList.map((member, index) => (
+                            {members.map((member, index) => ( // memberListをmembersに変更
                                 <MatrixRow
                                     key={member.id}
                                     member={member}
