@@ -9,12 +9,22 @@ import { DndProvider, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-// MatrixColコンポーネント
-const MatrixCol = ({ flowsteps, members, openModal, flowNumber }) => {
+const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep }) => {
+    const [{ isOver }, drop] = useDrop(() => ({
+        accept: 'FLOWSTEP', // ドロップ可能なアイテムの種類
+        drop: (item) => {
+            const droppedFlowStepId = item.id;
+            const member = members[0]; // このセルのメンバーを取得
+            onAssignFlowStep(member.id, droppedFlowStepId); // フローステップをメンバーに割り当て
+        },
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        }),
+    }));
+
     return (
-        <td className="matrix-cell">
+        <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
             {members.map((member) => {
-                // 対応するflowstepを探す（flow_numberが一致して、かつそのmemberに割り当てられているか）
                 const flowstep = flowsteps.find(
                     step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)
                 );
@@ -37,7 +47,6 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber }) => {
     );
 };
 
-// MatrixRowコンポーネント
 const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber }) => {
     const uniqueFlowNumbers = Array.from(new Set(flowsteps.map(step => step.flow_number)));
 
@@ -58,6 +67,7 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
                     members={[member]}
                     openModal={openModal}
                     flowNumber={flowNumber}
+                    onAssignFlowStep={onAssignFlowStep} // ここで渡す
                 />
             ))}
             <td className="matrix-cell next-step-column">
