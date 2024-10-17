@@ -9,13 +9,16 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep }) => {
+const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber }) => {
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
         drop: (item) => {
             const droppedFlowStepId = item.id;
             const member = members[0];
+
             onAssignFlowStep(member.id, droppedFlowStepId);
+            // Call the function to update the flowstep number
+            updateFlowStepNumber(droppedFlowStepId, flowNumber);
         },
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
@@ -47,7 +50,7 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep
     );
 };
 
-const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow }) => {
+const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
@@ -96,6 +99,7 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
                     openModal={openModal}
                     flowNumber={flowNumber}
                     onAssignFlowStep={onAssignFlowStep}
+                    updateFlowStepNumber={updateFlowStepNumber}
                 />
             ))}
             <td className="matrix-cell next-step-column">
@@ -187,6 +191,34 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
         }
     };
 
+    const updateFlowStepNumber = async (flowStepId, newFlowNumber) => {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        try {
+            const response = await fetch('/api/update-flowstep-stepnumber', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                },
+                body: JSON.stringify({
+                    flowStepId,
+                    newFlowNumber,
+                }),
+            });
+    
+            if (response.ok) {
+                console.log(`Updated FlowStep ${flowStepId} to new step number ${newFlowNumber}`);
+                // Optionally refresh flowsteps or do other updates
+            } else {
+                console.error("Failed to update FlowStep number");
+            }
+        } catch (error) {
+            console.error("Error updating FlowStep number:", error);
+        }
+    };
+    
+
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
@@ -215,6 +247,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                                     maxFlowNumber={maxFlowNumber}
                                     index={index}
                                     moveRow={moveRow}
+                                    updateFlowStepNumber={updateFlowStepNumber} 
                                 />
                             ))}
                             <tr>

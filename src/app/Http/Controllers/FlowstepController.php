@@ -33,5 +33,19 @@ class FlowstepController extends Controller
     
         return response()->json(['message' => 'Flow step added successfully']);
     }
-    
+
+    public function updateFlowstepStepnumber(Request $request)
+    {
+        $request->validate([
+            'flowStepId' => 'required|integer',
+            'newFlowNumber' => 'required|integer',
+        ]);
+
+        $flowStep = FlowStep::findOrFail($request->flowStepId);
+        $flowStep->flow_number = $request->newFlowNumber;
+        $flowStep->save();
+
+        return response()->json(['success' => true]);
+    }
+
 }
