@@ -52,5 +52,16 @@ class MemberController extends Controller
     
         return response()->json(['success' => true]);
     }
+
+    public function destroy($id)
+    {
+        $member = Member::find($id);
+        if ($member) {
+            $member->delete();
+            return response()->json(['success' => true], 200);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Member not found.'], 404);
+    }
                 
 }
