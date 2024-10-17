@@ -38,6 +38,8 @@ use App\Http\Controllers\FlowstepController;
 Route::get('/api/flowsteps', [FlowstepController::class, 'index']);
 Route::post('/api/flowsteps', [FlowstepController::class, 'store']);
 Route::post('/api/update-flowstep-stepnumber', [FlowstepController::class, 'updateFlowstepStepnumber']);
+Route::delete('/api/flowsteps/{id}', [FlowstepController::class, 'destroy']);
+
 
 use App\Http\Controllers\FlowstepMemberController;
 Route::post('/api/assign-flowstep', [FlowstepMemberController::class, 'store']);
