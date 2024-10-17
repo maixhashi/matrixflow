@@ -48,4 +48,16 @@ class FlowstepController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function destroy($id)
+    {
+        $flowStep = FlowStep::find($id);
+        
+        if (!$flowStep) {
+            return response()->json(['error' => 'Flow step not found'], 404);
+        }
+        
+        $flowStep->delete();
+        return response()->json(['message' => 'Flow step deleted successfully'], 200);
+    }
+    
 }

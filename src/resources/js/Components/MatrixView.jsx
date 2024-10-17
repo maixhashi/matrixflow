@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchFlowsteps } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
@@ -9,7 +11,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber }) => {
+const MatrixCol = ({ members, openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber }) => {
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
         drop: (item) => {
@@ -24,6 +26,13 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep
             isOver: !!monitor.isOver(),
         }),
     }));
+
+    const dispatch = useDispatch();
+    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
+
+    useEffect(() => {
+        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
+    }, [dispatch]);
 
     return (
         <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
@@ -50,7 +59,7 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep
     );
 };
 
-const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
+const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
@@ -69,6 +78,13 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
             }
         },
     }), [index, moveRow]);
+
+    const dispatch = useDispatch();
+    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
+
+    useEffect(() => {
+        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
+    }, [dispatch]);
 
     return (
         <tr 
@@ -117,17 +133,25 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
     );
 };
 
-const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
+const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
     const [members, setMembers] = useState([]);
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const dispatch = useDispatch();
+    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
 
     useEffect(() => {
         fetchMembers(); // Initial fetch of members
     }, []);
+
+
+    useEffect(() => {
+        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
+    }, [dispatch]);
+
 
     useEffect(() => {
         if (flowsteps.length > 0) {
