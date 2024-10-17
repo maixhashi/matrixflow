@@ -31,6 +31,7 @@ use App\Http\Controllers\MemberController;
 Route::get('/api/members', [MemberController::class, 'index']);
 Route::post('/api/members', [MemberController::class, 'store']);
 Route::post('/api/save-order', [MemberController::class, 'saveOrder']);
+Route::delete('/api/members/{id}', [MemberController::class, 'destroy']);
 
 
 use App\Http\Controllers\FlowstepController;
