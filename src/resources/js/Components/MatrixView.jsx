@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPlus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faPlus, faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -50,7 +50,7 @@ const MatrixCol = ({ flowsteps, members, openModal, flowNumber, onAssignFlowStep
     );
 };
 
-const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber }) => {
+const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
@@ -89,6 +89,9 @@ const MatrixRow = ({ member, flowsteps, onAssignFlowStep, openModal, maxFlowNumb
                             <FontAwesomeIcon icon={faArrowDown} />
                         </div>
                     )}
+                    <button onClick={() => onMemberDelete(member.id)} className="delete-button">
+                        <FontAwesomeIcon icon={faTrash} />
+                    </button>
                 </div>
             </td>
             {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
@@ -217,6 +220,27 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
             console.error("Error updating FlowStep number:", error);
         }
     };
+
+    const handleMemberDelete = async (memberId) => {
+        try {
+            const response = await fetch(`/api/members/${memberId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+            });
+
+            if (response.ok) {
+                // Update state to remove the deleted member
+                setMembers(members.filter(member => member.id !== memberId));
+                console.log(`Member with ID ${memberId} deleted successfully.`);
+            } else {
+                console.error('Failed to delete member:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error deleting member:', error);
+        }
+    };
     
 
     return (
@@ -248,6 +272,7 @@ const MatrixView = ({ initialMembers, flowsteps, onAssignFlowStep, onMemberAdded
                                     index={index}
                                     moveRow={moveRow}
                                     updateFlowStepNumber={updateFlowStepNumber} 
+                                    onMemberDelete={handleMemberDelete} // Pass the delete handler
                                 />
                             ))}
                             <tr>
