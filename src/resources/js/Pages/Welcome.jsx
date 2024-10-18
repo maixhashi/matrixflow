@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMembers } from '../store/memberSlice'; 
 import { assignFlowStep, fetchFlowsteps } from '../store/flowstepsSlice'; // Import your Redux actions
 import MemberList from '../Components/MembersList';
 import AddMemberForm from '../Components/AddMemberForm';
@@ -10,11 +11,17 @@ import FlashMessage from '../Components/FlashMessage';
 
 const Welcome = () => {
     const dispatch = useDispatch(); // Initialize dispatch
-    const [members, setMembers] = useState([]);
     const [flowsteps, setFlowsteps] = useState([]);
     const [membersUpdated, setMembersUpdated] = useState(false);
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
+
+    const members = useSelector((state) => state.members); // Reduxストアからメンバーリストを取得
+
+    useEffect(() => {
+        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
+    }, [dispatch]);
+
 
     // メンバーが追加されたときの処理
     const handleMemberAdded = (memberName) => {
@@ -52,16 +59,6 @@ const Welcome = () => {
 
         setTimeout(() => setFlashMessage(''), 5000);
     };
-
-    useEffect(() => {
-        const fetchMembers = async () => {
-            const response = await fetch('/api/members');
-            const data = await response.json();
-            setMembers(data);
-        };
-
-        fetchMembers();
-    }, [membersUpdated]);
 
     useEffect(() => {
         const fetchFlowsteps = async () => {

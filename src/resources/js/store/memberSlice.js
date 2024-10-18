@@ -34,6 +34,17 @@ export const deleteMember = createAsyncThunk('members/deleteMember', async (memb
     return memberId; // 削除したメンバーのIDを返す
 });
 
+// メンバー一覧取得のための非同期関数
+export const fetchMembers = createAsyncThunk('members/fetchMembers', async () => {
+    const response = await axios.get('/api/members'); // Axiosを使ってGETリクエスト
+
+    if (response.status !== 200) {
+        throw new Error('Failed to fetch members');
+    }
+
+    return response.data; // レスポンスデータを返す
+});
+
 const memberSlice = createSlice({
     name: 'members',
     initialState: [],
@@ -44,6 +55,9 @@ const memberSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(fetchMembers.fulfilled, (state, action) => {
+                return action.payload; // ステートを新しいメンバーリストで更新
+            })
             .addCase(addMember.fulfilled, (state, action) => {
                 state.push(action.payload); // 新しいメンバーを追加
             })

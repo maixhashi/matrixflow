@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateMemberName } from '../store/memberSlice';
+import { fetchMembers, updateMemberName } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -12,15 +12,24 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const MatrixCol = ({ members, openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber }) => {
+const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member }) => {
+    const dispatch = useDispatch();
+    const members = useSelector((state) => state.members); // Reduxストアからメンバーリストを取得
+    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
+
+    useEffect(() => {
+        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
+    }, [dispatch]);
+
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
         drop: (item) => {
             const droppedFlowStepId = item.id;
-            const member = members[0];
-
-            onAssignFlowStep(member.id, droppedFlowStepId);
-            // ReduxのupdateFlowStepNumberをdispatchで呼び出す
+            onAssignFlowStep(member.id, droppedFlowStepId); // 現在のメンバーを使用
             updateFlowStepNumber(droppedFlowStepId, flowNumber);
         },
         collect: (monitor) => ({
@@ -28,34 +37,28 @@ const MatrixCol = ({ members, openModal, flowNumber, onAssignFlowStep, updateFlo
         }),
     }));
 
-    const dispatch = useDispatch();
-    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
-
-    useEffect(() => {
-        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch]);
-
     return (
         <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
-            {members.map((member) => {
-                const flowstep = flowsteps.find(
-                    step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)
-                );
-                return (
-                    <div key={member.id} className="member-cell">
-                        {flowstep ? (
-                            <FlowStep flowstep={flowstep} />
-                        ) : (
-                            <button 
-                                className="add-step-button" 
-                                onClick={() => openModal(member, flowNumber)}
-                            >
-                                <FontAwesomeIcon icon={faPlus} />
-                            </button>
-                        )}
+            {/* flowstepsをループして、flow_numberとメンバーに基づいて表示 */}
+            {flowsteps
+                .filter(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)) // flow_numberとメンバーでフィルタリング
+                .map(flowstep => (
+                    <div key={flowstep.id} className="member-cell">
+                        <FlowStep flowstep={flowstep} />
                     </div>
-                );
-            })}
+                ))}
+            
+            {/* FlowStepが存在しない場合にボタンを表示 */}
+            {!flowsteps.some(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)) && (
+                <div className="member-cell">
+                    <button 
+                        className="add-step-button" 
+                        onClick={() => openModal(member, flowNumber)}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </button>
+                </div>
+            )}
         </td>
     );
 };
@@ -63,8 +66,36 @@ const MatrixCol = ({ members, openModal, flowNumber, onAssignFlowStep, updateFlo
 const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(member.name);
+    const [newName, setNewName] = useState(member.name); // 初期値を member.name に設定
+
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'ROW',
+        item: { index, memberId: member.id },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    }), [index, member.id]);
+
+    const [, drop] = useDrop(() => ({
+        accept: 'ROW',
+        hover: (item) => {
+            if (item.index !== index) {
+                moveRow(item.index, index);
+                item.index = index; // Update the index to reflect the new position
+            }
+        },
+    }), [index, moveRow]);
+
+
     const dispatch = useDispatch();
+
+    // Redux ストアからメンバーリストを取得
+    const members = useSelector((state) => state.members); 
+    const flowsteps = useSelector((state) => state.flowsteps); 
+
+    useEffect(() => {
+        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
+    }, [dispatch]);
 
     const handleNameChange = (e) => {
         setNewName(e.target.value);
@@ -78,6 +109,8 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
 
     return (
         <tr 
+        ref={(node) => drag(drop(node))} 
+            style={{ opacity: isDragging ? 0.5 : 1 }} 
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{ position: 'relative' }}
@@ -114,7 +147,8 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
             {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                 <MatrixCol
                     key={flowNumber}
-                    members={[member]}
+                    member={member}
+                    // members={[member]}
                     openModal={openModal}
                     flowNumber={flowNumber}
                     onAssignFlowStep={onAssignFlowStep}
@@ -138,20 +172,19 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
-    const [members, setMembers] = useState([]);
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const dispatch = useDispatch();
+
+    const members = useSelector((state) => state.members); // Reduxストアからメンバーリストを取得
     const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
 
     useEffect(() => {
-        fetchMembers(); // Initial fetch of members
-    }, []);
-
+        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
+    }, [dispatch]);
 
     useEffect(() => {
         dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
     }, [dispatch]);
-
 
     useEffect(() => {
         if (flowsteps.length > 0) {
@@ -161,12 +194,6 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
             setMaxFlowNumber(0);
         }
     }, [flowsteps]);
-
-    const fetchMembers = async () => {
-        const response = await fetch('/api/members');
-        const data = await response.json();
-        setMembers(data); // order_on_matrixを考慮したデータを設定
-    };
 
     const handleMemberAdded = async (newMember) => {
         await onMemberAdded(newMember); // Call the provided onMemberAdded function
