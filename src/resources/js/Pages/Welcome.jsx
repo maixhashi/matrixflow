@@ -1,7 +1,6 @@
-// Welcome.jsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchFlowsteps } from '../store/flowstepsSlice';
+import { assignFlowStep, fetchFlowsteps } from '../store/flowstepsSlice'; // Import your Redux actions
 import MemberList from '../Components/MembersList';
 import AddMemberForm from '../Components/AddMemberForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
@@ -10,6 +9,7 @@ import MatrixView from '../Components/MatrixView';
 import FlashMessage from '../Components/FlashMessage';
 
 const Welcome = () => {
+    const dispatch = useDispatch(); // Initialize dispatch
     const [members, setMembers] = useState([]);
     const [flowsteps, setFlowsteps] = useState([]);
     const [membersUpdated, setMembersUpdated] = useState(false);
@@ -31,44 +31,28 @@ const Welcome = () => {
     };
 
     // FlowStepをメンバーに割り当てる関数を追加
-    const handleAssignFlowStep = async (memberId, flowstepId, assignedMembersBeforeDrop) => {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-        try {
-            const response = await fetch('/api/assign-flowstep', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                },
-                body: JSON.stringify({
-                    memberId,
-                    flowstepId,
-                    assignedMembersBeforeDrop,
-                }),
-            });
-    
-            if (response.ok) {
+    const handleAssignFlowStep = (memberId, flowstepId, assignedMembersBeforeDrop) => {
+        dispatch(assignFlowStep({ memberId, flowstepId, assignedMembersBeforeDrop })) // Dispatch the action
+            .unwrap()
+            .then(() => {
                 const assignedMember = members.find(member => member.id === memberId);
                 const memberName = assignedMember ? assignedMember.name : 'Unknown Member';
-    
-                console.log(`Assigned FlowStep ${flowstepId} to Member ${memberName}`);
+
+                console.log(`Assigned FlowStep ${flowstepId} to Member Id:${memberId}`);
+                console.log(`Assigned FlowStep ${flowstepId} to Member Name:${memberName}`);
                 setFlashMessage(`担当者を ${memberName} に変更しました。`);
-    
-                // 関数形式でステートを更新
+                
                 setMembersUpdated(prevState => !prevState);
                 setFlowstepsUpdated(prevState => !prevState);
-            } else {
+            })
+            .catch((error) => {
+                console.error('Error assigning FlowStep:', error);
                 setFlashMessage("Failed to assign FlowStep");
-            }
-        } catch (error) {
-            setFlashMessage("Error assigning FlowStep");
-            console.error("Error assigning FlowStep:", error);
-        }
-    
+            });
+
         setTimeout(() => setFlashMessage(''), 5000);
     };
-                    
+
     useEffect(() => {
         const fetchMembers = async () => {
             const response = await fetch('/api/members');
