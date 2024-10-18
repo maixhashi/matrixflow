@@ -35,7 +35,10 @@ export const addFlowstep = (newFlowstep) => async (dispatch) => {
   });
   
   const data = await response.json();
-  dispatch(fetchFlowsteps()); // 新しいフローステップを追加した後、最新のリストを取得
+  // 追加が成功した場合に再フェッチ
+  if (response.ok) {
+    dispatch(fetchFlowsteps()); // 新しいフローステップを追加した後、最新のリストを取得
+  }
 };
 
 // FlowStepを削除するアクション
@@ -54,6 +57,8 @@ export const deleteFlowstepAsync = (id) => async (dispatch) => {
     if (response.ok) {
       console.log(`Flow step with ID ${id} deleted successfully.`);
       dispatch(flowstepsSlice.actions.deleteFlowstep(id)); // 正しいアクション名を使用
+      // 削除後に再フェッチ
+      dispatch(fetchFlowsteps());
       console.log('Redux state updated successfully.');
     } else {
       console.error('Failed to delete flow step:', response.statusText);
@@ -70,7 +75,7 @@ export const deleteFlowstepAsync = (id) => async (dispatch) => {
 // Async thunk for assigning flow steps
 export const assignFlowStep = createAsyncThunk(
   'flowsteps/assignFlowStep',
-  async ({ memberId, flowstepId, assignedMembersBeforeDrop }, { rejectWithValue }) => {
+  async ({ memberId, flowstepId, assignedMembersBeforeDrop }, { dispatch, rejectWithValue }) => {
       try {
           const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
           const response = await fetch('/api/assign-flowstep', {
@@ -84,16 +89,19 @@ export const assignFlowStep = createAsyncThunk(
           if (!response.ok) {
               return rejectWithValue('Failed to assign FlowStep');
           }
-          return await response.json(); // Return the updated data or a success message
+          const result = await response.json(); // Return the updated data or a success message
+          dispatch(fetchFlowsteps()); // 割り当て後に再フェッチ
+          return result; // 必要に応じて戻り値を変更
       } catch (error) {
           return rejectWithValue(error.message);
       }
   }
 );
 
+// FlowStep番号を更新するアクション
 export const updateFlowStepNumber = createAsyncThunk(
   'flowsteps/updateFlowStepNumber',
-  async ({ flowStepId, newFlowNumber }, { rejectWithValue }) => {
+  async ({ flowStepId, newFlowNumber }, { dispatch, rejectWithValue }) => {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     try {
@@ -110,7 +118,9 @@ export const updateFlowStepNumber = createAsyncThunk(
         throw new Error('Failed to update FlowStep number');
       }
 
-      return { flowStepId, newFlowNumber };
+      dispatch(fetchFlowsteps()); // 更新後に再フェッチ
+      return { flowStepId, newFlowNumber }; // 必要に応じて戻り値を変更
+
     } catch (error) {
       return rejectWithValue(error.message);
     }
