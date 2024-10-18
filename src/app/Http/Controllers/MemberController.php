@@ -63,5 +63,13 @@ class MemberController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Member not found.'], 404);
     }
-                
+
+    public function update(Request $request, $id)
+    {
+        $member = Member::findOrFail($id);
+        $member->name = $request->input('name');
+        $member->save();
+
+        return response()->json($member);
+    }
 }
