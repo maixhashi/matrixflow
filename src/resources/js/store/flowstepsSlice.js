@@ -91,6 +91,31 @@ export const assignFlowStep = createAsyncThunk(
   }
 );
 
+export const updateFlowStepNumber = createAsyncThunk(
+  'flowsteps/updateFlowStepNumber',
+  async ({ flowStepId, newFlowNumber }, { rejectWithValue }) => {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    try {
+      const response = await fetch('/api/update-flowstep-stepnumber', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token,
+        },
+        body: JSON.stringify({ flowStepId, newFlowNumber }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update FlowStep number');
+      }
+
+      return { flowStepId, newFlowNumber };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 // Export actions
 export const { setFlowsteps, deleteFlowstep } = flowstepsSlice.actions;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchFlowsteps } from '../store/flowstepsSlice';
+import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
@@ -19,7 +19,7 @@ const MatrixCol = ({ members, openModal, flowNumber, onAssignFlowStep, updateFlo
             const member = members[0];
 
             onAssignFlowStep(member.id, droppedFlowStepId);
-            // Call the function to update the flowstep number
+            // ReduxのupdateFlowStepNumberをdispatchで呼び出す
             updateFlowStepNumber(droppedFlowStepId, flowNumber);
         },
         collect: (monitor) => ({
@@ -218,31 +218,9 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
         }
     };
 
-    const updateFlowStepNumber = async (flowStepId, newFlowNumber) => {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        try {
-            const response = await fetch('/api/update-flowstep-stepnumber', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                },
-                body: JSON.stringify({
-                    flowStepId,
-                    newFlowNumber,
-                }),
-            });
-    
-            if (response.ok) {
-                console.log(`Updated FlowStep ${flowStepId} to new step number ${newFlowNumber}`);
-                // Optionally refresh flowsteps or do other updates
-            } else {
-                console.error("Failed to update FlowStep number");
-            }
-        } catch (error) {
-            console.error("Error updating FlowStep number:", error);
-        }
+    const handleUpdateFlowStepNumber = async (flowStepId, newFlowNumber) => {
+        // ReduxのupdateFlowStepNumberをdispatch
+        dispatch(updateFlowStepNumber({ flowStepId, newFlowNumber }));
     };
 
     const handleMemberDelete = async (memberId) => {
@@ -259,13 +237,12 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
                 setMembers(members.filter(member => member.id !== memberId));
                 console.log(`Member with ID ${memberId} deleted successfully.`);
             } else {
-                console.error('Failed to delete member:', response.statusText);
+                console.error('Failed to delete member.');
             }
         } catch (error) {
             console.error('Error deleting member:', error);
         }
     };
-    
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -295,8 +272,8 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
                                     maxFlowNumber={maxFlowNumber}
                                     index={index}
                                     moveRow={moveRow}
-                                    updateFlowStepNumber={updateFlowStepNumber} 
-                                    onMemberDelete={handleMemberDelete} // Pass the delete handler
+                                    updateFlowStepNumber={handleUpdateFlowStepNumber}
+                                    onMemberDelete={handleMemberDelete}
                                 />
                             ))}
                             <tr>
