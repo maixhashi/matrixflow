@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Sliceの定義
 export const flowstepsSlice = createSlice({
@@ -66,6 +66,31 @@ export const deleteFlowstepAsync = (id) => async (dispatch) => {
 
   console.log('Delete operation complete.');
 };
+
+// Async thunk for assigning flow steps
+export const assignFlowStep = createAsyncThunk(
+  'flowsteps/assignFlowStep',
+  async ({ memberId, flowstepId, assignedMembersBeforeDrop }, { rejectWithValue }) => {
+      try {
+          const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const response = await fetch('/api/assign-flowstep', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': token,
+              },
+              body: JSON.stringify({ memberId, flowstepId, assignedMembersBeforeDrop }),
+          });
+          if (!response.ok) {
+              return rejectWithValue('Failed to assign FlowStep');
+          }
+          return await response.json(); // Return the updated data or a success message
+      } catch (error) {
+          return rejectWithValue(error.message);
+      }
+  }
+);
+
 
 // Export actions
 export const { setFlowsteps, deleteFlowstep } = flowstepsSlice.actions;
