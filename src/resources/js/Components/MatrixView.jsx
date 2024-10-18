@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { updateMemberName } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -61,44 +62,44 @@ const MatrixCol = ({ members, openModal, flowNumber, onAssignFlowStep, updateFlo
 
 const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'ROW',
-        item: { index, memberId: member.id },
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-        }),
-    }), [index, member.id]);
-
-    const [, drop] = useDrop(() => ({
-        accept: 'ROW',
-        hover: (item) => {
-            if (item.index !== index) {
-                moveRow(item.index, index);
-                item.index = index; // Update the index to reflect the new position
-            }
-        },
-    }), [index, moveRow]);
-
+    const [isEditing, setIsEditing] = useState(false);
+    const [newName, setNewName] = useState(member.name);
     const dispatch = useDispatch();
-    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
 
-    useEffect(() => {
-        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch]);
+    const handleNameChange = (e) => {
+        setNewName(e.target.value);
+    };
+
+    const handleNameEdit = async () => {
+        // メンバー名を更新するアクションをディスパッチ
+        await dispatch(updateMemberName({ id: member.id, name: newName }));
+        setIsEditing(false);
+    };
 
     return (
         <tr 
-            ref={(node) => drag(drop(node))} 
-            style={{ opacity: isDragging ? 0.5 : 1 }} 
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            style={{ position: 'relative' }}
         >
-            <td className="matrix-side-header" style={{ position: 'relative' }}>
+            <td className="matrix-side-header">
                 <div className="member-cell">
-                    <div>{member.name}</div>
-                    <div className="member-icon">
-                        <FontAwesomeIcon icon={faUser} size="2x" />
-                    </div>
+                    {isEditing ? (
+                        <input 
+                            type="text" 
+                            value={newName} 
+                            onChange={handleNameChange} 
+                            onBlur={handleNameEdit} // フォーカスが外れたときに自動的に保存
+                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }} // Enterで保存
+                        />
+                    ) : (
+                        <>
+                            <div onClick={() => setIsEditing(true)}>{member.name}</div>
+                            <div className="member-icon">
+                                <FontAwesomeIcon icon={faUser} size="2x" />
+                            </div>
+                        </>
+                    )}
                     {isHovered && (
                         <div className="drag-icon">
                             <FontAwesomeIcon icon={faArrowUp} />
@@ -113,7 +114,6 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
             {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                 <MatrixCol
                     key={flowNumber}
-                    flowsteps={flowsteps}
                     members={[member]}
                     openModal={openModal}
                     flowNumber={flowNumber}
