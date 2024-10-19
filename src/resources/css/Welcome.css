@@ -1,0 +1,23 @@
+.welcome-page-container {
+  display: flex; /* Flexboxを使用 */
+  justify-content: center; /* 水平方向に中央揃え */
+  align-items: center; /* 垂直方向に中央揃え */
+  height: 100vh; /* 画面全体の高さを占める */
+}
+
+.welcome-page-content {
+  display: flex; /* 内部要素を横並びにする */
+  flex-direction: row; /* 行方向に並べる */
+  align-items: center; /* 垂直方向に中央揃え */
+}
+
+.catchphrase-on-welcome-page {
+  margin-right: 20px; /* ロゴとの間にスペースを追加 */
+  font-size: 24px; /* フォントサイズを調整 */
+  text-align: center; /* テキストを中央揃え */
+}
+
+.logo-on-welcome-page {
+  max-width: 400px; /* ロゴのサイズを調整 */
+  height: auto; /* 高さを自動調整 */
+}

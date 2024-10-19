@@ -119,3 +119,8 @@ td.matrix-cell.next-step-column {
   color: #007bff; /* アイコンの色 */
   margin: 2px 0; /* 上下にマージン */
 }
+
+.matrix-title {
+  text-align: center;
+  font-size: 24px;
+}

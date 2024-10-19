@@ -286,7 +286,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
-                <h2>Matrix View</h2>
+                <div className="matrix-title">MatrixFlow</div>
                 {orderedMembers.length === 0 && flowsteps.length === 0 ? (
                     <p>No data available.</p>
                 ) : (

@@ -18,9 +18,9 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/">
+                                {/* <Link href="/">
                                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
+                                </Link> */}
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -28,7 +28,19 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
-                                    Dashboard
+                                    ダッシュボード
+                                </NavLink>
+                                <NavLink
+                                    href={route('profile.edit')}
+                                    active={route().current('profile.edit')}
+                                >
+                                    プロフィール
+                                </NavLink>
+                                <NavLink
+                                    href={route('matrixflow.create')} // 新しいルート名
+                                    active={route().current('matrixflow.create')} // アクティブ状態の判定
+                                >
+                                    マトリックスフロー作成
                                 </NavLink>
                             </div>
                         </div>
@@ -64,14 +76,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            Profile
+                                            プロフィール
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            ログアウト
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -132,7 +144,13 @@ export default function AuthenticatedLayout({ header, children }) {
                             href={route('dashboard')}
                             active={route().current('dashboard')}
                         >
-                            Dashboard
+                            ダッシュボード
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('profile.edit')}
+                            active={route().current('profile.edit')}
+                        >
+                            プロフィール
                         </ResponsiveNavLink>
                     </div>
 
