@@ -2,37 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers } from '../store/memberSliceForGuest';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
-import { DndProvider } from 'react-dnd';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
 const MatrixCol = ({ openModal, flowNumber, member }) => {
     const flowsteps = useSelector((state) => state.flowstepsForGuest);
 
-    useEffect(() => {
-        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch]);
-
-
-    const [{ isOver }, drop] = useDrop(() => ({
-        accept: 'FLOWSTEP',
-        drop: (item) => {
-            const droppedFlowStepId = item.id;
-            onAssignFlowStep(member.id, droppedFlowStepId); // 現在のメンバーを使用
-            updateFlowStepNumber(droppedFlowStepId, flowNumber);
-        },
-        collect: (monitor) => ({
-            isOver: !!monitor.isOver(),
-        }),
-    }));
-
     return (
-        <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
+        <td className="matrix-cell">
             {flowsteps
                 .filter(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id))
                 .map(flowstep => (
@@ -51,21 +34,51 @@ const MatrixCol = ({ openModal, flowNumber, member }) => {
     );
 };
 
-const MatrixRow = ({ member, openModal, maxFlowNumber, onMemberDelete }) => {
+const MatrixRow = ({ member, openModal, maxFlowNumber, onMemberDelete, index, moveRow }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
     const dispatch = useDispatch();
-    
-    useEffect(() => {
-        dispatch(fetchMembers());
-    }, [dispatch]);
+
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'ROW',
+        item: { index, memberId: member.id },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    }), [index, member.id]);
+
+    const [, drop] = useDrop(() => ({
+        accept: 'ROW',
+        hover: (item) => {
+            if (item.index !== index) {
+                moveRow(item.index, index); // This will only update the local order
+                item.index = index; // Update the index to reflect the new position
+            }
+        },
+    }), [index, moveRow]);
 
     return (
-        <tr>
+        <tr
+            ref={(node) => drag(drop(node))} 
+            style={{ opacity: isDragging ? 0.5 : 1 }} 
+        >
             <td className="matrix-side-header">
-                <div className="member-cell">
+                <div
+                    className="member-cell" 
+                    onMouseEnter={() => setIsHovered(true)} 
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{ display: 'flex', alignItems: 'center', position: 'relative' }}
+                >
                     {member.name}
                     <button onClick={() => onMemberDelete(member.id)} className="delete-button">
                         <FontAwesomeIcon icon={faTrash} />
                     </button>
+                    {isHovered && (
+                        <div className="drag-icon">
+                            <FontAwesomeIcon icon={faArrowUp} />
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        </div>
+                    )}
                 </div>
             </td>
             {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
@@ -86,8 +99,10 @@ const MatrixViewForGuest = () => {
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
     const dispatch = useDispatch();
     
-    const members = useSelector((state) => state.membersForGuest); // Get members from the Redux store
+    const members = useSelector((state) => state.membersForGuest) || []; // Default to an empty array
     const flowsteps = useSelector((state) => state.flowstepsForGuest) || []; // Default to an empty array
+
+    const [orderedMembers, setOrderedMembers] = useState(members); // Local state to track order
 
     useEffect(() => {
         dispatch(fetchMembers());
@@ -103,8 +118,16 @@ const MatrixViewForGuest = () => {
         setIsModalOpen(false);
     };
 
+    // Update the local order without saving it to the server
+    const moveRow = (fromIndex, toIndex) => {
+        const updatedMembers = [...orderedMembers];
+        const [movedMember] = updatedMembers.splice(fromIndex, 1);
+        updatedMembers.splice(toIndex, 0, movedMember);
+        setOrderedMembers(updatedMembers); // Update local state
+    };
+
     useEffect(() => {
-        // Check if flowsteps is defined and has elements before accessing its properties
+        // Update maxFlowNumber based on flowsteps
         if (flowsteps && flowsteps.length > 0) {
             const maxFlowNumber = Math.max(0, ...flowsteps.map(step => step.flow_number));
             setMaxFlowNumber(maxFlowNumber);
@@ -121,15 +144,22 @@ const MatrixViewForGuest = () => {
                     <thead>
                         <tr>
                             <th className="matrix-corner-header">Members / FlowStep</th>
-                            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
-                                <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
+                            {Array.from({ length: maxFlowNumber }, (_, i) => (
+                                <th key={i} className="matrix-header">STEP {i + 1}</th>
                             ))}
                             <th className="matrix-header next-step-column">STEP {maxFlowNumber + 1}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {members.map((member) => (
-                            <MatrixRow key={member.id} member={member} openModal={openModal} maxFlowNumber={maxFlowNumber} />
+                        {orderedMembers.map((member, index) => (
+                            <MatrixRow 
+                                key={member.id} 
+                                member={member} 
+                                openModal={openModal} 
+                                maxFlowNumber={maxFlowNumber} 
+                                index={index} // Pass the index as a prop
+                                moveRow={moveRow} // Pass moveRow to handle local rearrangement
+                            />
                         ))}
                         <tr>
                             <td className="matrix-side-header">
