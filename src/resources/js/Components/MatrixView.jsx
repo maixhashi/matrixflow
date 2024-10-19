@@ -167,7 +167,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     );
 };
 
-const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
+const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
@@ -197,7 +197,7 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
 
     const handleMemberAdded = async (newMember) => {
         await onMemberAdded(newMember); // Call the provided onMemberAdded function
-        await fetchMembers(); // Fetch updated members
+        dispatch(fetchMembers()); // Fetch updated members from the Redux store
     };
 
     const openModal = (member, stepNumber) => {
@@ -213,19 +213,20 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
     };
 
     const moveRow = async (fromIndex, toIndex) => {
-        const updatedMembers = [...members];
+        const updatedMembers = [...members]; // Use the members from the Redux store
         const [movedMember] = updatedMembers.splice(fromIndex, 1);
         updatedMembers.splice(toIndex, 0, movedMember);
-        setMembers(updatedMembers);
-
+    
         const response = await saveOrderToServer(updatedMembers);
         if (response.success) {
             console.log('Order saved successfully');
+            // 最新のフローステップを取得
+            dispatch(fetchFlowsteps());
         } else {
             console.error('Error saving order:', response.error);
         }
     };
-
+    
     const saveOrderToServer = async (updatedMembers) => {
         try {
             const response = await fetch('/api/save-order', {
@@ -261,8 +262,8 @@ const MatrixView = ({ initialMembers, onAssignFlowStep, onMemberAdded, onFlowSte
 
             if (response.ok) {
                 // Update state to remove the deleted member
-                setMembers(members.filter(member => member.id !== memberId));
                 console.log(`Member with ID ${memberId} deleted successfully.`);
+                dispatch(fetchMembers()); // Refresh members from Redux
             } else {
                 console.error('Failed to delete member.');
             }
