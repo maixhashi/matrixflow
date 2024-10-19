@@ -21,7 +21,7 @@ const FlowStep = ({ flowstep }) => {
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(flowstep.name);
+    const [newName, setNewName] = useState(flowstep.name); // Initial value from flowstep.name
     const dispatch = useDispatch();
 
     const handleDelete = async () => {
@@ -32,6 +32,7 @@ const FlowStep = ({ flowstep }) => {
 
     const handleEditClick = () => {
         setIsEditing(true);
+        setNewName(flowstep.name); // Reset the name to the original value
     };
 
     const handleCancel = () => {

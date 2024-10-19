@@ -26,7 +26,12 @@ export const flowstepsSlice = createSlice({
 export const fetchFlowsteps = () => async (dispatch) => {
   const response = await fetch('/api/flowsteps');
   const data = await response.json();
-  dispatch(flowstepsSlice.actions.setFlowsteps(data)); // 取得したデータで状態を更新
+  if (response.ok) {
+    dispatch(flowstepsSlice.actions.setFlowsteps(data)); // 取得したデータで状態を更新
+  } else {
+    // エラーハンドリング
+    console.error('Error fetching flowsteps:', data);
+  }
 };
 
 // FlowStepを追加するアクション
@@ -104,6 +109,7 @@ export const assignFlowStep = createAsyncThunk(
 });    
 
 // FlowStepを編集するアクション
+// FlowStepを編集するアクション
 export const updateFlowstepAsync = createAsyncThunk(
   'flowsteps/updateFlowstep',
   async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
@@ -124,8 +130,13 @@ export const updateFlowstepAsync = createAsyncThunk(
       }
 
       const data = await response.json();
+      
       // 成功した場合はstateを更新するアクションをdispatch
-      dispatch(flowstepsSlice.actions.updateFlowstep({ id, updatedFlowstep: data }));
+      dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: data }));
+      
+      // 更新後に最新のフローステップを再フェッチ
+      dispatch(fetchFlowsteps());
+      
       return data;
 
     } catch (error) {
