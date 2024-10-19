@@ -12,7 +12,7 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('root');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -44,3 +44,8 @@ Route::put('/api/flowsteps/{id}', [FlowStepController::class, 'update']);
 
 use App\Http\Controllers\FlowstepMemberController;
 Route::post('/api/assign-flowstep', [FlowstepMemberController::class, 'store']);
+
+
+use App\Http\Controllers\MatrixFlowController;
+Route::get('/create-matrixflow', [MatrixFlowController::class, 'renderCreateMatrixFlowPage'])->name('matrixflow.create');
+Route::get('/create-matrixflow-for-guest', [MatrixFlowController::class, 'renderCreateMatrixFlowPageforGuest'])->name('guest.matrixflow.create');
