@@ -22,7 +22,8 @@
   padding: 10px;
   text-align: center;
   border: 1px solid #ddd;
-  width: 100px;
+  width: 10%;
+  max-width: 10%;
 }
 
 .matrix-side-header {
@@ -30,19 +31,19 @@
   padding: 10px;
   text-align: center;
   border: 1px solid #ddd;
-  width: 100px;
+  width: 10%;
+  max-width: 10%;
 }
 
 td.matrix-cell {
   padding: 8px;
-  min-width: 100px;
-  max-width: 100px;
+  width: 10%;
+  max-width: 10%;
   border: 1px solid #ddd;
 }
 td.matrix-cell.next-step-column {
   padding: 8px;
-  min-width: 50px;
-  max-width: 50px;
+  width: 10%;
   border: 1px solid #ddd;
 }
 
