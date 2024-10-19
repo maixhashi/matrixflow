@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers, updateMemberName } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPlus, faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faPlus, faArrowUp, faArrowDown, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -66,7 +66,7 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
 const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(member.name); // 初期値を member.name に設定
+    const [newName, setNewName] = useState(member.name); // Set initial value to member.name
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
@@ -86,15 +86,12 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
         },
     }), [index, moveRow]);
 
-
     const dispatch = useDispatch();
-
-    // Redux ストアからメンバーリストを取得
     const members = useSelector((state) => state.members); 
     const flowsteps = useSelector((state) => state.flowsteps); 
 
     useEffect(() => {
-        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
+        dispatch(fetchMembers()); // Fetch members when component mounts
     }, [dispatch]);
 
     const handleNameChange = (e) => {
@@ -102,33 +99,43 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     };
 
     const handleNameEdit = async () => {
-        // メンバー名を更新するアクションをディスパッチ
+        // Dispatch an action to update the member name
         await dispatch(updateMemberName({ id: member.id, name: newName }));
         setIsEditing(false);
     };
 
     return (
         <tr 
-        ref={(node) => drag(drop(node))} 
+            ref={(node) => drag(drop(node))} 
             style={{ opacity: isDragging ? 0.5 : 1 }} 
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            style={{ position: 'relative' }}
         >
             <td className="matrix-side-header">
-                <div className="member-cell">
+                <div 
+                    className="member-cell" 
+                    onMouseEnter={() => setIsHovered(true)} 
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{ display: 'flex', alignItems: 'center', position: 'relative' }}
+                >
                     {isEditing ? (
                         <input 
                             type="text" 
                             value={newName} 
                             onChange={handleNameChange} 
-                            onBlur={handleNameEdit} // フォーカスが外れたときに自動的に保存
-                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }} // Enterで保存
+                            onBlur={handleNameEdit} // Automatically save on blur
+                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }} // Save on Enter
+                            style={{ marginRight: '5px' }} // Space between input and icons
                         />
                     ) : (
                         <>
-                            <div onClick={() => setIsEditing(true)}>{member.name}</div>
-                            <div className="member-icon">
+                            <div onClick={() => setIsEditing(true)} style={{ marginRight: '5px' }}>
+                                {member.name}
+                            </div>
+                            {isHovered && (
+                                <div className="edit-icon" onClick={() => setIsEditing(true)} style={{ marginLeft: '5px' }}>
+                                    <FontAwesomeIcon icon={faEdit} size="1x" />
+                                </div>
+                            )}
+                            <div className="member-icon" style={{ marginRight: '15px' ,marginLeft: 'auto' }}>
                                 <FontAwesomeIcon icon={faUser} size="2x" />
                             </div>
                         </>
@@ -148,7 +155,6 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                 <MatrixCol
                     key={flowNumber}
                     member={member}
-                    // members={[member]}
                     openModal={openModal}
                     flowNumber={flowNumber}
                     onAssignFlowStep={onAssignFlowStep}
