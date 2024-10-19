@@ -13,6 +13,12 @@ export const flowstepsSlice = createSlice({
       console.log('Updated flowsteps after deletion:', updatedFlowsteps); // Debug
       return updatedFlowsteps;
     },
+    editFlowstep: (state, action) => {
+      const { id, updatedFlowstep } = action.payload;
+      return state.map(flowstep =>
+        flowstep.id === id ? { ...flowstep, ...updatedFlowstep } : flowstep
+      ); // Update the specific flowstep
+    },
   },
 });
 
@@ -20,7 +26,12 @@ export const flowstepsSlice = createSlice({
 export const fetchFlowsteps = () => async (dispatch) => {
   const response = await fetch('/api/flowsteps');
   const data = await response.json();
-  dispatch(flowstepsSlice.actions.setFlowsteps(data)); // 取得したデータで状態を更新
+  if (response.ok) {
+    dispatch(flowstepsSlice.actions.setFlowsteps(data)); // 取得したデータで状態を更新
+  } else {
+    // エラーハンドリング
+    console.error('Error fetching flowsteps:', data);
+  }
 };
 
 // FlowStepを追加するアクション
@@ -94,7 +105,43 @@ export const assignFlowStep = createAsyncThunk(
           return result; // 必要に応じて戻り値を変更
       } catch (error) {
           return rejectWithValue(error.message);
+  }
+});    
+
+// FlowStepを編集するアクション
+// FlowStepを編集するアクション
+export const updateFlowstepAsync = createAsyncThunk(
+  'flowsteps/updateFlowstep',
+  async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    try {
+      const response = await fetch(`/api/flowsteps/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token,
+        },
+        body: JSON.stringify(updatedFlowstep),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to edit FlowStep');
       }
+
+      const data = await response.json();
+      
+      // 成功した場合はstateを更新するアクションをdispatch
+      dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: data }));
+      
+      // 更新後に最新のフローステップを再フェッチ
+      dispatch(fetchFlowsteps());
+      
+      return data;
+
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
@@ -128,6 +175,6 @@ export const updateFlowStepNumber = createAsyncThunk(
 );
 
 // Export actions
-export const { setFlowsteps, deleteFlowstep } = flowstepsSlice.actions;
+export const { setFlowsteps, deleteFlowstep, editFlowstep } = flowstepsSlice.actions;
 // Export reducer and async action
 export default flowstepsSlice.reducer;
