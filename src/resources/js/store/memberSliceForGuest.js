@@ -1,43 +1,49 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// 初期メンバーのダミーデータ
+// Dummy initial members data
 const initialMembers = [
     { id: 1, name: 'John Doe' },
     { id: 2, name: 'Jane Smith' }
 ];
 
-const memberSliceForGuest = createSlice({
-    name: 'membersForGuest',
-    initialState: initialMembers, // 初期状態をダミーデータで設定
-    reducers: {
-        setMembers: (state, action) => {
-            return action.payload; // ステートを新しいメンバーリストで更新
-        },
-        addMember: (state, action) => {
-            const newMember = {
-                id: state.length + 1, // 新しいIDを生成
-                name: action.payload,
-            };
-            state.push(newMember); // 新しいメンバーを追加
-        },
-        updateMemberName: (state, action) => {
-            const index = state.findIndex(member => member.id === action.payload.id);
-            if (index !== -1) {
-                state[index].name = action.payload.name; // メンバー名を更新
-            }
-        },
-        deleteMember: (state, action) => {
-            return state.filter(member => member.id !== action.payload); // 削除したメンバーをリストから除外
-        },
-    },
+// Create async thunk for adding a member
+export const addMemberForGuest = createAsyncThunk('membersForGuest/addMember', async (newMember) => {
+    // Simulating an API call to add the member
+    const response = await new Promise((resolve) => {
+        const memberWithId = { id: Date.now(), ...newMember }; // Create a new member with a unique id
+        resolve(memberWithId);
+    });
+    return response; // Return the new member
 });
 
-// `fetchMembers`関数を追加
-export const fetchMembers = () => (dispatch) => {
-    // ダミーデータに基づいてメンバーを取得するロジックを追加
-    dispatch(setMembers(initialMembers)); // 初期メンバーを設定
-};
+// Create async thunk for fetching members
+export const fetchMembers = createAsyncThunk('membersForGuest/fetchMembers', async () => {
+    // Simulating an API call to fetch members
+    return initialMembers; // Return initial members for simulation
+});
 
-// エクスポート
-export const { setMembers, addMember, updateMemberName, deleteMember } = memberSliceForGuest.actions;
+// Member slice
+const memberSliceForGuest = createSlice({
+  name: 'membersForGuest',
+  initialState: initialMembers,
+  reducers: {
+    addMemberForGuest: (state, action) => {
+        // Add the new member directly to the state
+        state.push(action.payload);
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+        .addCase(addMemberForGuest.fulfilled, (state, action) => {
+            console.log("Adding member:", action.payload); // Log the member being added
+            state.push(action.payload); // Add new member to the state
+        })
+        .addCase(fetchMembers.fulfilled, (state, action) => {
+            console.log("Fetched members:", action.payload); // Log the fetched members
+            return action.payload; // Replace state with fetched members
+        });
+  }
+});
+
+// Export the slice reducer
 export default memberSliceForGuest.reducer;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMembers } from '../store/memberSliceForGuest';
+import { fetchMembers, addMemberForGuest } from '../store/memberSliceForGuest';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
-import AddMemberForm from '../Components/AddMemberForm';
+import AddMemberFormForGuest from '../Components/AddMemberFormForGuest';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
@@ -99,13 +99,18 @@ const MatrixViewForGuest = () => {
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
     const dispatch = useDispatch();
     
-    const members = useSelector((state) => state.membersForGuest) || []; // Default to an empty array
-    const flowsteps = useSelector((state) => state.flowstepsForGuest) || []; // Default to an empty array
+    const members = useSelector((state) => state.membersForGuest) || []; // Reduxの状態
+    const flowsteps = useSelector((state) => state.flowstepsForGuest) || [];
+    
+    const [orderedMembers, setOrderedMembers] = useState([]);
 
-    const [orderedMembers, setOrderedMembers] = useState(members); // Local state to track order
+    // `members`の変更時に`orderedMembers`を更新
+    useEffect(() => {
+        setOrderedMembers(members);
+    }, [members]);
 
     useEffect(() => {
-        dispatch(fetchMembers());
+        dispatch(fetchMembers()); // メンバーを取得
     }, [dispatch]);
 
     const openModal = (member, stepNumber) => {
@@ -118,16 +123,15 @@ const MatrixViewForGuest = () => {
         setIsModalOpen(false);
     };
 
-    // Update the local order without saving it to the server
+    // ローカルで行の順序を移動（DnD用）
     const moveRow = (fromIndex, toIndex) => {
         const updatedMembers = [...orderedMembers];
         const [movedMember] = updatedMembers.splice(fromIndex, 1);
         updatedMembers.splice(toIndex, 0, movedMember);
-        setOrderedMembers(updatedMembers); // Update local state
+        setOrderedMembers(updatedMembers); // ローカルな状態のみ更新
     };
 
     useEffect(() => {
-        // Update maxFlowNumber based on flowsteps
         if (flowsteps && flowsteps.length > 0) {
             const maxFlowNumber = Math.max(0, ...flowsteps.map(step => step.flow_number));
             setMaxFlowNumber(maxFlowNumber);
@@ -157,13 +161,13 @@ const MatrixViewForGuest = () => {
                                 member={member} 
                                 openModal={openModal} 
                                 maxFlowNumber={maxFlowNumber} 
-                                index={index} // Pass the index as a prop
-                                moveRow={moveRow} // Pass moveRow to handle local rearrangement
+                                index={index} 
+                                moveRow={moveRow} 
                             />
                         ))}
                         <tr>
                             <td className="matrix-side-header">
-                                <AddMemberForm />
+                                <AddMemberFormForGuest />
                             </td>
                             {Array.from({ length: maxFlowNumber }, (_, i) => (
                                 <td key={i} className="matrix-cell"></td>
