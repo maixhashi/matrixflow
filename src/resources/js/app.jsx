@@ -8,6 +8,7 @@ import store from './store/store'; // Reduxのstoreをインポート
 import axios from 'axios';
 import { DndProvider } from 'react-dnd'; // react-dnd の DndProvider をインポート
 import { HTML5Backend } from 'react-dnd-html5-backend'; // HTML5Backend をインポート
+import Layout from './Layouts/Layout';
 
 // CSRFトークンを取得する関数（nullチェックを追加）
 const csrfToken = () => {
@@ -34,7 +35,9 @@ createInertiaApp({
         root.render(
             <Provider store={store}> {/* ReduxのProviderでアプリ全体をラップ */}
                 <DndProvider backend={HTML5Backend}> {/* react-dnd の DndProvider でラップ */}
-                    <App {...props} />
+                    <Layout> {/* Layoutコンポーネントでラップ */}
+                        <App {...props} />
+                    </Layout>
                 </DndProvider>
             </Provider>
         );

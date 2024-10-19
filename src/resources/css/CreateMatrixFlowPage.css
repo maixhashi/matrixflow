@@ -1,0 +1,20 @@
+.welcome-container {
+  min-height: 100vh; /* 最小高さを100%に */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* グラデーション背景 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px; /* 内側の余白 */
+  font-family: 'Arial', sans-serif; /* フォント設定 */
+  color: #333; /* テキスト色 */
+}
+
+.flash-message {
+  background-color: rgba(255, 255, 255, 0.9); /* フラッシュメッセージの背景 */
+  border: 1px solid #ccc; /* 境界線 */
+  border-radius: 5px; /* 角を丸める */
+  padding: 10px;
+  margin: 10px 0; /* メッセージの上下の余白 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 影を追加 */
+}
