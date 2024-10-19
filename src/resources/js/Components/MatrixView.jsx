@@ -172,6 +172,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
+    const [orderedMembers, setOrderedMembers] = useState([]); // 行の順序を管理するための状態を追加
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const dispatch = useDispatch();
 
@@ -195,6 +196,10 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
         }
     }, [flowsteps]);
 
+    useEffect(() => {
+        setOrderedMembers(members); // メンバーの初期順序を設定
+    }, [members]);
+
     const handleMemberAdded = async (newMember) => {
         await onMemberAdded(newMember); // Call the provided onMemberAdded function
         dispatch(fetchMembers()); // Fetch updated members from the Redux store
@@ -213,20 +218,21 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     };
 
     const moveRow = async (fromIndex, toIndex) => {
-        const updatedMembers = [...members]; // Use the members from the Redux store
+        const updatedMembers = [...orderedMembers]; // orderedMembersを使用
         const [movedMember] = updatedMembers.splice(fromIndex, 1);
         updatedMembers.splice(toIndex, 0, movedMember);
-    
+        setOrderedMembers(updatedMembers); // 状態を更新
+
         const response = await saveOrderToServer(updatedMembers);
         if (response.success) {
             console.log('Order saved successfully');
             // 最新のフローステップを取得
-            dispatch(fetchFlowsteps());
+            dispatch(fetchFlowsteps()); // Add this to ensure fresh data
         } else {
             console.error('Error saving order:', response.error);
         }
     };
-    
+
     const saveOrderToServer = async (updatedMembers) => {
         try {
             const response = await fetch('/api/save-order', {
@@ -261,7 +267,6 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
             });
 
             if (response.ok) {
-                // Update state to remove the deleted member
                 console.log(`Member with ID ${memberId} deleted successfully.`);
                 dispatch(fetchMembers()); // Refresh members from Redux
             } else {
@@ -276,7 +281,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
         <DndProvider backend={HTML5Backend}>
             <div className="matrix-container">
                 <h2>Matrix View</h2>
-                {members.length === 0 && flowsteps.length === 0 ? (
+                {orderedMembers.length === 0 && flowsteps.length === 0 ? (
                     <p>No data available.</p>
                 ) : (
                     <table className="matrix-table">
@@ -290,7 +295,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {members.map((member, index) => (
+                            {orderedMembers.map((member, index) => (
                                 <MatrixRow
                                     key={member.id}
                                     member={member}
@@ -330,7 +335,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
 
                 <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeModal}>
                     <AddFlowStepForm
-                        members={members}
+                        members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
                         nextStepNumber={maxFlowNumber + 1}
