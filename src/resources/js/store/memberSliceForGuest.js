@@ -31,6 +31,10 @@ const memberSliceForGuest = createSlice({
         // Add the new member directly to the state
         state.push(action.payload);
     },
+    deleteMemberForGuest: (state, action) => {
+        // Filter out the member by ID
+        return state.filter(member => member.id !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -44,6 +48,9 @@ const memberSliceForGuest = createSlice({
         });
   }
 });
+
+// Export actions
+export const { deleteMemberForGuest } = memberSliceForGuest.actions;
 
 // Export the slice reducer
 export default memberSliceForGuest.reducer;

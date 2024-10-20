@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMembers, addMemberForGuest } from '../store/memberSliceForGuest';
+import { fetchMembers, deleteMemberForGuest } from '../store/memberSliceForGuest';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
@@ -34,7 +34,7 @@ const MatrixCol = ({ openModal, flowNumber, member }) => {
     );
 };
 
-const MatrixRow = ({ member, openModal, maxFlowNumber, onMemberDelete, index, moveRow }) => {
+const MatrixRow = ({ member, openModal, maxFlowNumber, index, moveRow }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     const dispatch = useDispatch();
@@ -56,6 +56,10 @@ const MatrixRow = ({ member, openModal, maxFlowNumber, onMemberDelete, index, mo
             }
         },
     }), [index, moveRow]);
+
+    const onMemberDelete = (id) => {
+        dispatch(deleteMemberForGuest(id));
+    };
 
     return (
         <tr
