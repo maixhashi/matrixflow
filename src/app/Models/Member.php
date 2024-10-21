@@ -12,6 +12,11 @@ class Member extends Model
     // ホワイトリストで設定する属性
     protected $fillable = ['name'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function flowsteps()
     {
         return $this->belongsToMany(Flowstep::class);
