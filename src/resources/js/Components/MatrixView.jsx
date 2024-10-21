@@ -277,7 +277,31 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
             <div className="matrix-container">
                 <div className="matrix-title">MatrixFlow</div>
                 {orderedMembers.length === 0 && flowsteps.length === 0 ? (
-                    <p>No data available.</p>
+                    <table className="matrix-table">
+                        <thead>
+                            <tr>
+                                <th className="matrix-corner-header">Members / FlowStep</th>
+                                {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
+                                    <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
+                                ))}
+                                <th className="matrix-header next-step-column">STEP {maxFlowNumber + 1}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="matrix-side-header">
+                                    <div className="member-cell">
+                                        <AddMemberForm onMemberAdded={handleMemberAdded} />
+                                    </div>
+                                </td>
+                                <td className="matrix-cell next-step-column">
+                                    <button onClick={() => openModal(null, 2)} className="add-step-button">
+                                        <FontAwesomeIcon icon={faPlus} />
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 ) : (
                     <table className="matrix-table">
                         <thead>
