@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faPlus } from '@fortawesome/free-solid-svg-icons';
-import '../../css/AddMemberForm.css'
-
+import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import '../../css/AddMemberForm.css';
 
 const AddMemberForm = ({ onMemberAdded }) => {
     const [name, setName] = useState('');
+
+    useEffect(() => {
+        // CSRFトークンを取得してaxiosに設定
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
