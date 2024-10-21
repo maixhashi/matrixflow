@@ -9,13 +9,17 @@ class FlowstepController extends Controller
 {
     public function index()
     {
-        // 各フローステップに関連するメンバー情報も取得する
-        $flowsteps = Flowstep::with('members')->get();
+        // ログイン中のユーザーが作成したフローステップと関連するメンバー情報を取得
+        $flowsteps = Flowstep::with('members')
+            -> where('user_id', auth()->id())
+            ->get();
+    
         return response()->json($flowsteps);
     }
-
+    
     public function store(Request $request)
     {
+        // バリデーション
         $request->validate([
             'name' => 'required|string',
             'flow_number' => 'required|integer',
@@ -23,17 +27,21 @@ class FlowstepController extends Controller
             'member_id.*' => 'exists:members,id', // 各メンバーIDの存在確認
         ]);
     
-        // FlowStepの作成
-        $flowStep = FlowStep::create($request->only(['name', 'flow_number']));
-    
+        // FlowStepの作成（user_idを追加）
+        $flowStep = FlowStep::create([
+            'name' => $request->input('name'),
+            'flow_number' => $request->input('flow_number'),
+            'user_id' => auth()->id(), // ログイン中のユーザーのIDを設定
+        ]);
+
         // FlowstepMemberに関連メンバーを追加
         foreach ($request->member_id as $memberId) {
-            $flowStep->members()->attach($memberId);
+           $flowStep->members()->attach($memberId);
         }
-    
-        return response()->json(['message' => 'Flow step added successfully']);
-    }
 
+        return response()->json(['message' => 'Flow step added successfully', 'flowStep' => $flowStep]);
+    }
+    
     public function updateFlowstepStepnumber(Request $request)
     {
         $request->validate([

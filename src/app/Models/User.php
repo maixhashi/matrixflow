@@ -51,4 +51,9 @@ class User extends Authenticatable
         return $this->hasMany(Member::class);
     }
 
+    public function flowsteps()
+    {
+        return $this->hasMany(FlowStep::class);
+    }
+
 }

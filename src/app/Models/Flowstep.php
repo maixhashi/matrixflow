@@ -9,7 +9,17 @@ class Flowstep extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'flow_number'];
+    protected $fillable = [
+        'name', 
+        'flow_number',
+        'user_id'
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 
     public function workflows()
     {
