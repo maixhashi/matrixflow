@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers, updateMemberName } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPlus, faArrowUp, faArrowDown, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faPlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -105,25 +105,17 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     };
 
     return (
-        <tr 
-            ref={(node) => drag(drop(node))} 
-            style={{ opacity: isDragging ? 0.5 : 1 }} 
-        >
+        <tr ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
             <td className="matrix-side-header">
-                <div 
-                    className="member-cell" 
-                    onMouseEnter={() => setIsHovered(true)} 
-                    onMouseLeave={() => setIsHovered(false)}
-                    style={{ display: 'flex', alignItems: 'center', position: 'relative' }}
-                >
+                <div className="member-cell" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                     {isEditing ? (
                         <input 
                             type="text" 
                             value={newName} 
                             onChange={handleNameChange} 
-                            onBlur={handleNameEdit} // Automatically save on blur
-                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }} // Save on Enter
-                            style={{ marginRight: '5px' }} // Space between input and icons
+                            onBlur={handleNameEdit} 
+                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }} 
+                            style={{ marginRight: '5px' }} 
                         />
                     ) : (
                         <>
@@ -135,7 +127,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                                     <FontAwesomeIcon icon={faEdit} size="1x" />
                                 </div>
                             )}
-                            <div className="member-icon" style={{ marginRight: '15px' ,marginLeft: 'auto' }}>
+                            <div className="member-icon" style={{ marginRight: '15px', marginLeft: 'auto' }}>
                                 <FontAwesomeIcon icon={faUser} size="2x" />
                             </div>
                         </>
@@ -162,10 +154,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                 />
             ))}
             <td className="matrix-cell next-step-column">
-                <button
-                    className="add-step-button"
-                    onClick={() => openModal(member, maxFlowNumber + 1)}
-                >
+                <button className="add-step-button" onClick={() => openModal(member, maxFlowNumber + 1)}>
                     <FontAwesomeIcon icon={faPlus} />
                 </button>
             </td>
@@ -321,16 +310,13 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
                                         <AddMemberForm onMemberAdded={handleMemberAdded} />
                                     </div>
                                 </td>
-                                {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
-                                    <td key={flowNumber} className="matrix-cell">
-                                        <div></div>
+                                {Array.from({ length: maxFlowNumber }, (_, i) => (
+                                    <td key={i} className="matrix-cell">
+                                        <div className="matrix-empty-cell"><FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" /></div> {/* This keeps the cell empty for alignment */}
                                     </td>
                                 ))}
                                 <td className="matrix-cell next-step-column">
-                                    <button 
-                                        className="add-step-button" 
-                                        onClick={() => openModal(null, maxFlowNumber + 1)}
-                                    >
+                                    <button onClick={() => openModal(null, maxFlowNumber + 1)} className="add-step-button">
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
                                 </td>
