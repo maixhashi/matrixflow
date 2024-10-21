@@ -11,7 +11,10 @@ class MemberController extends Controller
     public function index()
     {
         // メンバー情報をすべて取得
-        $members = Member::orderBy('order_on_matrix')->get();
+        $members = Member::where('user_id', auth()->id())
+        ->orderBy('order_on_matrix')
+        ->get();
+
 
         // JSON形式で返す（Unicodeエスケープを無効にする）
         return response()->json($members, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -23,15 +26,16 @@ class MemberController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
-
+    
         // データの保存
         $member = new Member();
         $member->name = $request->input('name');
+        $member->user_id = auth()->id(); // ログイン中のユーザーのIDを設定
         $member->save();
-
+    
         return response()->json(['message' => 'Member created successfully!', 'member' => $member], 201);
     }
-    
+          
     public function saveOrder(Request $request)
     {
         // リクエストボディから member_ids を取得
