@@ -1,0 +1,39 @@
+.document-container {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff; /* 白背景 */
+  border: 1px solid #ccc; /* 薄い枠線 */
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif; /* 一般的なフォント */
+  line-height: 1.6; /* 行間を広げる */
+}
+
+.document-container h2 {
+  font-size: 28px; /* 見出しのフォントサイズ */
+  color: #333; /* 見出しの色 */
+  margin-bottom: 20px; /* 見出し下の余白 */
+  text-align: left; /* 左揃え */
+}
+
+.chapter {
+  margin-bottom: 30px; /* 各章の下余白 */
+}
+
+.chapter h3 {
+  font-size: 24px; /* 章の見出しのフォントサイズ */
+  color: #555; /* 章見出しの色 */
+  margin-bottom: 10px; /* 章見出しの下余白 */
+}
+
+.chapter p {
+  font-size: 18px; /* 段落のフォントサイズ */
+  color: #666; /* 段落の色 */
+  margin: 5px 0; /* 段落の上下余白 */
+}
+
+.chapter p span {
+  font-weight: bold; /* 太字 */
+  color: #2c3e50; /* 強調色 */
+}

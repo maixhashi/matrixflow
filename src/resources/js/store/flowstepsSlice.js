@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 // Sliceの定義
 export const flowstepsSlice = createSlice({
@@ -6,23 +7,23 @@ export const flowstepsSlice = createSlice({
   initialState: [],
   reducers: {
     setFlowsteps: (state, action) => {
-      return action.payload; // Sets new flowsteps array
+      return action.payload; // 新しいFlowStepの配列を設定
     },
     deleteFlowstep: (state, action) => {
       const updatedFlowsteps = state.filter(flowstep => flowstep.id !== action.payload);
-      console.log('Updated flowsteps after deletion:', updatedFlowsteps); // Debug
+      console.log('Updated flowsteps after deletion:', updatedFlowsteps); // デバッグ
       return updatedFlowsteps;
     },
     editFlowstep: (state, action) => {
       const { id, updatedFlowstep } = action.payload;
       return state.map(flowstep =>
         flowstep.id === id ? { ...flowstep, ...updatedFlowstep } : flowstep
-      ); // Update the specific flowstep
+      ); // 特定のFlowStepを更新
     },
   },
 });
 
-// FlowStepをサーバーから取得するアクション
+// FlowStepを取得するアクション
 export const fetchFlowsteps = () => async (dispatch) => {
   const response = await fetch('/api/flowsteps');
   const data = await response.json();
@@ -44,11 +45,11 @@ export const addFlowstep = (newFlowstep) => async (dispatch) => {
     },
     body: JSON.stringify(newFlowstep),
   });
-  
+
   const data = await response.json();
   // 追加が成功した場合に再フェッチ
   if (response.ok) {
-    dispatch(fetchFlowsteps()); // 新しいフローステップを追加した後、最新のリストを取得
+    dispatch(fetchFlowsteps()); // 新しいFlowStepを追加した後、最新のリストを取得
   }
 };
 
@@ -87,28 +88,28 @@ export const deleteFlowstepAsync = (id) => async (dispatch) => {
 export const assignFlowStep = createAsyncThunk(
   'flowsteps/assignFlowStep',
   async ({ memberId, flowstepId, assignedMembersBeforeDrop }, { dispatch, rejectWithValue }) => {
-      try {
-          const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-          const response = await fetch('/api/assign-flowstep', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRF-TOKEN': token,
-              },
-              body: JSON.stringify({ memberId, flowstepId, assignedMembersBeforeDrop }),
-          });
-          if (!response.ok) {
-              return rejectWithValue('Failed to assign FlowStep');
-          }
-          const result = await response.json(); // Return the updated data or a success message
-          dispatch(fetchFlowsteps()); // 割り当て後に再フェッチ
-          return result; // 必要に応じて戻り値を変更
-      } catch (error) {
-          return rejectWithValue(error.message);
+    try {
+      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      const response = await fetch('/api/assign-flowstep', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token,
+        },
+        body: JSON.stringify({ memberId, flowstepId, assignedMembersBeforeDrop }),
+      });
+      if (!response.ok) {
+        return rejectWithValue('Failed to assign FlowStep');
+      }
+      const result = await response.json(); // Return the updated data or a success message
+      dispatch(fetchFlowsteps()); // 割り当て後に再フェッチ
+      return result; // 必要に応じて戻り値を変更
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
-});    
+);
 
-// FlowStepを編集するアクション
 // FlowStepを編集するアクション
 export const updateFlowstepAsync = createAsyncThunk(
   'flowsteps/updateFlowstep',

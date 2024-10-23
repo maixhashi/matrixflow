@@ -17,8 +17,12 @@ class Member extends Model
         return $this->belongsTo(User::class);
     }
 
+    protected $table = 'members'; // 既存の members テーブル
+
     public function flowsteps()
     {
-        return $this->belongsToMany(Flowstep::class);
+        // 中間テーブル flowstep_member を介して flowsteps を取得するリレーション
+        return $this->belongsToMany(Flowstep::class, 'flowstep_member', 'member_id', 'flowstep_id');
     }
+
 }

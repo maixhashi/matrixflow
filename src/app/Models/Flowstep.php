@@ -26,8 +26,11 @@ class Flowstep extends Model
         return $this->belongsToMany(Workflow::class);
     }
 
+    protected $table = 'flowsteps'; // 既存の flowsteps テーブル
+
     public function members()
     {
-        return $this->belongsToMany(Member::class);
+        // 中間テーブル flowstep_member を介して members を取得するリレーション
+        return $this->belongsToMany(Member::class, 'flowstep_member', 'flowstep_id', 'member_id');
     }
 }
