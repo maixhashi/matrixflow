@@ -10,6 +10,10 @@
   color: #333; /* テキスト色 */
 }
 
+.content-container {
+  display: flex;
+}
+
 .flash-message {
   background-color: rgba(255, 255, 255, 0.9); /* フラッシュメッセージの背景 */
   border: 1px solid #ccc; /* 境界線 */
