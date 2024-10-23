@@ -94,16 +94,17 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
         <div>
             <form className="form-container" onSubmit={handleSubmit}>
                 <div>
-                    <label>Flow Step Name:</label>
+                    <label>フローステップ名:</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)} 
                         required
+                        placeholder="担当者がフローとして行うことを入力しましょう"
                     />
                 </div>
                 <div>
-                    <label>Select Step Number:</label>
+                    <label>ステップNo.:</label>
                     <select
                         value={selectedStepNumber}
                         onChange={handleStepChange}
@@ -117,16 +118,16 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
                     </select>
                 </div>
                 <div>
-                    <label>Search Members:</label>
+                    <label>担当者を検索:</label>
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Type to search..."
+                        placeholder="担当者を名前検索できます"
                     />
                 </div>
                 <div>
-                    <label>Select Members:</label>
+                    <label>担当者を選択:</label>
                     <select
                         multiple
                         value={selectedMembers}
@@ -144,9 +145,8 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
                         )}
                     </select>
                 </div>
-                <button type="submit">Add Flow Step</button>
+                <button type="submit">フローステップを追加</button>
             </form>
-            <button onClick={() => handleDelete(flowStepId)}>Delete Flow Step</button>
         </div>
     );
 };

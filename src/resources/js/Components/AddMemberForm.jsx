@@ -34,7 +34,7 @@ const AddMemberForm = ({ onMemberAdded }) => {
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Member Name"
+                        placeholder="担当者の名前を入力"
                         required
                     />
                 </div>
