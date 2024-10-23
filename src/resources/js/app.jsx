@@ -9,6 +9,8 @@ import axios from 'axios';
 import { DndProvider } from 'react-dnd'; // react-dnd の DndProvider をインポート
 import { HTML5Backend } from 'react-dnd-html5-backend'; // HTML5Backend をインポート
 import Layout from './Layouts/Layout';
+import { Helmet } from 'react-helmet';
+
 
 // CSRFトークンを取得する関数（nullチェックを追加）
 const csrfToken = () => {
@@ -20,7 +22,8 @@ const csrfToken = () => {
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken();
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'matrixflow';
+
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -33,14 +36,21 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <Provider store={store}> {/* ReduxのProviderでアプリ全体をラップ */}
-                <DndProvider backend={HTML5Backend}> {/* react-dnd の DndProvider でラップ */}
-                    <Layout> {/* Layoutコンポーネントでラップ */}
-                        <App {...props} />
-                    </Layout>
-                </DndProvider>
-            </Provider>
+            <>
+                <Provider store={store}>
+                    <DndProvider backend={HTML5Backend}>
+                        <Layout>
+                        <Helmet>
+                            <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+                        </Helmet>
+
+                            <App {...props} />
+                        </Layout>
+                    </DndProvider>
+                </Provider>
+            </>
         );
+        
     },
     progress: {
         color: '#4B5563',
