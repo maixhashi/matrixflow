@@ -16,7 +16,7 @@ const Document = () => {
 
   return (
     <div className="document-container">
-      <h2>Document</h2>
+      <h2>文書</h2>
       {flowsteps.map((flowstep, index) => (
         <div key={flowstep.id} className="chapter">
           <h2 className="chapter">{index + 1}: {flowstep.name}</h2>
