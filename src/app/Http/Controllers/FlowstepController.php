@@ -82,5 +82,16 @@ class FlowstepController extends Controller
 
         return response()->json($flowStep, 200); // Return updated flow step
     }
+
+    public function getFlowstepWithMembers($flowstepId)
+    {
+        $flowstep = Flowstep::with('members')->find($flowstepId);
+
+        if (!$flowstep) {
+            return response()->json(['message' => 'Flowstep not found'], 404);
+        }
+
+        return response()->json($flowstep);
+    }
     
 }

@@ -41,6 +41,8 @@ Route::post('/api/flowsteps', [FlowstepController::class, 'store']);
 Route::post('/api/update-flowstep-stepnumber', [FlowstepController::class, 'updateFlowstepStepnumber']);
 Route::delete('/api/flowsteps/{id}', [FlowstepController::class, 'destroy']);
 Route::put('/api/flowsteps/{id}', [FlowStepController::class, 'update']);
+Route::get('/api/flowsteps/{flowstepId}/members', [FlowstepController::class, 'getFlowstepWithMembers']);
+
 
 use App\Http\Controllers\FlowstepMemberController;
 Route::post('/api/assign-flowstep', [FlowstepMemberController::class, 'store']);
