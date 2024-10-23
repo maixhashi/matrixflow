@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers } from '../store/memberSlice'; 
 import { assignFlowStep } from '../store/flowstepsSlice'; 
 import MatrixView from '../Components/MatrixView';
+import Document from '../Components/Document';
 import FlashMessage from '../Components/FlashMessage';
 import '../../css/CreateMatrixFlowPage.css'; // CSSファイルをインポート
-import { Inertia } from '@inertiajs/inertia'; // Inertiaオブジェクトのインポート
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout'; // AuthenticatedLayoutをインポート
 
 const CreateMatrixFlowPage = () => {
@@ -76,6 +76,7 @@ const CreateMatrixFlowPage = () => {
                     onMemberAdded={handleMemberAdded}
                     onFlowStepAdded={handleFlowStepAdded}
                 />
+                <Document />
             </div>
         </AuthenticatedLayout>
     );
