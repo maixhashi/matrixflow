@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
 import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,14 +12,18 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member }) => {
+const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member, workflowId }) => {
     const dispatch = useDispatch();
     const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
-    const { workflowId } = useParams();
 
     useEffect(() => {
         dispatch(fetchFlowsteps(workflowId)); // コンポーネントがマウントされたときにフローステップを取得
     }, [dispatch, workflowId]);
+
+    useEffect(() => {
+        console.log('workflowId in MatrixRow:', workflowId);
+    }, [workflowId]);
+
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
@@ -172,7 +175,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     );
 };
 
-const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
+const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
@@ -180,7 +183,6 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [orderedMembers, setOrderedMembers] = useState([]); // 行の順序を管理するための状態を追加
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const dispatch = useDispatch();
-    const { workflowId } = useParams();
 
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const members = useSelector((state) => state.members);
@@ -194,7 +196,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     }, [dispatch, workflowId]);
 
     useEffect(() => {
-        console.log('workflowId:', workflowId);
+        console.log('workflowId in MatrixView:', workflowId);
     }, [workflowId]);
 
 

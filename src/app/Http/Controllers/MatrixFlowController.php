@@ -16,14 +16,13 @@ class MatrixFlowController extends Controller
         ]);
     }
 
-    public function renderCreateMatrixFlowPage()
+    public function renderCreateMatrixFlowPage($workflowId)
     {
-        // Inertia::render を使ってフロントエンドにデータとページを送る
         return Inertia::render('CreateMatrixFlowPage', [
-            'flowData' => 'Sample data for the matrix flow',
+            'workflowId' => $workflowId,
         ]);
     }
-    
+        
     public function renderCreateMatrixFlowPageforGuest()
     {
         // Inertia::render を使ってフロントエンドにデータとページを送る

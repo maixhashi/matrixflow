@@ -37,8 +37,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                     プロフィール
                                 </NavLink>
                                 <NavLink
-                                    href={route('matrixflow.create')} // 新しいルート名
-                                    active={route().current('matrixflow.create')} // アクティブ状態の判定
+                                    href={route('matrixflow.new')} // 新しいルート名
+                                    active={route().current('matrixflow.new')} // アクティブ状態の判定
                                 >
                                     マトリックスフロー作成
                                 </NavLink>
