@@ -1,6 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios'; // Axiosをインポート
 
+// Memberを取得するアクション
+export const fetchMembers = createAsyncThunk(
+    'members/fetchMembers',
+    async (workflowId, { dispatch, rejectWithValue }) => {
+      try {
+        const response = await axios.get(`/api/workflows/${workflowId}/members`);
+        
+        if (response.status !== 200) {
+          throw new Error('Failed to fetch members');
+        }
+  
+        const data = response.data;
+  
+        dispatch(setMembers(data)); // Assuming setMembers is your action for setting members
+  
+        return data; // Return the data if needed
+      } catch (error) {
+        return rejectWithValue(error.message); // Handle error
+      }
+    }
+);
+
+
 // メンバー追加のための非同期関数
 export const addMember = createAsyncThunk(
     'members/addMember',
@@ -43,27 +66,6 @@ export const deleteMember = createAsyncThunk('members/deleteMember', async (memb
         return rejectWithValue(error.message);
     }
 });
-
-export const fetchMembers = createAsyncThunk(
-    'members/fetchMembers',
-    async (workflowId, { dispatch, rejectWithValue }) => {
-      try {
-        const response = await axios.get(`/api/workflows/${workflowId}/members`);
-        
-        if (response.status !== 200) {
-          throw new Error('Failed to fetch members');
-        }
-  
-        const data = response.data;
-  
-        dispatch(setMembers(data)); // Assuming setMembers is your action for setting members
-  
-        return data; // Return the data if needed
-      } catch (error) {
-        return rejectWithValue(error.message); // Handle error
-      }
-    }
-  );
   
 const memberSlice = createSlice({
     name: 'members',

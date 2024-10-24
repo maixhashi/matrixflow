@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers } from '../store/memberSlice'; 
-import { assignFlowStep } from '../store/flowstepsSlice'; 
+import { fetchFlowsteps, assignFlowStep } from '../store/flowstepsSlice'; 
+import { useParams } from 'react-router-dom';
 import MatrixView from '../Components/MatrixView';
 import Document from '../Components/Document';
 import FlashMessage from '../Components/FlashMessage';
@@ -14,13 +15,15 @@ const CreateMatrixFlowPage = () => {
     const [membersUpdated, setMembersUpdated] = useState(false);
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
-    const [workflowId, setWorkflowId] = useState(null); // 一意のワークフローIDを保存
+    const { workflowId } = useParams();
 
     const members = useSelector((state) => state.members);
 
     useEffect(() => {
-        dispatch(fetchMembers());
-    }, [dispatch]);
+        dispatch(fetchMembers(workflowId)); // workflowIdに基づいてメンバーを取得
+        console.log('Fetched members:', members);
+        dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
+    }, [dispatch, workflowId]);
 
     const handleCreateWorkflow = async () => {
         try {
@@ -72,16 +75,6 @@ const CreateMatrixFlowPage = () => {
 
         setTimeout(() => setFlashMessage(''), 5000);
     };
-
-    useEffect(() => {
-        const fetchFlowsteps = async () => {
-            const response = await fetch('/api/flowsteps');
-            const data = await response.json();
-            setFlowsteps(data);
-        };
-
-        fetchFlowsteps();
-    }, [flowstepsUpdated]);
 
     return (
         <AuthenticatedLayout>

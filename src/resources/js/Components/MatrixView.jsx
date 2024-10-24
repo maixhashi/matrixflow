@@ -16,10 +16,11 @@ import '../../css/MatrixView.css';
 const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member }) => {
     const dispatch = useDispatch();
     const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
+    const { workflowId } = useParams();
 
     useEffect(() => {
-        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch]);
+        dispatch(fetchFlowsteps(workflowId)); // コンポーネントがマウントされたときにフローステップを取得
+    }, [dispatch, workflowId]);
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
@@ -33,19 +34,33 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
         }),
     }));
 
+    // Ensure flowsteps is an array
+    const validFlowsteps = Array.isArray(flowsteps) ? flowsteps : [];
+
     return (
         <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
             {/* flowstepsをループして、flow_numberとメンバーに基づいて表示 */}
-            {flowsteps
-                .filter(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)) // flow_numberとメンバーでフィルタリング
+            {validFlowsteps
+                .filter(step => 
+                    step.flow_number === flowNumber && 
+                    Array.isArray(step.members) && 
+                    step.members.some(m => m.id === member.id) // Check if members is an array
+                )
                 .map(flowstep => (
                     <div key={flowstep.id} className="member-cell">
-                        <FlowStep flowstep={flowstep} />
+                        <FlowStep
+                            flowstep={flowstep}
+                            workflowId={workflowId}
+                        />
                     </div>
                 ))}
             
             {/* FlowStepが存在しない場合にボタンを表示 */}
-            {!flowsteps.some(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)) && (
+            {!validFlowsteps.some(step => 
+                step.flow_number === flowNumber && 
+                Array.isArray(step.members) && 
+                step.members.some(m => m.id === member.id) // Check if members is an array
+            ) && (
                 <div className="member-cell">
                     <button 
                         className="add-step-button" 
@@ -169,12 +184,13 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
 
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const members = useSelector((state) => state.members);
-    const flowsteps = useSelector((state) => state.flowsteps.filter(flowstep => flowstep.workflow_id === workflowId));
+    const flowsteps = useSelector((state) => state.flowsteps);
     
     useEffect(() => {
         dispatch(fetchMembers(workflowId)); // workflowIdに基づいてメンバーを取得
         console.log('Fetched members:', members);
-        // dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
+        dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
+        console.log('Fetched flowsteps:', flowsteps);
     }, [dispatch, workflowId]);
 
     useEffect(() => {
@@ -355,6 +371,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
                         nextStepNumber={maxFlowNumber + 1}
                         onClose={closeModal}
                         onFlowStepAdded={onFlowStepAdded}
+                        workflowId={workflowId}
                     />
                 </ModalforAddFlowStepForm>
             </div>

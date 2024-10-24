@@ -1,57 +1,42 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Sliceの定義
-export const flowstepsSlice = createSlice({
-  name: 'flowsteps',
-  initialState: [],
-  reducers: {
-    setFlowsteps: (state, action) => {
-      return action.payload; // 新しいFlowStepの配列を設定
-    },
-    deleteFlowstep: (state, action) => {
-      const updatedFlowsteps = state.filter(flowstep => flowstep.id !== action.payload);
-      console.log('Updated flowsteps after deletion:', updatedFlowsteps); // デバッグ
-      return updatedFlowsteps;
-    },
-    editFlowstep: (state, action) => {
-      const { id, updatedFlowstep } = action.payload;
-      return state.map(flowstep =>
-        flowstep.id === id ? { ...flowstep, ...updatedFlowstep } : flowstep
-      ); // 特定のFlowStepを更新
-    },
-  },
-});
 
 // FlowStepを取得するアクション
-export const fetchFlowsteps = () => async (dispatch) => {
-  const response = await fetch('/api/flowsteps');
-  const data = await response.json();
-  if (response.ok) {
-    dispatch(flowstepsSlice.actions.setFlowsteps(data)); // 取得したデータで状態を更新
-  } else {
-    // エラーハンドリング
-    console.error('Error fetching flowsteps:', data);
+export const fetchFlowsteps = createAsyncThunk(
+  'flowsteps/fetchFlowsteps',
+  async (workflowId, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/api/workflows/${workflowId}/flowsteps`);
+      
+      if (response.status !== 200) {
+        throw new Error('Failed to fetch flowsteps');
+      }
+
+      const data = response.data;
+
+      dispatch(setFlowsteps(data)); // Assuming setMembers is your action for setting members
+
+      return data; // Return the data if needed
+    } catch (error) {
+      return rejectWithValue(error.message); // Handle error
+    }
   }
-};
+);
 
 // FlowStepを追加するアクション
-export const addFlowstep = (newFlowstep) => async (dispatch) => {
-  const response = await fetch('/api/flowsteps', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-    },
-    body: JSON.stringify(newFlowstep),
-  });
-
-  const data = await response.json();
-  // 追加が成功した場合に再フェッチ
-  if (response.ok) {
-    dispatch(fetchFlowsteps()); // 新しいFlowStepを追加した後、最新のリストを取得
+export const addFlowstep = createAsyncThunk(
+  'flowsteps/addFlowstep',
+  async ({ workflowId, newFlowstep }, { rejectWithValue }) => {
+      try {
+          const response = await axios.post(`/api/workflows/${workflowId}/flowsteps`, newFlowstep);
+          return response.data; // レスポンスデータを返す
+      } catch (error) {
+          return rejectWithValue(error.response?.data || error.message);
+      }
   }
-};
+);
+
 
 // FlowStepを削除するアクション
 export const deleteFlowstepAsync = (id) => async (dispatch) => {
@@ -174,6 +159,37 @@ export const updateFlowStepNumber = createAsyncThunk(
     }
   }
 );
+
+// Sliceの定義
+export const flowstepsSlice = createSlice({
+  name: 'flowsteps',
+  initialState: [],
+  reducers: {
+    setFlowsteps: (state, action) => {
+      return action.payload; // 新しいFlowStepの配列を設定
+    },
+    deleteFlowstep: (state, action) => {
+      const updatedFlowsteps = state.filter(flowstep => flowstep.id !== action.payload);
+      console.log('Updated flowsteps after deletion:', updatedFlowsteps); // デバッグ
+      return updatedFlowsteps;
+    },
+    editFlowstep: (state, action) => {
+      const { id, updatedFlowstep } = action.payload;
+      return state.map(flowstep =>
+        flowstep.id === id ? { ...flowstep, ...updatedFlowstep } : flowstep
+      ); // 特定のFlowStepを更新
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+        .addCase(fetchFlowsteps.fulfilled, (state, action) => {
+            return action.payload; // ステートを新しいメンバーリストで更新
+        })
+        .addCase(addFlowstep.fulfilled, (state, action) => {
+            state.push(action.payload); // 新しいメンバーを追加
+        })
+  },
+});
 
 // Export actions
 export const { setFlowsteps, deleteFlowstep, editFlowstep } = flowstepsSlice.actions;
