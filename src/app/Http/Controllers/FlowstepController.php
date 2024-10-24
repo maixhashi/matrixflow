@@ -3,18 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Flowstep;
+use App\Models\Workflow;
 use Illuminate\Http\Request;
 
 class FlowstepController extends Controller
 {
-    public function index()
+    // メンバー情報を取得するメソッド
+    public function index($workflowId)
     {
-        // ログイン中のユーザーが作成したフローステップと関連するメンバー情報を取得
-        $flowsteps = Flowstep::with('members')
-            -> where('user_id', auth()->id())
+        // Get all members for the specified workflow and the logged-in user
+        $flowsteps = Flowstep::where('user_id', auth()->id())
+            ->where('workflow_id', $workflowId) // Ensure you have a workflow_id field in your members table
             ->get();
     
-        return response()->json($flowsteps);
+        // JSON response
+        return response()->json($flowsteps, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
     
     public function store(Request $request)
