@@ -1,4 +1,4 @@
-# MATRIXFLOW（マトリックスフロー）
+# MATRIXFLOW（マトリクスフロー）
 
 ![php:8.3.12](https://img.shields.io/badge/php-8.3.12-lightsteelblue.svg?longCache=true)
 ![Laravel:11.27.2](https://img.shields.io/badge/Laravel-11.27.2-lightsteelblue.svg?longCache=true)
