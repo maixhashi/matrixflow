@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Inertia } from '@inertiajs/inertia'; // Inertia.js をインポート
+import axios from 'axios'; // Axiosをインポート
 import FlashMessage from '../Components/FlashMessage';
 import '../../css/CreateMatrixFlowPage.css';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout';
@@ -15,27 +16,25 @@ const NewMatrixFlowPage = () => {
         try {
             // LaravelのCSRFトークンをmetaタグから取得
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-            const response = await fetch('/api/workflows', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token, // CSRFトークンをヘッダーに追加
-                },
-                body: JSON.stringify({ name: workflowName }), // 入力されたワークフロー名を送信
-            });
-            
-            if (!response.ok) {
-                throw new Error('Failed to create workflow');
+            if (!token) {
+              console.error('CSRF token not found');
             }
 
-            const data = await response.json();
-            setWorkflowId(data.id); // 新しいワークフローIDを保存
-            setFlashMessage(`Workflow created with ID: ${data.id}`);
+            const response = await axios.post('/api/workflows', {
+                name: workflowName // 入力されたワークフロー名を送信
+            }, {
+                headers: {
+                    'X-CSRF-TOKEN': token, // CSRFトークンをヘッダーに追加
+                }
+            });
+
+            setWorkflowId(response.data.id); // 新しいワークフローIDを保存
+            setFlashMessage(`Workflow created with ID: ${response.data.id}`);
             
             setTimeout(() => {
                 setFlashMessage('');
-                Inertia.visit(`/create-matrixflow/${data.id}`);
+                // Inertia.visit(`/create-matrixflow/${response.data.id}`);
+                window.location.href = `/create-matrixflow/${response.data.id}`;
             }, 3000); // 3秒後に遷移
         } catch (error) {
             console.error('Error creating workflow:', error);

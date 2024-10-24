@@ -52,7 +52,6 @@ Route::get('/new-matrixflow', [MatrixFlowController::class, 'renderNewMatrixFlow
 Route::get('/create-matrixflow-for-guest', [MatrixFlowController::class, 'renderCreateMatrixFlowPageforGuest'])->name('guest.matrixflow.create');
 
 use App\Http\Controllers\WorkflowController;
-Route::post('/api/workflow', [WorkflowController::class, 'create'])->name('workflow.create');
-Route::post('/api/workflows', [WorkFlowController::class, 'store']);
+Route::post('/api/workflows', [WorkFlowController::class, 'store'])->name('workflow.create');
 
 
