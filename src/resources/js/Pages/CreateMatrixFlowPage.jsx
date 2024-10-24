@@ -29,7 +29,7 @@ const CreateMatrixFlowPage = () => {
 
     const handleFlowStepAdded = () => {
         setFlowstepsUpdated(!flowstepsUpdated);
-        setFlashMessage('FlowStep added successfully!');
+        setFlashMessage('フローステップを追加しました');
         setTimeout(() => setFlashMessage(''), 5000);
     };
 
