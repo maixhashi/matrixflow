@@ -2,20 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers } from '../store/memberSlice'; 
 import { fetchFlowsteps, assignFlowStep } from '../store/flowstepsSlice'; 
-import { useParams } from 'react-router-dom';
 import MatrixView from '../Components/MatrixView';
 import Document from '../Components/Document';
 import FlashMessage from '../Components/FlashMessage';
 import '../../css/CreateMatrixFlowPage.css';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout'; 
 
-const CreateMatrixFlowPage = () => {
+const CreateMatrixFlowPage = (props) => {
     const dispatch = useDispatch();
     const [flowsteps, setFlowsteps] = useState([]);
     const [membersUpdated, setMembersUpdated] = useState(false);
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
-    const { workflowId } = useParams();
+    const { workflowId } = props;
 
     const members = useSelector((state) => state.members);
 
@@ -25,19 +24,9 @@ const CreateMatrixFlowPage = () => {
         dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
     }, [dispatch, workflowId]);
 
-    const handleCreateWorkflow = async () => {
-        try {
-            const response = await fetch('/api/workflows', { method: 'POST' });
-            const data = await response.json();
-            setWorkflowId(data.id); // 新しいワークフローIDを保存
-            setFlashMessage(`Workflow created with ID: ${data.id}`);
-            setTimeout(() => setFlashMessage(''), 5000);
-        } catch (error) {
-            console.error('Error creating workflow:', error);
-            setFlashMessage('Failed to create workflow');
-            setTimeout(() => setFlashMessage(''), 5000);
-        }
-    };
+    useEffect(() => {
+        console.log('workflowId in CreateMatrixFlowPage:', workflowId);
+    }, [workflowId]);
 
     const handleMemberAdded = (member) => {
         const memberName = member.name || 'Unknown Member'; // メンバー名がオブジェクトのプロパティとして存在することを確認
@@ -82,7 +71,6 @@ const CreateMatrixFlowPage = () => {
         <AuthenticatedLayout>
             <div className="welcome-container">
                 <FlashMessage message={flashMessage} />
-                <button onClick={handleCreateWorkflow}>フローを作成する</button>
                 <div className="content-container">
                     <Document />
                     <MatrixView
@@ -91,6 +79,7 @@ const CreateMatrixFlowPage = () => {
                         onAssignFlowStep={handleAssignFlowStep}
                         onMemberAdded={handleMemberAdded}
                         onFlowStepAdded={handleFlowStepAdded}
+                        workflowId={workflowId}
                     />
                 </div>
             </div>
