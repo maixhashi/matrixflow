@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { fetchMembers, updateMemberName } from '../store/memberSlice';
+import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
@@ -253,24 +253,14 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
         dispatch(updateFlowStepNumber({ flowStepId, newFlowNumber }));
     };
 
-    const handleMemberDelete = async (memberId) => {
-        try {
-            const response = await fetch(`/api/members/${memberId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                },
+    const handleMemberDelete = (memberId) => {
+        dispatch(deleteMember(memberId))
+            .then(() => {
+                dispatch(fetchMembers(workflowId)); // Refresh members after deletion
+            })
+            .catch((error) => {
+                console.error('Error deleting member:', error);
             });
-
-            if (response.ok) {
-                console.log(`Member with ID ${memberId} deleted successfully.`);
-                dispatch(fetchMembers()); // Refresh members from Redux
-            } else {
-                console.error('Failed to delete member.');
-            }
-        } catch (error) {
-            console.error('Error deleting member:', error);
-        }
     };
 
     return (

@@ -26,14 +26,22 @@ export const updateMemberName = createAsyncThunk('members/updateMemberName', asy
 });
 
 // メンバー削除のための非同期関数
-export const deleteMember = createAsyncThunk('members/deleteMember', async (memberId) => {
-    const response = await axios.delete(`/api/members/${memberId}`); // Axiosを使ってDELETEリクエスト
+export const deleteMember = createAsyncThunk('members/deleteMember', async (memberId, { rejectWithValue }) => {
+    try {
+        const response = await fetch(`/api/members/${memberId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+        });
 
-    if (response.status !== 200) {
-        throw new Error('Failed to delete member');
+        if (!response.ok) {
+            throw new Error('Failed to delete member');
+        }
+        return memberId; // Return the deleted memberId for the reducer
+    } catch (error) {
+        return rejectWithValue(error.message);
     }
-
-    return memberId; // 削除したメンバーのIDを返す
 });
 
 export const fetchMembers = createAsyncThunk(
@@ -79,9 +87,6 @@ const memberSlice = createSlice({
                     state[index] = action.payload; // メンバー名を更新
                 }
             })
-            .addCase(deleteMember.fulfilled, (state, action) => {
-                return state.filter(member => member.id !== action.payload); // 削除したメンバーをリストから除外
-            });
     },
 });
 
