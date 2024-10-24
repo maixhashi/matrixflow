@@ -267,6 +267,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const handleUpdateFlowStepNumber = async (flowStepId, newFlowNumber) => {
         // ReduxのupdateFlowStepNumberをdispatch
         dispatch(updateFlowStepNumber({ flowStepId, newFlowNumber }));
+        dispatch(fetchFlowsteps(workflowId));
     };
 
     const handleMemberDelete = (memberId) => {

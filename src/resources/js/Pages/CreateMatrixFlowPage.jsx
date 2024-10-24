@@ -71,9 +71,11 @@ const CreateMatrixFlowPage = () => {
             .catch((error) => {
                 console.error('Error assigning FlowStep:', error);
                 setFlashMessage("Failed to assign FlowStep");
-            });
+        });
 
         setTimeout(() => setFlashMessage(''), 5000);
+        dispatch(fetchFlowsteps(workflowId));
+
     };
 
     return (

@@ -8,18 +8,15 @@ export const fetchFlowsteps = createAsyncThunk(
   async (workflowId, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.get(`/api/workflows/${workflowId}/flowsteps`);
-      
       if (response.status !== 200) {
         throw new Error('Failed to fetch flowsteps');
       }
-
       const data = response.data;
-
-      dispatch(setFlowsteps(data)); // Assuming setMembers is your action for setting members
-
-      return data; // Return the data if needed
+      console.log('Fetched FlowSteps:', data); // デバッグログ
+      dispatch(setFlowsteps(data)); // ステート更新
+      return data;
     } catch (error) {
-      return rejectWithValue(error.message); // Handle error
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -39,9 +36,11 @@ export const addFlowstep = createAsyncThunk(
 
 
 // FlowStepを削除するアクション
-export const deleteFlowstepAsync = (id) => async (dispatch) => {
+export const deleteFlowstepAsync = (id) => async (dispatch, getState) => {
   console.log(`Deleting flow step with ID: ${id}`);
-
+  
+  const currentFlowsteps = getState().flowsteps; // 現在のFlowStepの状態を取得
+  
   try {
     const response = await fetch(`/api/flowsteps/${id}`, {
       method: 'DELETE',
@@ -54,8 +53,6 @@ export const deleteFlowstepAsync = (id) => async (dispatch) => {
     if (response.ok) {
       console.log(`Flow step with ID ${id} deleted successfully.`);
       dispatch(flowstepsSlice.actions.deleteFlowstep(id)); // 正しいアクション名を使用
-      // 削除後に再フェッチ
-      dispatch(fetchFlowsteps());
       console.log('Redux state updated successfully.');
     } else {
       console.error('Failed to delete flow step:', response.statusText);
@@ -83,11 +80,16 @@ export const assignFlowStep = createAsyncThunk(
         },
         body: JSON.stringify({ memberId, flowstepId, assignedMembersBeforeDrop }),
       });
+
       if (!response.ok) {
         return rejectWithValue('Failed to assign FlowStep');
       }
-      const result = await response.json(); // Return the updated data or a success message
-      dispatch(fetchFlowsteps()); // 割り当て後に再フェッチ
+
+      const result = await response.json();
+
+      // 成功したら、状態を更新するためにdispatchを使用
+      dispatch(flowstepsSlice.actions.editFlowstep({ id: flowstepId, updatedFlowstep: result }));
+      
       return result; // 必要に応じて戻り値を変更
     } catch (error) {
       return rejectWithValue(error.message);
@@ -120,9 +122,6 @@ export const updateFlowstepAsync = createAsyncThunk(
       // 成功した場合はstateを更新するアクションをdispatch
       dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: data }));
       
-      // 更新後に最新のフローステップを再フェッチ
-      dispatch(fetchFlowsteps());
-      
       return data;
 
     } catch (error) {
@@ -151,16 +150,13 @@ export const updateFlowStepNumber = createAsyncThunk(
         throw new Error('Failed to update FlowStep number');
       }
 
-      dispatch(fetchFlowsteps()); // 更新後に再フェッチ
       return { flowStepId, newFlowNumber }; // 必要に応じて戻り値を変更
-
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-// Sliceの定義
 export const flowstepsSlice = createSlice({
   name: 'flowsteps',
   initialState: [],
@@ -182,12 +178,19 @@ export const flowstepsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-        .addCase(fetchFlowsteps.fulfilled, (state, action) => {
-            return action.payload; // ステートを新しいメンバーリストで更新
-        })
-        .addCase(addFlowstep.fulfilled, (state, action) => {
-            state.push(action.payload); // 新しいメンバーを追加
-        })
+      .addCase(fetchFlowsteps.fulfilled, (state, action) => {
+        return action.payload; // ステートを新しいメンバーリストで更新
+      })
+      .addCase(addFlowstep.fulfilled, (state, action) => {
+        state.push(action.payload); // 新しいメンバーを追加
+      })
+      .addCase(assignFlowStep.fulfilled, (state, action) => {
+        // assignFlowStepの成功時にstateを更新
+        const { id, updatedFlowstep } = action.payload;
+        return state.map(flowstep =>
+          flowstep.id === id ? { ...flowstep, ...updatedFlowstep } : flowstep
+        );
+      });
   },
 });
 
