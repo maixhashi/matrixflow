@@ -3,39 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\Member;
+use App\Models\Workflow;
 use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
     // メンバー情報を取得するメソッド
-    public function index()
+    public function index($workflowId)
     {
-        // メンバー情報をすべて取得
+        // Get all members for the specified workflow and the logged-in user
         $members = Member::where('user_id', auth()->id())
-        ->orderBy('order_on_matrix')
-        ->get();
-
-
-        // JSON形式で返す（Unicodeエスケープを無効にする）
+            ->where('workflow_id', $workflowId) // Ensure you have a workflow_id field in your members table
+            ->orderBy('order_on_matrix')
+            ->get();
+    
+        // JSON response
         return response()->json($members, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-      }
+    }
 
-    public function store(Request $request)
+    public function store(Request $request, $workflowId)
     {
-        // バリデーション
+        // Validate the input
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
     
-        // データの保存
+        // Check if the workflow exists (optional)
+        $workflow = Workflow::find($workflowId);
+        if (!$workflow) {
+            return response()->json(['message' => 'Workflow not found'], 404);
+        }
+    
+        // Save the member data
         $member = new Member();
         $member->name = $request->input('name');
-        $member->user_id = auth()->id(); // ログイン中のユーザーのIDを設定
+        $member->user_id = auth()->id(); // Set the logged-in user's ID
+        $member->workflow_id = $workflowId; // Associate member with workflow
         $member->save();
     
         return response()->json(['message' => 'Member created successfully!', 'member' => $member], 201);
     }
-          
+        
+              
     public function saveOrder(Request $request)
     {
         // リクエストボディから member_ids を取得

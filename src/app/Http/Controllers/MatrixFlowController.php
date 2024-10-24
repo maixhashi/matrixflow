@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 
 class MatrixFlowController extends Controller
 {
+    // ページ遷移
+    public function renderNewMatrixFlowPage()
+    {
+        // Inertia::render を使ってフロントエンドにデータとページを送る
+        return Inertia::render('NewMatrixFlowPage', [
+            'flowData' => 'Sample data for the matrix flow',
+        ]);
+    }
+
     public function renderCreateMatrixFlowPage()
     {
         // Inertia::render を使ってフロントエンドにデータとページを送る
@@ -14,6 +23,7 @@ class MatrixFlowController extends Controller
             'flowData' => 'Sample data for the matrix flow',
         ]);
     }
+    
     public function renderCreateMatrixFlowPageforGuest()
     {
         // Inertia::render を使ってフロントエンドにデータとページを送る

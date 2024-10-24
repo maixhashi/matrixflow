@@ -2,15 +2,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios'; // Axiosをインポート
 
 // メンバー追加のための非同期関数
-export const addMember = createAsyncThunk('members/addMember', async (newMember) => {
-    const response = await axios.post('/api/members', newMember); // Axiosを使ってPOSTリクエスト
-
-    if (response.status !== 200) {
-        throw new Error('Failed to add member');
+export const addMember = createAsyncThunk(
+    'members/addMember',
+    async ({ workflowId, newMember }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(`/api/workflows/${workflowId}/members`, newMember);
+            return response.data; // レスポンスデータを返す
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
     }
-
-    return response.data; // レスポンスデータを返す
-});
+);
 
 // メンバー名更新のための非同期関数
 export const updateMemberName = createAsyncThunk('members/updateMemberName', async ({ id, name }) => {
@@ -34,17 +36,27 @@ export const deleteMember = createAsyncThunk('members/deleteMember', async (memb
     return memberId; // 削除したメンバーのIDを返す
 });
 
-// メンバー一覧取得のための非同期関数
-export const fetchMembers = createAsyncThunk('members/fetchMembers', async () => {
-    const response = await axios.get('/api/members'); // Axiosを使ってGETリクエスト
-
-    if (response.status !== 200) {
-        throw new Error('Failed to fetch members');
+export const fetchMembers = createAsyncThunk(
+    'members/fetchMembers',
+    async (workflowId, { dispatch, rejectWithValue }) => {
+      try {
+        const response = await axios.get(`/api/workflows/${workflowId}/members`);
+        
+        if (response.status !== 200) {
+          throw new Error('Failed to fetch members');
+        }
+  
+        const data = response.data;
+  
+        dispatch(setMembers(data)); // Assuming setMembers is your action for setting members
+  
+        return data; // Return the data if needed
+      } catch (error) {
+        return rejectWithValue(error.message); // Handle error
+      }
     }
-
-    return response.data; // レスポンスデータを返す
-});
-
+  );
+  
 const memberSlice = createSlice({
     name: 'members',
     initialState: [],

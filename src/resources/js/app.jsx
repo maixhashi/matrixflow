@@ -10,7 +10,7 @@ import { DndProvider } from 'react-dnd'; // react-dnd の DndProvider をイン�
 import { HTML5Backend } from 'react-dnd-html5-backend'; // HTML5Backend をインポート
 import Layout from './Layouts/Layout';
 import { Helmet } from 'react-helmet';
-
+import { BrowserRouter, Route, Routes } from 'react-router-dom'; // BrowserRouterとRouteをインポート
 
 // CSRFトークンを取得する関数（nullチェックを追加）
 const csrfToken = () => {
@@ -24,7 +24,6 @@ axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken();
 
 const appName = import.meta.env.VITE_APP_NAME || 'matrixflow';
 
-
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
@@ -36,21 +35,22 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <>
+            <BrowserRouter> {/* BrowserRouterでラップ */}
                 <Provider store={store}>
                     <DndProvider backend={HTML5Backend}>
                         <Layout>
-                        <Helmet>
-                            <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-                        </Helmet>
-
-                            <App {...props} />
+                            <Helmet>
+                                <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+                            </Helmet>
+                            <Routes> {/* Routesコンポーネントでラップ */}
+                                <Route path="/create-matrixflow/:workflowId" element={<App {...props} />} />
+                                {/* 他のルートを必要に応じて追加 */}
+                            </Routes>
                         </Layout>
                     </DndProvider>
                 </Provider>
-            </>
+            </BrowserRouter>
         );
-        
     },
     progress: {
         color: '#4B5563',
