@@ -1,16 +1,41 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios'; // Axiosをインポート
 
-// メンバー追加のための非同期関数
-export const addMember = createAsyncThunk('members/addMember', async (newMember) => {
-    const response = await axios.post('/api/members', newMember); // Axiosを使ってPOSTリクエスト
-
-    if (response.status !== 200) {
-        throw new Error('Failed to add member');
+// Memberを取得するアクション
+export const fetchMembers = createAsyncThunk(
+    'members/fetchMembers',
+    async (workflowId, { dispatch, rejectWithValue }) => {
+      try {
+        const response = await axios.get(`/api/workflows/${workflowId}/members`);
+        
+        if (response.status !== 200) {
+          throw new Error('Failed to fetch members');
+        }
+  
+        const data = response.data;
+  
+        dispatch(setMembers(data)); // Assuming setMembers is your action for setting members
+  
+        return data; // Return the data if needed
+      } catch (error) {
+        return rejectWithValue(error.message); // Handle error
+      }
     }
+);
 
-    return response.data; // レスポンスデータを返す
-});
+
+// メンバー追加のための非同期関数
+export const addMember = createAsyncThunk(
+    'members/addMember',
+    async ({ workflowId, newMember }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(`/api/workflows/${workflowId}/members`, newMember);
+            return response.data; // レスポンスデータを返す
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
 
 // メンバー名更新のための非同期関数
 export const updateMemberName = createAsyncThunk('members/updateMemberName', async ({ id, name }) => {
@@ -24,27 +49,24 @@ export const updateMemberName = createAsyncThunk('members/updateMemberName', asy
 });
 
 // メンバー削除のための非同期関数
-export const deleteMember = createAsyncThunk('members/deleteMember', async (memberId) => {
-    const response = await axios.delete(`/api/members/${memberId}`); // Axiosを使ってDELETEリクエスト
+export const deleteMember = createAsyncThunk('members/deleteMember', async (memberId, { rejectWithValue }) => {
+    try {
+        const response = await fetch(`/api/members/${memberId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+        });
 
-    if (response.status !== 200) {
-        throw new Error('Failed to delete member');
+        if (!response.ok) {
+            throw new Error('Failed to delete member');
+        }
+        return memberId; // Return the deleted memberId for the reducer
+    } catch (error) {
+        return rejectWithValue(error.message);
     }
-
-    return memberId; // 削除したメンバーのIDを返す
 });
-
-// メンバー一覧取得のための非同期関数
-export const fetchMembers = createAsyncThunk('members/fetchMembers', async () => {
-    const response = await axios.get('/api/members'); // Axiosを使ってGETリクエスト
-
-    if (response.status !== 200) {
-        throw new Error('Failed to fetch members');
-    }
-
-    return response.data; // レスポンスデータを返す
-});
-
+  
 const memberSlice = createSlice({
     name: 'members',
     initialState: [],
@@ -67,9 +89,6 @@ const memberSlice = createSlice({
                     state[index] = action.payload; // メンバー名を更新
                 }
             })
-            .addCase(deleteMember.fulfilled, (state, action) => {
-                return state.filter(member => member.id !== action.payload); // 削除したメンバーをリストから除外
-            });
     },
 });
 

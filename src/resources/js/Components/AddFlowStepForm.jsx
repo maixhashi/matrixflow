@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteFlowstepAsync, fetchFlowsteps } from '../store/flowstepsSlice'; // Adjust the import path as needed
+import { addFlowstep, deleteFlowstepAsync, fetchFlowsteps } from '../store/flowstepsSlice'; // Adjust the import path as needed
 import '../../css/AddFlowStepForm.css';
 
-const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber }) => {
+const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber, workflowId }) => {
     const [name, setName] = useState(''); 
+    const [error, setError] = useState(null);
     const [flowNumber, setFlowNumber] = useState(stepNumber); 
     const [selectedMembers, setSelectedMembers] = useState(member ? [member.id] : []); 
     const [selectedStepNumber, setSelectedStepNumber] = useState(stepNumber); 
@@ -25,45 +26,25 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
 
-        const jsonData = {
+        const flowstepData = {
             name: name,
             flow_number: flowNumber,
             member_id: selectedMembers,
             step_number: selectedStepNumber,
         };
+        console.log('Sending data:', flowstepData, 'to workflowId:', workflowId); // 送信されるデータをログ
 
         try {
-            const response = await fetch('/api/flowsteps', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                body: JSON.stringify(jsonData),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Error: ${response.status} ${errorText}`);
-            }
-
-            const data = await response.json();
-
-            // Fetch updated flow steps
-            dispatch(fetchFlowsteps()); // Fetch the updated list after adding a new flow step
-
-            if (typeof onFlowStepAdded === 'function') {
-                onFlowStepAdded();
-            }
-
-            setName('');
-            setFlowNumber('');
-            setSelectedMembers([]);
-            setSelectedStepNumber('');
-            setSearchTerm('');
+            // Reduxアクションをディスパッチ
+            const action = await dispatch(addFlowstep({ workflowId, newFlowstep: flowstepData })).unwrap();
+            setName(''); // 入力をクリア
+            console.log('Flowstep added:', action); // 成功した場合の処理
+            dispatch(fetchFlowsteps(workflowId));
         } catch (error) {
-            console.error('Error submitting flowstep:', error.message);
+            console.error('Error adding Flowstep:', error); // エラーの詳細をログ
+            setError('Failed to add Flowstep.'); // エラーメッセージを設定
         }
     };
 

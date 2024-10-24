@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMembers, updateMemberName } from '../store/memberSlice';
+import { useParams } from 'react-router-dom';
+import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
@@ -14,16 +15,12 @@ import '../../css/MatrixView.css';
 
 const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member }) => {
     const dispatch = useDispatch();
-    const members = useSelector((state) => state.members); // Reduxストアからメンバーリストを取得
     const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
+    const { workflowId } = useParams();
 
     useEffect(() => {
-        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
-    }, [dispatch]);
-
-    useEffect(() => {
-        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch]);
+        dispatch(fetchFlowsteps(workflowId)); // コンポーネントがマウントされたときにフローステップを取得
+    }, [dispatch, workflowId]);
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
@@ -37,19 +34,33 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
         }),
     }));
 
+    // Ensure flowsteps is an array
+    const validFlowsteps = Array.isArray(flowsteps) ? flowsteps : [];
+
     return (
         <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
             {/* flowstepsをループして、flow_numberとメンバーに基づいて表示 */}
-            {flowsteps
-                .filter(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)) // flow_numberとメンバーでフィルタリング
+            {validFlowsteps
+                .filter(step => 
+                    step.flow_number === flowNumber && 
+                    Array.isArray(step.members) && 
+                    step.members.some(m => m.id === member.id) // Check if members is an array
+                )
                 .map(flowstep => (
                     <div key={flowstep.id} className="member-cell">
-                        <FlowStep flowstep={flowstep} />
+                        <FlowStep
+                            flowstep={flowstep}
+                            workflowId={workflowId}
+                        />
                     </div>
                 ))}
             
             {/* FlowStepが存在しない場合にボタンを表示 */}
-            {!flowsteps.some(step => step.flow_number === flowNumber && step.members.some(m => m.id === member.id)) && (
+            {!validFlowsteps.some(step => 
+                step.flow_number === flowNumber && 
+                Array.isArray(step.members) && 
+                step.members.some(m => m.id === member.id) // Check if members is an array
+            ) && (
                 <div className="member-cell">
                     <button 
                         className="add-step-button" 
@@ -63,7 +74,7 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
     );
 };
 
-const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete }) => {
+const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete, workflowId }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(member.name); // Set initial value to member.name
@@ -87,11 +98,9 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     }), [index, moveRow]);
 
     const dispatch = useDispatch();
-    const members = useSelector((state) => state.members); 
-    const flowsteps = useSelector((state) => state.flowsteps); 
 
     useEffect(() => {
-        dispatch(fetchMembers()); // Fetch members when component mounts
+        dispatch(fetchMembers(workflowId)); // Fetch members when component mounts
     }, [dispatch]);
 
     const handleNameChange = (e) => {
@@ -151,6 +160,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                     flowNumber={flowNumber}
                     onAssignFlowStep={onAssignFlowStep}
                     updateFlowStepNumber={updateFlowStepNumber}
+                    workflowId={workflowId}
                 />
             ))}
             <td className="matrix-cell next-step-column">
@@ -170,17 +180,24 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const [orderedMembers, setOrderedMembers] = useState([]); // 行の順序を管理するための状態を追加
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const dispatch = useDispatch();
+    const { workflowId } = useParams();
 
-    const members = useSelector((state) => state.members); // Reduxストアからメンバーリストを取得
-    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
+    // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
+    const members = useSelector((state) => state.members);
+    const flowsteps = useSelector((state) => state.flowsteps);
+    
+    useEffect(() => {
+        dispatch(fetchMembers(workflowId)); // workflowIdに基づいてメンバーを取得
+        console.log('Fetched members:', members);
+        dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
+        console.log('Fetched flowsteps:', flowsteps);
+    }, [dispatch, workflowId]);
 
     useEffect(() => {
-        dispatch(fetchMembers()); // コンポーネントがマウントされたときにメンバーを取得
-    }, [dispatch]);
+        console.log('workflowId:', workflowId);
+    }, [workflowId]);
 
-    useEffect(() => {
-        dispatch(fetchFlowsteps()); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch]);
+
 
     useEffect(() => {
         if (flowsteps.length > 0) {
@@ -250,26 +267,17 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
     const handleUpdateFlowStepNumber = async (flowStepId, newFlowNumber) => {
         // ReduxのupdateFlowStepNumberをdispatch
         dispatch(updateFlowStepNumber({ flowStepId, newFlowNumber }));
+        dispatch(fetchFlowsteps(workflowId));
     };
 
-    const handleMemberDelete = async (memberId) => {
-        try {
-            const response = await fetch(`/api/members/${memberId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                },
+    const handleMemberDelete = (memberId) => {
+        dispatch(deleteMember(memberId))
+            .then(() => {
+                dispatch(fetchMembers(workflowId)); // Refresh members after deletion
+            })
+            .catch((error) => {
+                console.error('Error deleting member:', error);
             });
-
-            if (response.ok) {
-                console.log(`Member with ID ${memberId} deleted successfully.`);
-                dispatch(fetchMembers()); // Refresh members from Redux
-            } else {
-                console.error('Failed to delete member.');
-            }
-        } catch (error) {
-            console.error('Error deleting member:', error);
-        }
     };
 
     return (
@@ -291,7 +299,10 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm onMemberAdded={handleMemberAdded} />
+                                        <AddMemberForm
+                                            onMemberAdded={handleMemberAdded}
+                                            workflowId={workflowId}
+                                        />
                                     </div>
                                 </td>
                                 <td className="matrix-cell next-step-column">
@@ -326,12 +337,16 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
                                     moveRow={moveRow}
                                     updateFlowStepNumber={handleUpdateFlowStepNumber}
                                     onMemberDelete={handleMemberDelete}
+                                    workflowId={workflowId}
                                 />
                             ))}
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm onMemberAdded={handleMemberAdded} />
+                                        <AddMemberForm
+                                            onMemberAdded={handleMemberAdded}
+                                            workflowId={workflowId}
+                                        />
                                     </div>
                                 </td>
                                 {Array.from({ length: maxFlowNumber }, (_, i) => (
@@ -357,6 +372,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded }) => {
                         nextStepNumber={maxFlowNumber + 1}
                         onClose={closeModal}
                         onFlowStepAdded={onFlowStepAdded}
+                        workflowId={workflowId}
                     />
                 </ModalforAddFlowStepForm>
             </div>

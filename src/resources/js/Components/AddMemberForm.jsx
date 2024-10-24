@@ -1,33 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { addMember } from '../store/memberSlice'; // アクションのパスを正確に指定
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import '../../css/AddMemberForm.css';
 
-const AddMemberForm = ({ onMemberAdded }) => {
+const AddMemberForm = ({ workflowId }) => {
     const [name, setName] = useState('');
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const dispatch = useDispatch(); // Dispatch を取得
 
     useEffect(() => {
-        // CSRFトークンを取得してaxiosに設定
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
+        setSuccessMessage(null);
+    
+        const memberData = { name }; // 送信するデータを準備
+        console.log('Sending data:', memberData, 'to workflowId:', workflowId); // 送信されるデータをログ
+    
         try {
-            const response = await axios.post('/api/members', { name });
-            setName(''); // フォームをクリア
-            if (onMemberAdded) {
-                onMemberAdded(name); // 追加したメンバーの名前を親コンポーネントに渡す
-            }
+            // Reduxアクションをディスパッチ
+            const action = await dispatch(addMember({ workflowId, newMember: memberData })).unwrap();
+            setName(''); // 入力をクリア
+            console.log('Member added:', action); // 成功した場合の処理
         } catch (error) {
-            console.error('Error adding member:', error);
+            console.error('Error adding member:', error); // エラーの詳細をログ
+            setError('Failed to add member.'); // エラーメッセージを設定
         }
     };
-
+    
     return (
         <form onSubmit={handleSubmit} className="mb-4">
+            {error && <div className="error-message">{error}</div>}
             <div className="form-row">
                 <div>
                     <input

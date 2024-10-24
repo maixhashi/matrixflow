@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers } from '../store/memberSlice'; 
-import { assignFlowStep } from '../store/flowstepsSlice'; 
+import { fetchFlowsteps, assignFlowStep } from '../store/flowstepsSlice'; 
+import { useParams } from 'react-router-dom';
 import MatrixView from '../Components/MatrixView';
 import Document from '../Components/Document';
 import FlashMessage from '../Components/FlashMessage';
-import '../../css/CreateMatrixFlowPage.css'; // CSSファイルをインポート
-import AuthenticatedLayout from '../Layouts/AuthenticatedLayout'; // AuthenticatedLayoutをインポート
+import '../../css/CreateMatrixFlowPage.css';
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout'; 
 
 const CreateMatrixFlowPage = () => {
     const dispatch = useDispatch();
@@ -14,27 +15,47 @@ const CreateMatrixFlowPage = () => {
     const [membersUpdated, setMembersUpdated] = useState(false);
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
+    const { workflowId } = useParams();
 
     const members = useSelector((state) => state.members);
 
     useEffect(() => {
-        dispatch(fetchMembers());
-    }, [dispatch]);
+        dispatch(fetchMembers(workflowId)); // workflowIdに基づいてメンバーを取得
+        console.log('Fetched members:', members);
+        dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
+    }, [dispatch, workflowId]);
 
-    const handleMemberAdded = (memberName) => {
+    const handleCreateWorkflow = async () => {
+        try {
+            const response = await fetch('/api/workflows', { method: 'POST' });
+            const data = await response.json();
+            setWorkflowId(data.id); // 新しいワークフローIDを保存
+            setFlashMessage(`Workflow created with ID: ${data.id}`);
+            setTimeout(() => setFlashMessage(''), 5000);
+        } catch (error) {
+            console.error('Error creating workflow:', error);
+            setFlashMessage('Failed to create workflow');
+            setTimeout(() => setFlashMessage(''), 5000);
+        }
+    };
+
+    const handleMemberAdded = (member) => {
+        const memberName = member.name || 'Unknown Member'; // メンバー名がオブジェクトのプロパティとして存在することを確認
         setMembersUpdated(!membersUpdated);
         setFlashMessage(`メンバーを追加しました：${memberName}`);
         setTimeout(() => setFlashMessage(''), 5000);
     };
-
+    
     const handleFlowStepAdded = () => {
+        // 必要に応じてFlowStep追加ロジックにワークフローIDを追加
         setFlowstepsUpdated(!flowstepsUpdated);
         setFlashMessage('フローステップを追加しました');
         setTimeout(() => setFlashMessage(''), 5000);
     };
 
     const handleAssignFlowStep = (memberId, flowstepId, assignedMembersBeforeDrop) => {
-        dispatch(assignFlowStep({ memberId, flowstepId, assignedMembersBeforeDrop }))
+        // 割り当てペイロードにworkflowIdを含める
+        dispatch(assignFlowStep({ memberId, flowstepId, assignedMembersBeforeDrop, workflowId }))
             .unwrap()
             .then(() => {
                 const assignedMember = members.find(member => member.id === memberId);
@@ -50,25 +71,18 @@ const CreateMatrixFlowPage = () => {
             .catch((error) => {
                 console.error('Error assigning FlowStep:', error);
                 setFlashMessage("Failed to assign FlowStep");
-            });
+        });
 
         setTimeout(() => setFlashMessage(''), 5000);
+        dispatch(fetchFlowsteps(workflowId));
+
     };
-
-    useEffect(() => {
-        const fetchFlowsteps = async () => {
-            const response = await fetch('/api/flowsteps');
-            const data = await response.json();
-            setFlowsteps(data);
-        };
-
-        fetchFlowsteps();
-    }, [flowstepsUpdated]);
 
     return (
         <AuthenticatedLayout>
             <div className="welcome-container">
                 <FlashMessage message={flashMessage} />
+                <button onClick={handleCreateWorkflow}>フローを作成する</button>
                 <div className="content-container">
                     <Document />
                     <MatrixView

@@ -10,7 +10,12 @@ class Member extends Model
     use HasFactory;
 
     // ホワイトリストで設定する属性
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'user_id',
+        'workflow_id',
+        'name',
+        'order_on_matrix'
+    ];
 
     public function user()
     {

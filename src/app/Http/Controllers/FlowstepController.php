@@ -3,21 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Flowstep;
+use App\Models\Workflow;
 use Illuminate\Http\Request;
 
 class FlowstepController extends Controller
 {
-    public function index()
+    // メンバー情報を取得するメソッド
+    public function index($workflowId)
     {
-        // ログイン中のユーザーが作成したフローステップと関連するメンバー情報を取得
-        $flowsteps = Flowstep::with('members')
-            -> where('user_id', auth()->id())
-            ->get();
-    
-        return response()->json($flowsteps);
+        $flowsteps = Flowstep::with('members')->where('workflow_id', $workflowId)->get();
+        // JSON response
+        return response()->json($flowsteps, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
     
-    public function store(Request $request)
+    public function store(Request $request, $workflowId)
     {
         // バリデーション
         $request->validate([
@@ -26,20 +25,27 @@ class FlowstepController extends Controller
             'member_id' => 'required|array', // 複数のメンバーIDを受け取れるように
             'member_id.*' => 'exists:members,id', // 各メンバーIDの存在確認
         ]);
-    
-        // FlowStepの作成（user_idを追加）
-        $flowStep = FlowStep::create([
-            'name' => $request->input('name'),
-            'flow_number' => $request->input('flow_number'),
-            'user_id' => auth()->id(), // ログイン中のユーザーのIDを設定
-        ]);
 
-        // FlowstepMemberに関連メンバーを追加
-        foreach ($request->member_id as $memberId) {
-           $flowStep->members()->attach($memberId);
+        // Check if the workflow exists (optional)
+        $workflow = Workflow::find($workflowId);
+        if (!$workflow) {
+            return response()->json(['message' => 'Workflow not found'], 404);
         }
 
-        return response()->json(['message' => 'Flow step added successfully', 'flowStep' => $flowStep]);
+        // Save the member data
+        $flowstep = new Flowstep();
+        $flowstep->name = $request->input('name');
+        $flowstep->flow_number = $request->input('flow_number');
+        $flowstep->user_id = auth()->id(); // Set the logged-in user's ID
+        $flowstep->workflow_id = $workflowId; // Associate member with workflow
+        $flowstep->save();
+    
+        // FlowstepMemberに関連メンバーを追加
+        foreach ($request->member_id as $memberId) {
+           $flowstep->members()->attach($memberId);
+        }
+
+        return response()->json(['message' => 'Flow step added successfully', 'flowStep' => $flowstep]);
     }
     
     public function updateFlowstepStepnumber(Request $request)

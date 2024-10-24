@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import '../../css/Flowstep.css';
 import { useDispatch } from 'react-redux';
-import { deleteFlowstepAsync, updateFlowstepAsync } from '../store/flowstepsSlice'; // Import the async actions
+import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepAsync } from '../store/flowstepsSlice'; // Import the async actions
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 
-const FlowStep = ({ flowstep }) => {
+const FlowStep = ({ flowstep, workflowId }) => {
     if (!flowstep) {
         return <div>フローステップのデータがありません</div>;
     }
@@ -44,6 +44,7 @@ const FlowStep = ({ flowstep }) => {
         e.preventDefault();
         await dispatch(updateFlowstepAsync({ id: flowstep.id, updatedFlowstep: { name: newName } }));
         setIsEditing(false); // Close the form after submitting
+        dispatch(fetchFlowsteps(workflowId));
     };
 
     return (
