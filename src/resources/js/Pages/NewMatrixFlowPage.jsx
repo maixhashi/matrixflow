@@ -1,48 +1,56 @@
 import React, { useState } from 'react';
-import { Inertia } from '@inertiajs/inertia'; // Inertia.js をインポート
-import axios from 'axios'; // Axiosをインポート
+import axios from 'axios';
 import FlashMessage from '../Components/FlashMessage';
 import '../../css/CreateMatrixFlowPage.css';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout';
 
 const NewMatrixFlowPage = () => {
-    const [workflowName, setWorkflowName] = useState(''); // ワークフロー名の状態
-    const [workflowId, setWorkflowId] = useState(null);   // 新しいワークフローIDを保存する状態
-    const [flashMessage, setFlashMessage] = useState(''); // フラッシュメッセージ用の状態
+    const [workflowName, setWorkflowName] = useState('');
+    const [flashMessage, setFlashMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleCreateWorkflow = async (event) => {
-        event.preventDefault(); // フォームのデフォルトの送信を防ぐ
-
-        try {
-            // LaravelのCSRFトークンをmetaタグから取得
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            if (!token) {
-              console.error('CSRF token not found');
-            }
-
-            const response = await axios.post('/api/workflows', {
-                name: workflowName // 入力されたワークフロー名を送信
-            }, {
-                headers: {
-                    'X-CSRF-TOKEN': token, // CSRFトークンをヘッダーに追加
-                }
-            });
-
-            setWorkflowId(response.data.id); // 新しいワークフローIDを保存
-            setFlashMessage(`Workflow created with ID: ${response.data.id}`);
-            
-            setTimeout(() => {
-                setFlashMessage('');
-                // Inertia.visit(`/create-matrixflow/${response.data.id}`);
-                window.location.href = `/create-matrixflow/${response.data.id}`;
-            }, 3000); // 3秒後に遷移
-        } catch (error) {
-            console.error('Error creating workflow:', error);
-            setFlashMessage('Failed to create workflow');
-            setTimeout(() => setFlashMessage(''), 5000);
-        }
-    };
-
+      event.preventDefault();
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+  
+      try {
+          const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const response = await axios.post('/api/workflows', {
+              name: workflowName
+          }, {
+              headers: {
+                  'X-CSRF-TOKEN': token,
+              },
+              maxRedirects: 0,
+          });
+  
+          // レスポンスデータをログに表示
+          console.log('Response:', response.data); // ここを確認
+          
+          // ワークフローのIDを取得
+          const workflowId = response.data.id; // ここでundefinedになっていないか確認
+  
+          // フラッシュメッセージを表示
+          setFlashMessage('Workflow created successfully. You will be redirected.');
+  
+          // 自動的に遷移するためのタイマーをセット
+          setTimeout(() => {
+              window.location.href = `/create-matrixflow/${workflowId}`;
+          }, 3000);
+      } catch (error) {
+          if (error.response && error.response.status === 302) {
+              window.location.href = error.response.headers.location;
+          } else {
+              console.error('Error creating workflow:', error);
+              setFlashMessage('Failed to create workflow');
+              setTimeout(() => setFlashMessage(''), 5000);
+          }
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+      
     return (
         <AuthenticatedLayout>
             <div className="welcome-container">
@@ -54,11 +62,11 @@ const NewMatrixFlowPage = () => {
                             type="text"
                             id="workflowName"
                             value={workflowName}
-                            onChange={(e) => setWorkflowName(e.target.value)} // 入力値を状態にセット
+                            onChange={(e) => setWorkflowName(e.target.value)}
                             required
                         />
                     </div>
-                    <button type="submit">フローを作成する</button>
+                    <button type="submit" disabled={isSubmitting}>フローを作成する</button>
                 </form>
             </div>
         </AuthenticatedLayout>

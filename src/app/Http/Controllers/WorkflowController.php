@@ -7,20 +7,20 @@ use Illuminate\Http\Request;
 
 class WorkflowController extends Controller
 {
-    // 新しいワークフローを作成するメソッド
-    public function store(Request $request)
-    {
-        // バリデーション (名前フィールドが必須など)
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        // ワークフローを作成
-        $workflow = Workflow::create([
-            'name' => $request->input('name'),
-        ]);
-
-        // 作成したワークフローのIDを返す
-        return response()->json(['id' => $workflow->id], 201);
-    }
+  public function store(Request $request)
+  {
+      $validatedData = $request->validate([
+          'name' => 'required|string|max:255',
+      ]);
+  
+      // ワークフローの作成
+      $workflow = Workflow::create($validatedData);
+  
+      // 成功レスポンスを返す
+      return response()->json([
+          'id' => $workflow->id,
+          'message' => 'Workflow created successfully.',
+      ]);
+  }
+      
 }
