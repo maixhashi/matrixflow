@@ -7,7 +7,7 @@ const Header = ({ auth }) => {
     const user = auth ? auth.user : null;
 
     return (
-        <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
+        <header className="grid grid-cols-2 items-center gap-2 lg:grid-cols-3">
             <div className="flex items-center">
               <Link
                       href={route('root')}

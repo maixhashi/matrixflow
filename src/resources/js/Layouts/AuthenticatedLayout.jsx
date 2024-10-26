@@ -40,7 +40,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route('matrixflow.new')} // 新しいルート名
                                     active={route().current('matrixflow.new')} // アクティブ状態の判定
                                 >
-                                    マトリックスフロー作成
+                                    ワークフローを作成する
                                 </NavLink>
                             </div>
                         </div>
