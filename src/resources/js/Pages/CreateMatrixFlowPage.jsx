@@ -68,22 +68,20 @@ const CreateMatrixFlowPage = (props) => {
     };
 
     return (
-        <AuthenticatedLayout>
-            <div className="welcome-container">
-                <FlashMessage message={flashMessage} />
-                <div className="content-container">
-                    <Document />
-                    <MatrixView
-                        members={members}
-                        flowsteps={flowsteps}
-                        onAssignFlowStep={handleAssignFlowStep}
-                        onMemberAdded={handleMemberAdded}
-                        onFlowStepAdded={handleFlowStepAdded}
-                        workflowId={workflowId}
-                    />
-                </div>
+        <div className>
+            <FlashMessage message={flashMessage} />
+            <div className="content-container">
+                {/* <Document /> */}
+                <MatrixView
+                    members={members}
+                    flowsteps={flowsteps}
+                    onAssignFlowStep={handleAssignFlowStep}
+                    onMemberAdded={handleMemberAdded}
+                    onFlowStepAdded={handleFlowStepAdded}
+                    workflowId={workflowId}
+                />
             </div>
-        </AuthenticatedLayout>
+        </div>
     );
 };
 
