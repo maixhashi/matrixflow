@@ -1,78 +1,63 @@
 .matrix-container {
-  max-width: 90%; /* 画面幅に対する最大幅を90%に設定 */
   margin: 0 auto; /* 中央揃えのために左右の自動マージン */
   padding: 20px; /* 上下左右に余白を追加 */
   box-sizing: border-box; /* パディングが幅に影響しないように設定 */
 }
 
 .matrix-table {
-  width: 100%;
-  border-collapse: collapse;
+  border-collapse: collapse; /* テーブルの境界を重ねる */
+  table-layout: fixed; /* 列幅を固定 */
 }
 
-.matrix-header {
-  background-color: #f2f2f2;
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-}
-
-.matrix-corner-header {
-  background-color: #f2f2f2;
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-  width: 10%;
-  max-width: 10%;
-}
-
+.matrix-header, 
+.matrix-corner-header, 
 .matrix-side-header {
-  background-color: #f2f2f2;
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-  width: 10%;
-  max-width: 10%;
+  background-color: #f2f2f2; /* 背景色 */
+  padding: 10px; /* 内部の余白 */
+  text-align: center; /* 中央揃え */
+  border: 1px solid #ddd; /* 境界線 */
+  width: 76px;
 }
 
-td.matrix-cell {
-  width: 10%;
-  max-width: 10%;
-  border: 1px solid #ddd;
+.matrix-cell {
+  border: 1px solid #ddd; /* 境界線 */
+  overflow: hidden; /* オーバーフローを隠す */
 }
 
-/* MatrixView.css */
 .matrix-empty-cell {
   height: 100px; /* 高さを指定 */
   background-color: #f2f2f2; /* 背景色 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-
-td.matrix-cell.next-step-column {
-  padding: 8px;
-  width: 10%;
-  border: 1px solid #ddd;
+  display: flex; /* フレックスボックスで整列 */
+  justify-content: center; /* 中央揃え */
+  align-items: center; /* 垂直中央揃え */
 }
 
 .member-cell {
-  display: flex;                     /* Use flexbox for layout */
-  justify-content: space-between;    /* Space between items: name on left, icon on right */
-  align-items: center;               /* Center items vertically */
-  padding: 10px;                     /* Add some padding for aesthetics */
+  display: flex; /* フレックスボックスで整列 */
+  align-items: center; /* アイコンと名前を縦に中央揃え */
 }
 
-.member-name {
-  flex-grow: 1;                      /* Allow the name to take up available space */
+.edit-icon, 
+.delete-button {
+  cursor: pointer; /* ポインターを表示 */
+  margin-left: 5px; /* 左側のマージン */
+}
+
+.drag-icon {
+  display: none; /* デフォルトでは非表示 */
+  flex-direction: column; /* 縦並び */
+  align-items: center; /* 中央揃え */
+}
+
+.matrix-side-header:hover {
+  background-color: gray; /* ホバー時の背景色 */
+  border: 2px dashed black; /* ダッシュドボーダー */
+  cursor: pointer; /* ポインターを変更 */
 }
 
 .member-icon {
-  margin-left: 8px;                 /* Optional: Add space between name and icon */
+  margin-left: 6px; /* アイコンと名前の間のスペース */
 }
-
 
 .flow-step {
   padding: 5px; /* 内部の余白 */
@@ -87,52 +72,16 @@ td.matrix-cell.next-step-column {
 }
 
 .next-step-column {
-  width: 150px;
+  width: 75px; /* 幅を150pxに設定 */
   background-color: #BBBBBB; /* 薄い灰色 */
   font-weight: bold; /* 強調するために太字にする */
-  border: 2px dotted #DDDDDD; /* 黒の点線枠線 */
+  border: 2px dotted #DDDDDD; /* 点線の枠線 */
 }
 
-/* ホバー時のmatrix-side-headerのスタイル */
-.matrix-side-header:hover {
-  background-color: gray; /* ホバー時の背景色 */
-  border: 2px dashed black; /* ダッシュドボーダーでDnD可能なことを強調 */
+.member-name {
+  flex-grow: 1; /* 名前の幅を拡張 */
+  display: flex; /* フレックスボックスで整列 */
+  justify-content: flex-start; /* 左寄せ */
+  align-items: center; /* 垂直中央揃え */
+  margin-left: 5px; /* 左側のマージン */
 }
-
-/* ホバー時のポインターカーソルの変更 */
-.matrix-side-header:hover {
-  cursor: pointer; /* ポインターを変更 */
-}
-
-/* ドラッグアイコンのスタイル */
-.drag-icon {
-  display: none; /* デフォルトでは非表示 */
-  flex-direction: column; /* 縦並び */
-  align-items: center; /* 中央揃え */
-}
-
-/* ホバー時にドラッグアイコンを表示 */
-.matrix-side-header:hover .drag-icon {
-  display: flex; /* ホバー時に表示 */
-  position: absolute; /* 絶対配置 */
-  left: -30px; /* 左側に配置 */
-  top: 50%; /* 縦中央に配置 */
-  transform: translateY(-50%); /* 縦方向で中央揃え */
-  background-color: white; /* 背景色 */
-  padding: 4px; /* パディング */
-  border-radius: 4px; /* 角を丸める */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 影を付ける */
-}
-
-/* 矢印アイコンのスタイル */
-.arrow-icon {
-  font-size: 12px; /* アイコンサイズ */
-  color: #007bff; /* アイコンの色 */
-  margin: 2px 0; /* 上下にマージン */
-}
-
-.matrix-title {
-  text-align: center;
-  font-size: 24px;
-}
-

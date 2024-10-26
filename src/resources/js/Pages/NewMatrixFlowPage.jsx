@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import FlashMessage from '../Components/FlashMessage';
-import '../../css/CreateMatrixFlowPage.css';
+import '../../css/NewMatrixFlowPage.css';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout';
 import CreateMatrixFlowPage from './CreateMatrixFlowPage';
 
@@ -36,6 +36,10 @@ const NewMatrixFlowPage = () => {
 
             // 成功メッセージを設定
             setFlashMessage(`ワークフローを作成しました: ${response.data.name}`);
+            setTimeout(() => {
+              setFlashMessage('');
+              console.log('Flash message cleared');
+            }, 5000);
 
             // ワークフローのIDを設定
             const newWorkflowId = response.data.id;
@@ -57,12 +61,12 @@ const NewMatrixFlowPage = () => {
       
     return (
         <AuthenticatedLayout>
-            <div className="welcome-container">
+            <div className="NewMatrixFlowe-container">
                 <FlashMessage message={flashMessage} />
                 {/* workflowIdがない場合はワークフロー作成フォームを表示 */}
                 {!workflowId ? (
-                    <form onSubmit={handleCreateWorkflow}>
-                        <div className="form-group">
+                    <form onSubmit={handleCreateWorkflow} className="form-container">
+                        <div>
                             <label htmlFor="workflowName">ワークフロー名:</label>
                             <input
                                 type="text"
