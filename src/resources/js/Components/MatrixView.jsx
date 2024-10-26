@@ -159,6 +159,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                 <MatrixCol
                     key={flowNumber}
                     member={member}
+                    isDragging={isDragging}
                     openModal={openModal}
                     flowNumber={flowNumber}
                     onAssignFlowStep={onAssignFlowStep}
