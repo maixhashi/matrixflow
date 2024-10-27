@@ -5,7 +5,7 @@ import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 import { fetchCheckLists, addCheckList } from '../store/checklistSlice'; // Adjust the import path as needed
 import '../../css/AddFlowStepForm.css';
 
-const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber, workflowId }) => {
+const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber, workflowId }) => {
     const [name, setName] = useState(''); 
     const [error, setError] = useState(null);
     const [flowNumber, setFlowNumber] = useState(stepNumber); 
@@ -153,4 +153,4 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
     );
 };
 
-export default AddFlowStepForm;
+export default AddCheckListForm;

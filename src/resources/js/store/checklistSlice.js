@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+
 export const fetchCheckLists = createAsyncThunk(
   'checkLists/fetchCheckLists',
   async (workflowId) => {
@@ -18,6 +19,9 @@ export const addCheckList = createAsyncThunk(
   }
 );
 
+export const selectCheckListsByFlowNumber = (flowNumber) => (state) => {
+  return state.checklists ? state.checklists.filter(checklist => checklist.flownumber_for_checklist === flowNumber) : [];
+};
 
 const checkListSlice = createSlice({
   name: 'checkLists',

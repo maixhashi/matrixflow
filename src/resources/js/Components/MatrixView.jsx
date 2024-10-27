@@ -11,30 +11,57 @@ import AddFlowStepForm from '../Components/AddFlowStepForm';
 import AddCheckListForm from '../Components/AddCheckListForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
+import CheckListModal from '../Components/CheckListModal';
+import CheckListModalContent from '../Components/CheckListModalContent';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const CheckItemColumn = ({ flowNumber, onAddCheckItem, openAddCheckListModal, workflowId }) => {
+const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId }) => {
     const checkListsFromStore = useSelector(selectCheckListsByColumn);
-
-    // flowNumberに基づいてチェックリストを取得
     const checkListsForFlowNumber = checkListsFromStore[flowNumber] || [];
+    
+    const [selectedCheckList, setSelectedCheckList] = useState(null); // 選択されたチェックリストを保持する状態
+    const [isModalOpen, setIsModalOpen] = useState(false); // モーダルのオープン状態を管理
 
-    // flowNumberとworkflowIdの両方に一致するチェックリストが1つ以上存在するか確認
     const hasCheckList = checkListsForFlowNumber.some(checklist => checklist.workflow_id === workflowId);
     console.log("hasCheckList:", hasCheckList);
+
+    const handleCheckListClick = (checklist) => {
+        setSelectedCheckList(checklist); // 選択されたチェックリストを設定
+        setIsModalOpen(true); // モーダルを開く
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false); // モーダルを閉じる
+        setSelectedCheckList(null); // 選択をリセット
+    };
 
     return (
         <td className="matrix-check-item-column">
             {hasCheckList ? (
-                <div className="check-item" onClick={() => openAddCheckListModal()}>
+                <div className="check-item" onClick={() => handleCheckListClick(checkListsForFlowNumber[0])}>
                     <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
                 </div>
             ) : (
-                <div className="check-item" onClick={() => openAddCheckListModal()}>
+                <div className="check-item" onClick={openAddCheckListModal}>
                     <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
                 </div>
+            )}
+
+            {/* モーダルの表示 */}
+            {isModalOpen && (
+                <CheckListModal 
+                    isOpen={isModalOpen} 
+                    onClose={closeModal} 
+                    checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
+                >
+                    <CheckListModalContent
+                      workflowId={workflowId}
+                      flowNumber={flowNumber}
+                      checkListsForFlowNumber={checkListsForFlowNumber}
+                    />
+                </CheckListModal >
             )}
         </td>
     );
@@ -242,6 +269,7 @@ const MatrixRow = ({
                         />
                         {flowNumber < maxFlowNumber && (
                             <CheckItemColumn
+                                member={member}
                                 flowNumber={flowNumber}
                                 checkItems={checkItems}
                                 onAddCheckItem={() => handleAddCheckItem(flowNumber)}

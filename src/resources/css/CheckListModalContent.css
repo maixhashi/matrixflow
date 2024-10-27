@@ -1,0 +1,39 @@
+.checklist-container {
+  list-style-type: none; /* リストのデフォルトスタイルを無効化 */
+  padding: 0; /* パディングをリセット */
+}
+
+.checklists {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px; /* 縦に並べるために下にマージンを追加 */
+  transition: transform 0.2s;
+}
+
+.checklists:hover {
+  background-color: aliceblue;
+  cursor: pointer; /* カーソルをポインターに */
+}
+
+.error-message {
+  color: red; /* エラーメッセージの色 */
+  margin-top: 8px; /* 上部のマージン */
+}
+
+.form-row {
+  display: flex;
+  align-items: center; /* 垂直方向の中央揃え */
+}
+
+.form-row input {
+  margin-right: 10px; /* アイコンとのスペースを調整 */
+}
+
+.form-row button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
