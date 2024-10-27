@@ -85,11 +85,15 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
         <div>
             <form className="form-container" onSubmit={handleSubmit}>
                 <div className="AddCheckListForm-title-container">
-                    <FontAwesomeIcon icon={faClipboardCheck} className="AddCheckListForm-title-icon" />
+                    <div className="AddCheckListForm-title-icon">
+                        <FontAwesomeIcon icon={faClipboardCheck} />
+                    </div>
                     <div className="AddCheckListForm-title">
                         チェックリストを作成する
                     </div>
-                    <FontAwesomeIcon icon={faClipboardCheck}  className="AddCheckListForm-title-icon" />
+                    <div className="AddCheckListForm-title-icon">
+                        <FontAwesomeIcon icon={faClipboardCheck} />
+                    </div>
                 </div>
                 <div>
                     <label>フローステップ名:</label>

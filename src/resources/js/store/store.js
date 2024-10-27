@@ -9,7 +9,7 @@ const store = configureStore({
     reducer: {
         members: memberReducer,
         flowsteps: flowstepsReducer,
-        checklists: checklistsReducer,
+        checkLists: checklistsReducer,
         membersForGuest: memberReducerForGuest
     },
 });
