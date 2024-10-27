@@ -16,11 +16,9 @@ const CheckItemColumn = ({ flowNumber, checkItems, onAddCheckItem }) => {
     return (
         <td className="matrix-check-item-column">
             {checkItems.length > 0 ? (
-                checkItems.map((item) => (
-                    <div key={item.id} className="check-item">
-                        <FontAwesomeIcon icon={faClipboardCheck} />
-                    </div>
-                ))
+                <div className="check-item">
+                    <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
+                </div>
             ) : (
                 <div className="check-item" onClick={onAddCheckItem}>
                     <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
@@ -98,20 +96,74 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
 const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete, workflowId }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(member.name); // Set initial value to member.name
+    const [newName, setNewName] = useState(member.name);
 
-    // const [checkItemsByColumn, setCheckItemsByColumn] = useState({}); // 各列ごとのcheckItemsを保持
-    const [checkItemsByColumn, setCheckItemsByColumn] = useState({
-        1: [{ id: 1, name: 'Check Item 1-1' }],
-        2: [{ id: 3, name: 'Check Item 2-1' }],
-        3: [{ id: 4, name: 'Check Item 3-1' }]
-    }); // 各列ごとに初期値としてチェック項目を追加
+    const [checkListsByColumn, setCheckListsByColumn] = useState({
+        1: [
+            {
+                id: 1,
+                name: 'Check Item 1-1',
+                check_items: [
+                    {
+                        id: 1,
+                        check_content: "⚪︎⚪︎する",
+                        member_id: 1    
+                    },
+                    {
+                        id: 2,
+                        check_content: "⚪︎⚪︎する",
+                        member_id: 1    
+                    },
+                ] 
+            }
+        ],
+        2: [
+            {
+                id: 2,
+                name: 'Check Item 1-2',
+                check_items: [
+                    {
+                        id: 3,
+                        check_content: "⚪︎⚪︎する",
+                        member_id: 2    
+                    }
+                ] 
+            }
+        ],
+        3: [
+            {
+                id: 3,
+                name: 'Check Item 1-3',
+                check_items: [
+                    {
+                        id: 4,
+                        check_content: "⚪︎⚪︎する",
+                        member_id: 3    
+                    }
+                ] 
+            }
+        ]
+    });
 
     const handleAddCheckItem = (flowNumber) => {
-        const newCheckItem = { id: 1, name: 'New Check Item ${flowNumber}' }; // 新しいチェック項目を定義
-        setCheckItemsByColumn((prev) => ({
+        const newCheckItemId = Date.now(); // Use timestamp or any logic to ensure unique ID
+        const newCheckItem = {
+            id: newCheckItemId,
+            check_content: `New Check Item ${flowNumber}`,
+            member_id: member.id, // You can also associate the new check item with the current member
+        };
+
+        setCheckListsByColumn((prev) => ({
             ...prev,
-            [flowNumber]: [...(prev[flowNumber] || []), newCheckItem], // flowNumberに応じて項目を追加
+            [flowNumber]: prev[flowNumber].map(checkItem => {
+                if (checkItem.check_items) {
+                    return {
+                        ...checkItem,
+                        check_items: [...checkItem.check_items, newCheckItem]
+                    };
+                }
+                return checkItem;
+            }),
         }));
     };
 
@@ -128,7 +180,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
         hover: (item) => {
             if (item.index !== index) {
                 moveRow(item.index, index);
-                item.index = index; // Update the index to reflect the new position
+                item.index = index;
             }
         },
     }), [index, moveRow]);
@@ -136,7 +188,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchMembers(workflowId)); // Fetch members when component mounts
+        dispatch(fetchMembers(workflowId));
     }, [dispatch]);
 
     const handleNameChange = (e) => {
@@ -144,7 +196,6 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     };
 
     const handleNameEdit = async () => {
-        // Dispatch an action to update the member name
         await dispatch(updateMemberName({ id: member.id, name: newName }));
         setIsEditing(false);
     };
@@ -188,7 +239,7 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                     </button>
                 </div>
             </td>
-            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber, i) => (  // Add 'i' as a parameter here
+            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                 <React.Fragment key={flowNumber}>
                     <MatrixCol
                         key={flowNumber}
@@ -200,18 +251,15 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                         updateFlowStepNumber={updateFlowStepNumber}
                         workflowId={workflowId}
                     />
-                    {i < maxFlowNumber - 1 &&
-                     (
+                    {flowNumber < maxFlowNumber && ( // 次のフローステップには表示しない
                         <CheckItemColumn
-                            flowNumber={i + 1}
-                            checkItems={checkItemsByColumn[i + 1] || []} // 各列ごとのチェック項目を渡す
-                            onAddCheckItem={() => handleAddCheckItem(i + 1)}
+                            flowNumber={flowNumber}
+                            checkItems={checkListsByColumn[flowNumber] ? checkListsByColumn[flowNumber][0].check_items : []}
+                            onAddCheckItem={() => handleAddCheckItem(flowNumber)}
                         />
-                    )
-                    } {/* チェック項目列を追加 */}
+                    )}
                 </React.Fragment>
             ))}
-
             <td className="matrix-cell next-step-column">
                 <button onClick={() => openModal(member, maxFlowNumber + 1)} className="add-step-button">
                     <FontAwesomeIcon icon={faSquarePlus} />
