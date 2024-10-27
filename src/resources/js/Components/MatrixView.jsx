@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -11,6 +11,26 @@ import AddFlowStepForm from '../Components/AddFlowStepForm';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
+
+const CheckItemColumn = ({ flowNumber }) => {
+    // 状態やプロップスからチェック項目を取得するロジックを追加
+    const checkItems = []; // チェック項目の配列を取得
+
+    return (
+        <td className="matrix-check-item-column">
+            {checkItems.length > 0 ? (
+                checkItems.map((item, index) => (
+                    <div key={index} className="check-item">
+                        {item.checked ? '✔️' : '❌'}
+                    </div>
+                ))
+            ) : (
+                <div className="check-item"><FontAwesomeIcon icon={faPlus} /></div> // チェック項目がない場合の表示
+            )}
+        </td>
+    );
+};
+
 
 const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member, workflowId }) => {
     const dispatch = useDispatch();
@@ -69,7 +89,7 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
                         className="add-step-button" 
                         onClick={() => openModal(member, flowNumber)}
                     >
-                        <FontAwesomeIcon icon={faPlus} />
+                        <FontAwesomeIcon icon={faSquarePlus} />
                     </button>
                 </div>
             )}
@@ -155,21 +175,25 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                     </button>
                 </div>
             </td>
-            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
-                <MatrixCol
-                    key={flowNumber}
-                    member={member}
-                    isDragging={isDragging}
-                    openModal={openModal}
-                    flowNumber={flowNumber}
-                    onAssignFlowStep={onAssignFlowStep}
-                    updateFlowStepNumber={updateFlowStepNumber}
-                    workflowId={workflowId}
-                />
+            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber, i) => (  // Add 'i' as a parameter here
+                <React.Fragment key={flowNumber}>
+                    <MatrixCol
+                        key={flowNumber}
+                        member={member}
+                        isDragging={isDragging}
+                        openModal={openModal}
+                        flowNumber={flowNumber}
+                        onAssignFlowStep={onAssignFlowStep}
+                        updateFlowStepNumber={updateFlowStepNumber}
+                        workflowId={workflowId}
+                    />
+                    {i < maxFlowNumber - 1 && <CheckItemColumn flowNumber={i + 1} />} {/* チェック項目列を追加 */}
+                </React.Fragment>
             ))}
+
             <td className="matrix-cell next-step-column">
-                <button className="add-step-button" onClick={() => openModal(member, maxFlowNumber + 1)}>
-                    <FontAwesomeIcon icon={faPlus} />
+                <button onClick={() => openModal(member, maxFlowNumber + 1)} className="add-step-button">
+                    <FontAwesomeIcon icon={faSquarePlus} />
                 </button>
             </td>
         </tr>
@@ -310,7 +334,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                 </td>
                                 <td className="matrix-cell next-step-column">
                                     <button onClick={() => openModal(null, 2)} className="add-step-button">
-                                        <FontAwesomeIcon icon={faPlus} />
+                                        <FontAwesomeIcon icon={faSquarePlus} />
                                     </button>
                                 </td>
                             </tr>
@@ -321,8 +345,11 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                         <thead>
                             <tr>
                                 <th className="matrix-corner-header">担当者 / フローステップ</th>
-                                {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
-                                    <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
+                                {Array.from({ length: maxFlowNumber }, (_, i) => (
+                                    <React.Fragment key={i}>
+                                        <th className="matrix-header">STEP {i + 1}</th>
+                                        {i < maxFlowNumber - 1 && <th className="matrix-header-between-steps"></th>} {/* チェック項目列を表示 */}
+                                    </React.Fragment>
                                 ))}
                                 <th className="matrix-header next-step-column">STEP {maxFlowNumber + 1}</th>
                             </tr>
@@ -352,16 +379,18 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                         />
                                     </div>
                                 </td>
-                                {Array.from({ length: maxFlowNumber }, (_, i) => (
-                                    <td key={i} className="matrix-cell">
-                                        <div className="matrix-empty-cell"><FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" /></div> {/* This keeps the cell empty for alignment */}
-                                    </td>
+                                {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => (
+                                    <td key={i} className="matrix-cell-between-steps">
+                                        <div className="matrix-empty-cell-between-steps">
+                                            <FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" />
+                                        </div> {/* This keeps the cell empty for alignment */}
+                                    </td> // ここを修正
                                 ))}
-                                <td className="matrix-cell next-step-column">
-                                    <button onClick={() => openModal(null, maxFlowNumber + 1)} className="add-step-button">
-                                        <FontAwesomeIcon icon={faPlus} />
-                                    </button>
-                                </td>
+                                {maxFlowNumber > 0 && (  // maxFlowNumber が 1 より大きい場合のみ表示
+                                    <td className="matrix-cell next-step-column next-step-column-faRoadBarrier">
+                                        <FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" />
+                                    </td>
+                                )}
                             </tr>
                         </tbody>
                     </table>

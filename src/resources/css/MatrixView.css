@@ -19,6 +19,24 @@
   width: 76px;
 }
 
+td.matrix-empty-cell-between-steps {
+  background-color: #f2f2f2; /* 背景色 */
+  padding: 10px; /* 内部の余白 */
+  text-align: center; /* 中央揃え */
+  /* border: 1px solid #ddd; */
+  width: 15px;  
+}
+
+.matrix-check-item-column,
+.matrix-header-between-steps,
+.matrix-cell-between-steps {
+  background-color: #f2f2f2; /* 背景色 */
+  /* padding: 10px; 内部の余白 */
+  text-align: center; /* 中央揃え */
+  border: 1px solid #ddd;
+  width: 10px;  
+}
+
 .matrix-cell {
   border: 1px solid #ddd; /* 境界線 */
   overflow: hidden; /* オーバーフローを隠す */
@@ -76,6 +94,10 @@
   background-color: #BBBBBB; /* 薄い灰色 */
   font-weight: bold; /* 強調するために太字にする */
   border: 2px dotted #DDDDDD; /* 点線の枠線 */
+}
+
+.next-step-column-faRoadBarrier {
+  text-align: center;
 }
 
 .member-name {
