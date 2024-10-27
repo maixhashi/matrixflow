@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
-import { add } from '../store/checklistSlice'; // Adjust the import path as needed
+import { fetchCheckLists, addCheckList } from '../store/checklistSlice'; // Adjust the import path as needed
 import '../../css/AddFlowStepForm.css';
 
 const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber, workflowId }) => {
