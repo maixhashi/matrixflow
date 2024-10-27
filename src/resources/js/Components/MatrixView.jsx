@@ -541,7 +541,6 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
                         nextStepNumber={maxFlowNumber + 1}
-                        isOpen={isModalforAddCheckListFormOpen} 
                         onClose={closeAddCheckListModal}
                         onFlowStepAdded={onFlowStepAdded}
                         workflowId={workflowId}

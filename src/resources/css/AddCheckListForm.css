@@ -6,6 +6,11 @@
   margin: 10px 0;
 }
 
+.AddCheckListForm-title-container {
+  display: flex;
+  text-align: center;
+}
+
 .AddCheckListForm-title {
   text-align: center;
   font-weight: bold;
