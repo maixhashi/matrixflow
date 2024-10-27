@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -12,25 +12,23 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const CheckItemColumn = ({ flowNumber }) => {
-    // 状態やプロップスからチェック項目を取得するロジックを追加
-    const checkItems = []; // チェック項目の配列を取得
-
+const CheckItemColumn = ({ flowNumber, checkItems, onAddCheckItem }) => {
     return (
         <td className="matrix-check-item-column">
             {checkItems.length > 0 ? (
-                checkItems.map((item, index) => (
-                    <div key={index} className="check-item">
-                        {item.checked ? '✔️' : '❌'}
+                checkItems.map((item) => (
+                    <div key={item.id} className="check-item">
+                        <FontAwesomeIcon icon={faClipboardCheck} />
                     </div>
                 ))
             ) : (
-                <div className="check-item"><FontAwesomeIcon icon={faPlus} /></div> // チェック項目がない場合の表示
+                <div className="check-item" onClick={onAddCheckItem}>
+                    <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
+                </div>
             )}
         </td>
     );
 };
-
 
 const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member, workflowId }) => {
     const dispatch = useDispatch();
@@ -101,6 +99,21 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(member.name); // Set initial value to member.name
+
+    // const [checkItemsByColumn, setCheckItemsByColumn] = useState({}); // 各列ごとのcheckItemsを保持
+    const [checkItemsByColumn, setCheckItemsByColumn] = useState({
+        1: [{ id: 1, name: 'Check Item 1-1' }],
+        2: [{ id: 3, name: 'Check Item 2-1' }],
+        3: [{ id: 4, name: 'Check Item 3-1' }]
+    }); // 各列ごとに初期値としてチェック項目を追加
+
+    const handleAddCheckItem = (flowNumber) => {
+        const newCheckItem = { id: 1, name: 'New Check Item ${flowNumber}' }; // 新しいチェック項目を定義
+        setCheckItemsByColumn((prev) => ({
+            ...prev,
+            [flowNumber]: [...(prev[flowNumber] || []), newCheckItem], // flowNumberに応じて項目を追加
+        }));
+    };
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
@@ -187,7 +200,15 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                         updateFlowStepNumber={updateFlowStepNumber}
                         workflowId={workflowId}
                     />
-                    {i < maxFlowNumber - 1 && <CheckItemColumn flowNumber={i + 1} />} {/* チェック項目列を追加 */}
+                    {i < maxFlowNumber - 1 &&
+                     (
+                        <CheckItemColumn
+                            flowNumber={i + 1}
+                            checkItems={checkItemsByColumn[i + 1] || []} // 各列ごとのチェック項目を渡す
+                            onAddCheckItem={() => handleAddCheckItem(i + 1)}
+                        />
+                    )
+                    } {/* チェック項目列を追加 */}
                 </React.Fragment>
             ))}
 
