@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Workflow;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 class WorkflowController extends Controller
@@ -37,6 +38,14 @@ class WorkflowController extends Controller
         'name' => $workflow->name,
         'message' => 'Workflow created successfully.',
     ]);
+  }
+
+  public function show($id)
+  {
+      $workflow = Workflow::findOrFail($id);
+      return Inertia::render('WorkflowDetailPage', [
+          'workflow' => $workflow
+      ]);
   }
       
 }
