@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -32,6 +33,9 @@ export default function Dashboard() {
                                 <div key={workflow.id} className="bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow duration-300">
                                     <h3 className="font-semibold text-lg">{workflow.name}</h3>
                                     {/* <p className="text-gray-500">詳細情報がここに入ります</p> */}
+                                    <Link href={route('workflows.show', workflow.id)} className="mt-2 text-blue-500 hover:underline">
+                                         詳細を見る
+                                    </Link>
                                     {/* <button className="mt-2 text-blue-500 hover:underline">
                                         詳細を見る
                                     </button> */}
