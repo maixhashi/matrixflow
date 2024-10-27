@@ -16,49 +16,50 @@ const NewMatrixFlowPage = () => {
       axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
     }, []);
 
-    const handleCreateWorkflow = async (event) => {
-        event.preventDefault();
-        if (isSubmitting) return;
-        setIsSubmitting(true);
-
-        try {
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const response = await axios.post('/api/workflows', {
-                name: workflowName
-            }, {
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                },
-                maxRedirects: 0,
-            });
-
-            console.log('Response:', response.data);
-
-            // 成功メッセージを設定
-            setFlashMessage(`ワークフローを作成しました: ${response.data.name}`);
-            setTimeout(() => {
+    const handleCreateWorkflow = (event) => {
+      event.preventDefault();
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+  
+      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+      axios.post('/api/workflows', {
+          name: workflowName
+      }, {
+          headers: {
+              'X-CSRF-TOKEN': token,
+          },
+          maxRedirects: 0,
+      })
+      .then(response => {
+          console.log('Response:', response.data);
+  
+          // 成功メッセージを設定
+          setFlashMessage(`ワークフローを作成しました: ${response.data.name}`);
+          setTimeout(() => {
               setFlashMessage('');
               console.log('Flash message cleared');
-            }, 5000);
-
-            // ワークフローのIDを設定
-            const newWorkflowId = response.data.id;
-            setWorkflowId(newWorkflowId);
-            console.log('Workflow ID:', newWorkflowId);
-
-        } catch (error) {
-            if (error.response && error.response.status === 302) {
-                window.location.href = error.response.headers.location;
-            } else {
-                console.error('Error creating workflow:', error);
-                setFlashMessage('Failed to create workflow');
-                setTimeout(() => setFlashMessage(''), 5000);
-            }
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-      
+          }, 5000);
+  
+          // ワークフローのIDを設定
+          const newWorkflowId = response.data.id;
+          setWorkflowId(newWorkflowId);
+          console.log('Workflow ID:', newWorkflowId);
+      })
+      .catch(error => {
+          if (error.response && error.response.status === 302) {
+              window.location.href = error.response.headers.location;
+          } else {
+              console.error('Error creating workflow:', error);
+              setFlashMessage('Failed to create workflow');
+              setTimeout(() => setFlashMessage(''), 5000);
+          }
+      })
+      .finally(() => {
+          setIsSubmitting(false);
+      });
+  };
+        
     return (
         <AuthenticatedLayout>
             <div className="NewMatrixFlowe-container">
