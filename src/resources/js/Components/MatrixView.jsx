@@ -2,37 +2,72 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
+import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
-import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
+import AddCheckListForm from '../Components/AddCheckListForm';
+import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
+import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
+import CheckListModal from '../Components/CheckListModal';
+import CheckListModalContent from '../Components/CheckListModalContent';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
 
-const CheckItemColumn = ({ flowNumber }) => {
-    // 状態やプロップスからチェック項目を取得するロジックを追加
-    const checkItems = []; // チェック項目の配列を取得
+const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId }) => {
+    const checkListsFromStore = useSelector(selectCheckListsByColumn);
+    const checkListsForFlowNumber = checkListsFromStore[flowNumber] || [];
+    
+    const [selectedCheckList, setSelectedCheckList] = useState(null); // 選択されたチェックリストを保持する状態
+    const [isModalOpen, setIsModalOpen] = useState(false); // モーダルのオープン状態を管理
+
+    const hasCheckList = checkListsForFlowNumber.some(checklist => checklist.workflow_id === workflowId);
+    console.log("hasCheckList:", hasCheckList);
+
+    const handleCheckListClick = (checklist) => {
+        setSelectedCheckList(checklist); // 選択されたチェックリストを設定
+        setIsModalOpen(true); // モーダルを開く
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false); // モーダルを閉じる
+        setSelectedCheckList(null); // 選択をリセット
+    };
 
     return (
         <td className="matrix-check-item-column">
-            {checkItems.length > 0 ? (
-                checkItems.map((item, index) => (
-                    <div key={index} className="check-item">
-                        {item.checked ? '✔️' : '❌'}
-                    </div>
-                ))
+            {hasCheckList ? (
+                <div className="check-item" onClick={() => handleCheckListClick(checkListsForFlowNumber[0])}>
+                    <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
+                </div>
             ) : (
-                <div className="check-item"><FontAwesomeIcon icon={faPlus} /></div> // チェック項目がない場合の表示
+                <div className="check-item" onClick={openAddCheckListModal}>
+                    <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
+                </div>
+            )}
+
+            {/* モーダルの表示 */}
+            {isModalOpen && (
+                <CheckListModal 
+                    isOpen={isModalOpen} 
+                    onClose={closeModal} 
+                    checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
+                >
+                    <CheckListModalContent
+                      workflowId={workflowId}
+                      flowNumber={flowNumber}
+                      checkListsForFlowNumber={checkListsForFlowNumber}
+                    />
+                </CheckListModal >
             )}
         </td>
     );
 };
 
-
-const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member, workflowId }) => {
+const MatrixCol = ({ openAddFlowStepModal, openAddCheckListModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member, workflowId }) => {
     const dispatch = useDispatch();
     const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
 
@@ -97,10 +132,59 @@ const MatrixCol = ({ openModal, flowNumber, onAssignFlowStep, updateFlowStepNumb
     );
 };
 
-const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, moveRow, updateFlowStepNumber, onMemberDelete, workflowId }) => {
+const MatrixRow = ({
+    member,
+    onAssignFlowStep,
+    openAddFlowStepModal,
+    openAddCheckListModal,
+    maxFlowNumber,
+    index,
+    moveRow,
+    updateFlowStepNumber,
+    onMemberDelete,
+    workflowId,
+}) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(member.name); // Set initial value to member.name
+    const [newName, setNewName] = useState(member.name);
+    const [checkLists, setCheckLists] = useState({}); // チェックリストの状態管理
+    const dispatch = useDispatch();
+    
+    // Reduxからチェックリストを取得
+    const checkListsFromStore = useSelector(selectCheckListsByColumn);
+
+    useEffect(() => {
+        // チェックリストを取得
+        dispatch(fetchCheckLists(workflowId));
+        dispatch(fetchMembers(workflowId)); // メンバーも取得
+    }, [dispatch, workflowId]);
+
+    useEffect(() => {
+        // チェックリストのデータを状態にセット
+        if (checkListsFromStore) {
+            setCheckLists(checkListsFromStore);
+            console.log("checkListsFromStore by useEffect on MatrixRow" ,JSON.stringify(checkListsFromStore, null, 2));
+        }
+    }, [checkListsFromStore]);
+
+    const handleAddCheckItem = (flowNumber) => {
+        const newCheckItemId = Date.now(); // 一意のIDを生成
+        const newCheckItem = {
+            id: newCheckItemId,
+            check_content: `New Check Item ${flowNumber}`,
+            member_id: member.id,
+        };
+
+        setCheckLists((prev) => ({
+            ...prev,
+            [flowNumber]: prev[flowNumber]
+                ? prev[flowNumber].map(checkItem => ({
+                    ...checkItem,
+                    check_items: [...(checkItem.check_items || []), newCheckItem],
+                }))
+                : [{ check_items: [newCheckItem] }],
+        }));
+    };
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
@@ -115,23 +199,16 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
         hover: (item) => {
             if (item.index !== index) {
                 moveRow(item.index, index);
-                item.index = index; // Update the index to reflect the new position
+                item.index = index;
             }
         },
     }), [index, moveRow]);
-
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        dispatch(fetchMembers(workflowId)); // Fetch members when component mounts
-    }, [dispatch]);
 
     const handleNameChange = (e) => {
         setNewName(e.target.value);
     };
 
     const handleNameEdit = async () => {
-        // Dispatch an action to update the member name
         await dispatch(updateMemberName({ id: member.id, name: newName }));
         setIsEditing(false);
     };
@@ -141,13 +218,13 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
             <td className="matrix-side-header">
                 <div className="member-cell" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                     {isEditing ? (
-                        <input 
-                            type="text" 
-                            value={newName} 
-                            onChange={handleNameChange} 
-                            onBlur={handleNameEdit} 
-                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }} 
-                            style={{ marginRight: '5px' }} 
+                        <input
+                            type="text"
+                            value={newName}
+                            onChange={handleNameChange}
+                            onBlur={handleNameEdit}
+                            onKeyPress={(e) => { if (e.key === 'Enter') handleNameEdit(); }}
+                            style={{ marginRight: '5px' }}
                         />
                     ) : (
                         <>
@@ -175,24 +252,36 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
                     </button>
                 </div>
             </td>
-            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber, i) => (  // Add 'i' as a parameter here
-                <React.Fragment key={flowNumber}>
-                    <MatrixCol
-                        key={flowNumber}
-                        member={member}
-                        isDragging={isDragging}
-                        openModal={openModal}
-                        flowNumber={flowNumber}
-                        onAssignFlowStep={onAssignFlowStep}
-                        updateFlowStepNumber={updateFlowStepNumber}
-                        workflowId={workflowId}
-                    />
-                    {i < maxFlowNumber - 1 && <CheckItemColumn flowNumber={i + 1} />} {/* チェック項目列を追加 */}
-                </React.Fragment>
-            ))}
+            {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => {
+                const checkItems = checkLists[flowNumber]?.[0]?.check_items || []; // チェックアイテムを取得
 
+                return (
+                    <React.Fragment key={flowNumber}>
+                        <MatrixCol
+                            member={member}
+                            isDragging={isDragging}
+                            openAddFlowStepModal={openAddFlowStepModal}
+                            openAddCheckListModal={openAddCheckListModal}
+                            flowNumber={flowNumber}
+                            onAssignFlowStep={onAssignFlowStep}
+                            updateFlowStepNumber={updateFlowStepNumber}
+                            workflowId={workflowId}
+                        />
+                        {flowNumber < maxFlowNumber && (
+                            <CheckItemColumn
+                                member={member}
+                                flowNumber={flowNumber}
+                                checkItems={checkItems}
+                                onAddCheckItem={() => handleAddCheckItem(flowNumber)}
+                                openAddCheckListModal={openAddCheckListModal}
+                                workflowId={workflowId}
+                            />
+                        )}
+                    </React.Fragment>
+                );
+            })}
             <td className="matrix-cell next-step-column">
-                <button onClick={() => openModal(member, maxFlowNumber + 1)} className="add-step-button">
+                <button onClick={() => openAddFlowStepModal(member, maxFlowNumber + 1)} className="add-step-button">
                     <FontAwesomeIcon icon={faSquarePlus} />
                 </button>
             </td>
@@ -200,12 +289,15 @@ const MatrixRow = ({ member, onAssignFlowStep, openModal, maxFlowNumber, index, 
     );
 };
 
+
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
-    const [orderedMembers, setOrderedMembers] = useState([]); // 行の順序を管理するための状態を追加
+    const [orderedMembers, setOrderedMembers] = useState([]);
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const dispatch = useDispatch();
 
@@ -214,17 +306,9 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     const flowsteps = useSelector((state) => state.flowsteps);
     
     useEffect(() => {
-        dispatch(fetchMembers(workflowId)); // workflowIdに基づいてメンバーを取得
-        console.log('Fetched members:', members);
-        dispatch(fetchFlowsteps(workflowId)); // workflowIdに基づいてフローステップを取得
-        console.log('Fetched flowsteps:', flowsteps);
+        dispatch(fetchMembers(workflowId));
+        dispatch(fetchFlowsteps(workflowId));
     }, [dispatch, workflowId]);
-
-    useEffect(() => {
-        console.log('workflowId in MatrixView:', workflowId);
-    }, [workflowId]);
-
-
 
     useEffect(() => {
         if (flowsteps.length > 0) {
@@ -236,24 +320,37 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     }, [flowsteps]);
 
     useEffect(() => {
-        setOrderedMembers(members); // メンバーの初期順序を設定
+        setOrderedMembers(members);
     }, [members]);
 
     const handleMemberAdded = async (newMember) => {
         await onMemberAdded(newMember); // Call the provided onMemberAdded function
         dispatch(fetchMembers()); // Fetch updated members from the Redux store
     };
+        
 
-    const openModal = (member, stepNumber) => {
+    const openAddFlowStepModal = (member, stepNumber) => {
         setSelectedMember(member);
         setSelectedStepNumber(stepNumber);
         setIsModalOpen(true);
     };
 
-    const closeModal = () => {
+    const closeAddFlowStepModal = () => {
         setSelectedMember(null);
         setSelectedStepNumber(null);
         setIsModalOpen(false);
+    };
+
+    const openAddCheckListModal = (member, stepNumber) => {
+        setSelectedMember(member);
+        setSelectedStepNumber(stepNumber);
+        setIsModalforAddCheckListFormOpen(true);
+    };
+
+    const closeAddCheckListModal = () => {
+        setSelectedMember(null);
+        setSelectedStepNumber(null);
+        setIsModalforAddCheckListFormOpen(false);
     };
 
     const moveRow = async (fromIndex, toIndex) => {
@@ -333,7 +430,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                     </div>
                                 </td>
                                 <td className="matrix-cell next-step-column">
-                                    <button onClick={() => openModal(null, 2)} className="add-step-button">
+                                    <button onClick={() => openAddFlowStepModal(null, 2)} className="add-step-button">
                                         <FontAwesomeIcon icon={faSquarePlus} />
                                     </button>
                                 </td>
@@ -361,7 +458,8 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                     member={member}
                                     flowsteps={flowsteps}
                                     onAssignFlowStep={onAssignFlowStep}
-                                    openModal={openModal}
+                                    openAddFlowStepModal={openAddFlowStepModal}
+                                    openAddCheckListModal={openAddCheckListModal}
                                     maxFlowNumber={maxFlowNumber}
                                     index={index}
                                     moveRow={moveRow}
@@ -396,17 +494,29 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                     </table>
                 )}
 
-                <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeModal}>
+                <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeAddFlowStepModal}>
                     <AddFlowStepForm
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
                         nextStepNumber={maxFlowNumber + 1}
-                        onClose={closeModal}
+                        onClose={closeAddFlowStepModal}
                         onFlowStepAdded={onFlowStepAdded}
                         workflowId={workflowId}
                     />
                 </ModalforAddFlowStepForm>
+                
+                <ModalforAddCheckListForm isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
+                    <AddCheckListForm
+                        members={orderedMembers}
+                        member={selectedMember}
+                        stepNumber={selectedStepNumber}
+                        nextStepNumber={maxFlowNumber + 1}
+                        onClose={closeAddCheckListModal}
+                        onFlowStepAdded={onFlowStepAdded}
+                        workflowId={workflowId}
+                    />
+                </ModalforAddCheckListForm>
             </div>
         </DndProvider>
     );
