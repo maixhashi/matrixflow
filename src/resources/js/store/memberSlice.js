@@ -51,11 +51,8 @@ export const updateMemberName = createAsyncThunk('members/updateMemberName', asy
 // メンバー削除のための非同期関数
 export const deleteMember = createAsyncThunk('members/deleteMember', async (memberId, { rejectWithValue }) => {
     try {
-        const response = await fetch(`/api/members/${memberId}`, {
+        const response = await axios.delete(`/api/members/${memberId}`, {
             method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            },
         });
 
         if (!response.ok) {

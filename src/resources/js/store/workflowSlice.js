@@ -17,15 +17,10 @@ export const fetchWorkflows = createAsyncThunk(
 export const createWorkflow = createAsyncThunk(
   'workflow/create',
   async (workflowName, { rejectWithValue }) => {
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
       try {
           const response = await axios.post('/api/workflows', {
               name: workflowName
-          }, {
-              headers: {
-                  'X-CSRF-TOKEN': token,
-              },
           });
           return response.data;
       } catch (error) {

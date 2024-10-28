@@ -11,11 +11,6 @@ const AddMemberForm = ({ workflowId }) => {
     const [successMessage, setSuccessMessage] = useState(null);
     const dispatch = useDispatch(); // Dispatch を取得
 
-    useEffect(() => {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-    }, []);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);

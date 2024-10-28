@@ -12,7 +12,6 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
     const [searchTerm, setSearchTerm] = useState(''); 
 
     const dispatch = useDispatch(); // Get the dispatch function
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     useEffect(() => {
         if (member) {
