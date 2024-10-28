@@ -14,7 +14,6 @@ const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = n
     const [searchTerm, setSearchTerm] = useState(''); 
 
     const dispatch = useDispatch(); // Get the dispatch function
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     useEffect(() => {
         if (member) {

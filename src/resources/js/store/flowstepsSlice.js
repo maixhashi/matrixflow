@@ -42,11 +42,10 @@ export const deleteFlowstepAsync = (id) => async (dispatch, getState) => {
   const currentFlowsteps = getState().flowsteps; // 現在のFlowStepの状態を取得
   
   try {
-    const response = await fetch(`/api/flowsteps/${id}`, {
+    const response = await axios.delete(`/api/flowsteps/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
       },
     });
 
@@ -71,12 +70,10 @@ export const assignFlowStep = createAsyncThunk(
   'flowsteps/assignFlowStep',
   async ({ memberId, flowstepId, assignedMembersBeforeDrop }, { dispatch, rejectWithValue }) => {
     try {
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      const response = await fetch('/api/assign-flowstep', {
+      const response = await axios.post('/api/assign-flowstep', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': token,
         },
         body: JSON.stringify({ memberId, flowstepId, assignedMembersBeforeDrop }),
       });
@@ -101,14 +98,12 @@ export const assignFlowStep = createAsyncThunk(
 export const updateFlowstepAsync = createAsyncThunk(
   'flowsteps/updateFlowstep',
   async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     try {
-      const response = await fetch(`/api/flowsteps/${id}`, {
+      const response = await axios.put(`/api/flowsteps/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': token,
         },
         body: JSON.stringify(updatedFlowstep),
       });
@@ -134,14 +129,12 @@ export const updateFlowstepAsync = createAsyncThunk(
 export const updateFlowStepNumber = createAsyncThunk(
   'flowsteps/updateFlowStepNumber',
   async ({ flowStepId, newFlowNumber }, { dispatch, rejectWithValue }) => {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     try {
-      const response = await fetch('/api/update-flowstep-stepnumber', {
+      const response = await axios.post('/api/update-flowstep-stepnumber', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': token,
         },
         body: JSON.stringify({ flowStepId, newFlowNumber }),
       });

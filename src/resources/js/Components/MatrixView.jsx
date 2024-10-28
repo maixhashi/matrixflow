@@ -298,7 +298,6 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
     const [orderedMembers, setOrderedMembers] = useState([]);
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const dispatch = useDispatch();
 
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
@@ -371,11 +370,10 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
 
     const saveOrderToServer = async (updatedMembers) => {
         try {
-            const response = await fetch('/api/save-order', {
+            const response = await axios.post('/api/save-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
                 },
                 body: JSON.stringify({ member_ids: updatedMembers.map(member => member.id) }),
             });
