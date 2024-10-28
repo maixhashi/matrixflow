@@ -1,84 +1,73 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { createWorkflow, clearFlashMessage } from '../store/workflowSlice';
 import axios from 'axios';
 import FlashMessage from '../Components/FlashMessage';
 import '../../css/NewMatrixFlowPage.css';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout';
 import CreateMatrixFlowPage from './CreateMatrixFlowPage';
 
-const NewMatrixFlowPage = () => {
+
+const WorkflowForm = () => {
     const [workflowName, setWorkflowName] = useState('');
-    const [flashMessage, setFlashMessage] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [workflowId, setWorkflowId] = useState(null);
+    const dispatch = useDispatch();
+    const { isSubmitting, flashMessage } = useSelector((state) => state.workflow);
 
     useEffect(() => {
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-    }, []);
+        if (flashMessage) {
+            const timer = setTimeout(() => {
+                dispatch(clearFlashMessage());
+            }, 5000);
+            return () => clearTimeout(timer); // クリーンアップ
+        }
+    }, [flashMessage, dispatch]);
 
     const handleCreateWorkflow = (event) => {
-      event.preventDefault();
-      if (isSubmitting) return;
-      setIsSubmitting(true);
-  
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  
-      axios.post('/api/workflows', {
-          name: workflowName
-      }, {
-          headers: {
-              'X-CSRF-TOKEN': token,
-          },
-          maxRedirects: 0,
-      })
-      .then(response => {
-          console.log('Response:', response.data);
-  
-          // 成功メッセージを設定
-          setFlashMessage(`ワークフローを作成しました: ${response.data.name}`);
-          setTimeout(() => {
-              setFlashMessage('');
-              console.log('Flash message cleared');
-          }, 5000);
-  
-          // ワークフローのIDを設定
-          const newWorkflowId = response.data.id;
-          setWorkflowId(newWorkflowId);
-          console.log('Workflow ID:', newWorkflowId);
-      })
-      .catch(error => {
-          if (error.response && error.response.status === 302) {
-              window.location.href = error.response.headers.location;
-          } else {
-              console.error('Error creating workflow:', error);
-              setFlashMessage('Failed to create workflow');
-              setTimeout(() => setFlashMessage(''), 5000);
-          }
-      })
-      .finally(() => {
-          setIsSubmitting(false);
-      });
-  };
-        
+        event.preventDefault();
+        if (isSubmitting) return;
+
+        dispatch(createWorkflow(workflowName));
+        setWorkflowName(''); // フォームをクリア
+    };
+
+    return (
+        <form onSubmit={handleCreateWorkflow} className="form-container">
+            <input 
+                type="text" 
+                value={workflowName} 
+                onChange={(e) => setWorkflowName(e.target.value)} 
+                required 
+                placeholder="ワークフロー名" 
+            />
+            <button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? '作成中...' : 'ワークフロー作成'}
+            </button>
+            {flashMessage && <div>{flashMessage}</div>}
+        </form>
+    );
+};
+
+
+const NewMatrixFlowPage = () => {
+    const dispatch = useDispatch();
+    const { workflowId, flashMessage } = useSelector((state) => state.workflow);
+
+    useEffect(() => {
+        if (flashMessage) {
+            const timer = setTimeout(() => {
+                dispatch(clearFlashMessage());
+            }, 5000);
+            return () => clearTimeout(timer); // クリーンアップ
+        }
+    }, [flashMessage, dispatch]);
+
     return (
         <AuthenticatedLayout>
             <div className="NewMatrixFlowe-container">
                 <FlashMessage message={flashMessage} />
                 {/* workflowIdがない場合はワークフロー作成フォームを表示 */}
                 {!workflowId ? (
-                    <form onSubmit={handleCreateWorkflow} className="form-container">
-                        <div>
-                            <label htmlFor="workflowName">ワークフロー名:</label>
-                            <input
-                                type="text"
-                                id="workflowName"
-                                value={workflowName}
-                                onChange={(e) => setWorkflowName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit" disabled={isSubmitting}>フローを作成する</button>
-                    </form>
+                    <WorkflowForm />
                 ) : (
                     // workflowIdが存在する場合はCreateMatrixFlowPageを表示
                     <CreateMatrixFlowPage workflowId={workflowId} />
