@@ -5,7 +5,7 @@ export const createWorkflow = createAsyncThunk(
     'workflow/create',
     async (workflowName, { rejectWithValue }) => {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
+        
         try {
             const response = await axios.post('/api/workflows', {
                 name: workflowName
@@ -17,8 +17,7 @@ export const createWorkflow = createAsyncThunk(
             });
             return response.data; // 返り値として新しいワークフローを返す
         } catch (error) {
-            // エラー処理
-            if (error.response && error.response.status === 302) {
+            if (error.response && error.response.status === 302 && error.response.headers.location) {
                 window.location.href = error.response.headers.location;
             }
             return rejectWithValue('Failed to create workflow');
@@ -30,7 +29,7 @@ const workflowSlice = createSlice({
     name: 'workflow',
     initialState: {
         workflows: [],
-        workflowId: null, // workflowIdを追加
+        workflowId: null,
         isSubmitting: false,
         flashMessage: '',
         error: null,
@@ -40,7 +39,7 @@ const workflowSlice = createSlice({
             state.flashMessage = '';
         },
         setWorkflowId: (state, action) => {
-            state.workflowId = action.payload; // workflowIdを設定するアクション
+            state.workflowId = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -50,20 +49,14 @@ const workflowSlice = createSlice({
             })
             .addCase(createWorkflow.fulfilled, (state, action) => {
                 state.isSubmitting = false;
-                state.workflows.push(action.payload); // 新しいワークフローを追加
-                state.workflowId = action.payload.id; // 新しいワークフローのIDを保存
+                state.workflows.push(action.payload);
+                state.workflowId = action.payload.id;
                 state.flashMessage = `ワークフローを作成しました: ${action.payload.name}`;
-                setTimeout(() => {
-                    state.flashMessage = '';
-                }, 5000);
             })
             .addCase(createWorkflow.rejected, (state, action) => {
                 state.isSubmitting = false;
-                state.error = action.payload; // エラーメッセージを保存
-                state.flashMessage = action.payload; // エラーメッセージをフラッシュメッセージとして設定
-                setTimeout(() => {
-                    state.flashMessage = '';
-                }, 5000);
+                state.error = action.payload;
+                state.flashMessage = action.payload;
             });
     },
 });

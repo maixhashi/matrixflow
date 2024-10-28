@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createWorkflow, clearFlashMessage } from '../store/workflowSlice';
-import axios from 'axios';
 import FlashMessage from '../Components/FlashMessage';
 import '../../css/NewMatrixFlowPage.css';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout';
