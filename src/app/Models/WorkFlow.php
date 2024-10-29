@@ -10,7 +10,10 @@ class Workflow extends Model
     use HasFactory;
 
     // 一括代入可能な属性を指定
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'user_id'
+    ];
 
     public function flowsteps()
     {
