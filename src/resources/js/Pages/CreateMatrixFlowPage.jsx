@@ -60,7 +60,9 @@ const CreateMatrixFlowPage = (props) => {
             <FlashMessage message={flashMessage} />
             <div className="content-container">
                 <div className="sidebar">
-                    <Document />
+                    <Document 
+                        workflowId={workflowId}
+                    />
                 </div>
                 <div className="main-content">
                     <MatrixView
