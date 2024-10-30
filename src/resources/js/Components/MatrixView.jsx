@@ -44,7 +44,7 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId
                     <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
                 </div>
             ) : (
-                <div className="check-item" onClick={openAddCheckListModal}>
+                <div className="check-item" onClick={() => openAddCheckListModal(member, flowNumber)}>
                     <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
                 </div>
             )}
