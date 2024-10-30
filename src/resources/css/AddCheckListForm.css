@@ -8,7 +8,7 @@
 
 .AddCheckListForm-title-container {
   display: flex;
-  text-align: center;
+  justify-content: center;
 }
 
 .AddCheckListForm-title {
