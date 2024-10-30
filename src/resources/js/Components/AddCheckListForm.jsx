@@ -5,25 +5,32 @@ import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 import { fetchCheckLists, addCheckList } from '../store/checklistSlice'; // Adjust the import path as needed
 import '../../css/AddCheckListForm.css';
 
-const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber, workflowId }) => {
+const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member, stepNumber, nextStepNumber, workflowId }) => {
     const [name, setName] = useState(''); 
     const [error, setError] = useState(null);
     const [flowNumber, setFlowNumber] = useState(stepNumber); 
     const [selectedMembers, setSelectedMembers] = useState(member ? [member.id] : []); 
-    const [selectedStepNumber, setSelectedStepNumber] = useState(stepNumber); 
     const [searchTerm, setSearchTerm] = useState(''); 
-
+    const [selectedStepNumber, setSelectedStepNumber] = useState(stepNumber || 1); // デフォルト値をstepNumberに設定
     const dispatch = useDispatch(); // Get the dispatch function
 
     useEffect(() => {
-        if (member) {
+        if (member && member.id) {
+            console.log("Member object:", member); // memberオブジェクトの内容を確認
             setSelectedMembers([member.id]);
+        } else {
+            console.log("Member is undefined or missing id");
         }
         if (stepNumber) {
             setFlowNumber(stepNumber);
             setSelectedStepNumber(stepNumber);
         }
     }, [member, stepNumber]);
+    
+    useEffect(() => {
+        console.log("Updated selectedMembers:", selectedMembers);
+    }, [selectedMembers]);
+        
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,6 +43,7 @@ const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = n
         const checklistData = {
             name: name,
             flownumber_for_checklist: selectedStepNumber, // STEP番号を使用
+            member_id: selectedMembers
         };
     
         console.log('Sending checklist data:', checklistData, 'to workflowId:', workflowId); // 送信されるデータをログ
@@ -111,7 +119,7 @@ const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = n
                         onChange={handleStepChange}
                         required
                     >
-                        {Array.from({ length: nextStepNumber }, (_, index) => (
+                        {Array.from({ length: nextStepNumber-2 }, (_, index) => (
                             <option key={index + 1} value={index + 1}>
                                 STEP {index + 1} → STEP {index + 2}
                             </option>
