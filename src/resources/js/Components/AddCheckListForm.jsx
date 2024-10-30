@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 import { fetchCheckLists, addCheckList } from '../store/checklistSlice'; // Adjust the import path as needed
-import '../../css/AddFlowStepForm.css';
+import '../../css/AddCheckListForm.css';
 
 const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = null, stepNumber = '', nextStepNumber, workflowId }) => {
     const [name, setName] = useState(''); 
@@ -95,13 +95,13 @@ const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = n
                     </div>
                 </div>
                 <div>
-                    <label>フローステップ名:</label>
+                    <label>チェックリスト:</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)} 
                         required
-                        placeholder="担当者がフローとして行うことを入力しましょう"
+                        placeholder="次のフローステップに進む前のチェック事項を入力"
                     />
                 </div>
                 <div>
@@ -113,7 +113,7 @@ const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member = n
                     >
                         {Array.from({ length: nextStepNumber }, (_, index) => (
                             <option key={index + 1} value={index + 1}>
-                                STEP {index + 1}
+                                STEP {index + 1} → STEP {index + 2}
                             </option>
                         ))}
                     </select>
