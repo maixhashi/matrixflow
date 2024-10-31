@@ -100,8 +100,8 @@
 }
 
 .checklist-name {
-  width: 200px;
-  max-width: 200px;
+  width: 175px;
+  max-width: 175px;
 }
 
 .icon-on-checklist-card {
@@ -114,6 +114,10 @@
 }
 
 .faEdit-icon-on-checklist-card {
+  margin-left: 10px;
+}
+
+.faTrash-icon-on-checklist-card {
   margin-left: 10px;
 }
 
