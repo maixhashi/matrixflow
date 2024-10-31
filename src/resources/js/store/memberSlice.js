@@ -70,7 +70,7 @@ const memberSlice = createSlice({
     reducers: {
         setMembers: (state, action) => {
             return action.payload; // ステートを新しいメンバーリストで更新
-        },
+        }
     },
     extraReducers: (builder) => {
         builder

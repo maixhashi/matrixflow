@@ -39,12 +39,10 @@ class ChecklistController extends Controller
     }
 
     // Checklistの更新
-    public function update(Request $request, $workflowId, $id)
+    public function update(Request $request, $workflowId, $checklistId)
     {
-        $checklist = Checklist::where('workflow_id', $workflowId)->findOrFail($id);
-        $checklist->name = $request->input('name');
-        $checklist->flownumber_for_checklist = $data['flownumber_for_checklist'];
-        $checklist->save();
+        $checklist = Checklist::where('workflow_id', $workflowId)->findOrFail($checklistId);
+        $checklist->update($request->all());
 
         return response()->json($checklist);
     }
