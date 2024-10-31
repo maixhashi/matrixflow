@@ -61,7 +61,7 @@ Route::get('/workflows/{id}', [WorkflowController::class, 'show'])->name('workfl
 use App\Http\Controllers\ChecklistController;
 Route::get('/api/workflows/{workflowId}/checklists', [ChecklistController::class, 'index']);
 Route::post('/api/workflows/{workflowId}/checklists', [ChecklistController::class, 'store']);
-Route::delete('/api/checklists/{id}', [ChecklistController::class, 'destroy']);
+Route::delete('/api/checklists/{checklistId}', [ChecklistController::class, 'destroy']);
 Route::put('/api/workflows/{workflowId}/checklists/{checklistId}', [ChecklistController::class, 'update']);
 
 

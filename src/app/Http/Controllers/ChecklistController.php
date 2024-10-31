@@ -48,9 +48,9 @@ class ChecklistController extends Controller
     }
 
     // Checklistの削除
-    public function destroy($workflowId, $id)
+    public function destroy($id)
     {
-        $checklist = Checklist::where('workflow_id', $workflowId)->findOrFail($id);
+        $checklist = Checklist::findOrFail($id);
         $checklist->delete();
 
         return response()->json(['message' => 'Checklist deleted successfully']);
