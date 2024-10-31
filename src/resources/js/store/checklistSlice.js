@@ -56,15 +56,15 @@ const checkListSlice = createSlice({
             const { flow_number, id, ...updatedChecklist } = action.payload;
           
             // flow_numberが存在しない場合に対応するための条件を追加
-            if (state.items[flow_number]) {
-              state.items[flow_number] = state.items[flow_number].map((checklist) =>
-                checklist.id === id ? { ...checklist, ...updatedChecklist } : checklist
-              );
-            } else {
-              // 新しいflow_numberが追加された場合などに備えてデフォルトの設定
-              state.items[flow_number] = [{ id, ...updatedChecklist }];
-            }
-            state.loading = false;
+            // if (state.items[flow_number]) {
+            //   state.items[flow_number] = state.items[flow_number].map((checklist) =>
+            //     checklist.id === id ? { ...checklist, ...updatedChecklist } : checklist
+            //   );
+            // } else {
+            //   // 新しいflow_numberが追加された場合などに備えてデフォルトの設定
+            //   state.items[flow_number] = [{ id, ...updatedChecklist }];
+            // }
+            // state.loading = false;
           })
           .addCase(updateChecklist.rejected, (state, action) => {
             state.loading = false;

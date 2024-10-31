@@ -33,6 +33,7 @@ const Document = ({ workflowId }) => {
   const handleEditClick = (checklist) => {
     setEditingChecklist(checklist.id);
     setUpdatedChecklistName(checklist.name);
+    dispatch(fetchCheckLists(workflowId));
   };
 
   const handleSaveClick = (checklist) => {
