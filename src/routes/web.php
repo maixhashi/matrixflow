@@ -54,6 +54,7 @@ Route::get('/create-matrixflow-for-guest', [MatrixFlowController::class, 'render
 use App\Http\Controllers\WorkflowController;
 Route::get('/api/workflows', [WorkflowController::class, 'index'])->name('workflow.index');
 Route::post('/api/workflows', [WorkflowController::class, 'store'])->name('workflow.create');
+Route::get('/api/workflows/{workflowId}', [WorkflowController::class, 'fetch_workflow'])->name('workflow.fetch_workflow');
 Route::get('/workflows/{id}', [WorkflowController::class, 'show'])->name('workflows.show');
 
 

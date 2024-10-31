@@ -1,6 +1,15 @@
 .document-container {
 }
 
+.document-title {
+  font-size: 18px; /* 見出しのフォントサイズ */
+  font-weight: bold;
+  color: #333; /* 見出しの色 */
+  margin-bottom: 10px;
+  text-align: center; /* 左揃え */
+  border-bottom: 3px solid gray;
+}
+
 .document-container h2 {
   font-size: 18px; /* 見出しのフォントサイズ */
   color: #333; /* 見出しの色 */
@@ -9,6 +18,12 @@
 }
 
 .chapter {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.content {
+  /* font-weight: bold; */
   margin-bottom: 10px;
 }
 

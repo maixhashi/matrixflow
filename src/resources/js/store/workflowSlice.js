@@ -14,6 +14,19 @@ export const fetchWorkflows = createAsyncThunk(
   }
 );
 
+// ワークフローを取得する非同期関数
+export const fetchWorkflow = createAsyncThunk(
+  'workflow/fetchWorkflow',
+  async (workflowId, { rejectWithValue }) => {
+      try {
+          const response = await axios.get(`/api/workflows/${workflowId}`);
+          return response.data; // ワークフロー一覧を返す
+      } catch (error) {
+          return rejectWithValue('Failed to fetch workflow');
+      }
+  }
+);
+
 export const createWorkflow = createAsyncThunk(
   'workflow/create',
   async (workflowName, { rejectWithValue }) => {
@@ -33,6 +46,7 @@ export const createWorkflow = createAsyncThunk(
 const workflowSlice = createSlice({
     name: 'workflow',
     initialState: {
+        workflow: {},
         workflows: [],
         workflowId: null,
         isSubmitting: false,
@@ -74,6 +88,17 @@ const workflowSlice = createSlice({
             .addCase(fetchWorkflows.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+            .addCase(fetchWorkflow.pending, (state) => {
+              state.loading = true;
+            })
+            .addCase(fetchWorkflow.fulfilled, (state, action) => {
+              state.loading = false;
+              state.name = action.payload.name; // ワークフロー名を格納
+            })
+            .addCase(fetchWorkflow.rejected, (state, action) => {
+              state.loading = false;
+              state.error = action.error.message;
             });
     },
 });

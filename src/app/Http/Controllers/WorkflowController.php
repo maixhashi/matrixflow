@@ -18,6 +18,16 @@ class WorkflowController extends Controller
         // JSON response
         return response()->json($workflows, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
+
+    public function fetch_workflow($workflowId)
+    {
+        // Get all members for the specified workflow and the logged-in user
+        $workflow = Workflow::findOrFail($workflowId)
+            ->get();
+    
+        // JSON response
+        return response()->json($workflow, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    }
   
   public function store(Request $request)
   {
