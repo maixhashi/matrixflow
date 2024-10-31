@@ -4,7 +4,7 @@ import { fetchFlowsteps } from '../store/flowstepsSlice';
 import { fetchCheckLists, updateChecklist } from '../store/checklistSlice';
 import { fetchWorkflow } from '../store/workflowSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboardCheck, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardCheck, faEdit, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 import '../../css/Document.css';
 
 const Document = ({ workflowId }) => {
@@ -82,8 +82,12 @@ const Document = ({ workflowId }) => {
                               value={updatedChecklistName}
                               onChange={(e) => setUpdatedChecklistName(e.target.value)}
                             />
-                            <button onClick={() => handleSaveClick(checklist)}>保存</button>
-                            <button onClick={() => setEditingChecklist(null)}>キャンセル</button>
+                            <button onClick={() => handleSaveClick(checklist)}>
+                              <FontAwesomeIcon icon={faSave} className="faSave-icon-on-checklist-card" />
+                            </button>
+                            <button onClick={() => setEditingChecklist(null)}>
+                              <FontAwesomeIcon icon={faCancel} className="faCancel-icon-on-checklist-card" />
+                            </button>
                           </div>
                         ) : (
                           <div className="checklist-name-and-icon-container">
@@ -91,7 +95,9 @@ const Document = ({ workflowId }) => {
                               {checklist.name}
                             </div>
                             <div>
-                              <button onClick={() => handleEditClick(checklist)}> <FontAwesomeIcon icon={faEdit} className="faEdit-icon-on-checklist-card" /> </button>
+                              <button onClick={() => handleEditClick(checklist)}>
+                                <FontAwesomeIcon icon={faEdit} className="faEdit-icon-on-checklist-card" />
+                              </button>
                             </div>
                           </div>
                         )}

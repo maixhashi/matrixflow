@@ -116,3 +116,13 @@
 .faEdit-icon-on-checklist-card {
   margin-left: 10px;
 }
+
+.faSave-icon-on-checklist-card {
+  margin-left: 10px;
+  margin-right: 5px;
+}
+
+.faCancel-icon-on-checklist-card {
+  margin-left: 5px;
+  margin-right: 5px;
+}
