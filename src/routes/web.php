@@ -62,6 +62,8 @@ use App\Http\Controllers\ChecklistController;
 Route::get('/api/workflows/{workflowId}/checklists', [ChecklistController::class, 'index']);
 Route::post('/api/workflows/{workflowId}/checklists', [ChecklistController::class, 'store']);
 Route::delete('/api/checklists/{id}', [ChecklistController::class, 'destroy']);
+Route::put('/api/workflows/{workflowId}/checklists/{checklistId}', [ChecklistController::class, 'update']);
+
 
 use App\Http\Controllers\CheckitemController;
 Route::get('/api/workflows/{workflowId}/checklists/{checklistId}/checkitems', [CheckitemController::class, 'index']);
