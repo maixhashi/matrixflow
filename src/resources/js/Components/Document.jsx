@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFlowsteps } from '../store/flowstepsSlice';
-import { fetchCheckLists, updateChecklist } from '../store/checklistSlice';
+import { fetchCheckLists, updateChecklist, deleteChecklist } from '../store/checklistSlice';
 import { fetchWorkflow } from '../store/workflowSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardCheck, faEdit, faSave, faCancel, faTrash } from '@fortawesome/free-solid-svg-icons';
 import '../../css/Document.css';
 
 const Document = ({ workflowId }) => {
   const dispatch = useDispatch();
-  const [editingChecklist, setEditingChecklist] = useState(null); // 編集対象のチェックリストを管理
-  const [updatedChecklistName, setUpdatedChecklistName] = useState(''); // 更新内容
+  const [editingChecklist, setEditingChecklist] = useState(null);
+  const [updatedChecklistName, setUpdatedChecklistName] = useState('');
 
   const { workflows, loading, error } = useSelector((state) => state.workflow);
   const flowsteps = useSelector((state) => state.flowsteps);
@@ -33,7 +33,6 @@ const Document = ({ workflowId }) => {
   const handleEditClick = (checklist) => {
     setEditingChecklist(checklist.id);
     setUpdatedChecklistName(checklist.name);
-    dispatch(fetchCheckLists(workflowId));
   };
 
   const handleSaveClick = (checklist) => {
@@ -42,7 +41,16 @@ const Document = ({ workflowId }) => {
       checklistId: checklist.id,
       updatedData: { name: updatedChecklistName }
     }));
-    setEditingChecklist(null); // 編集モード解除
+    setEditingChecklist(null);
+    dispatch(fetchCheckLists(workflowId));
+  };
+
+  // 新規：削除ボタン用の関数
+  const handleDeleteClick = (checklist) => {
+    dispatch(deleteChecklist({
+      // workflowId,
+      checklistId: checklist.id,
+    }));
   };
 
   const workflowName = workflows[0]?.name;
@@ -71,27 +79,24 @@ const Document = ({ workflowId }) => {
                 <div className="checklist-title">チェック項目</div>
                 {flowstepChecklists.length > 0 ? (
                   <ul className="checklist-container">
-                    {flowstepChecklists.map((checklist) => (
-                      <li key={checklist.id} className="checklist-card">
-                        <FontAwesomeIcon icon={faClipboardCheck} className="icon-on-checklist-card" />
-                        {editingChecklist === checklist.id ? (
-                          <div>
-                            <input
-                              type="text"
-                              value={updatedChecklistName}
-                              onChange={(e) => setUpdatedChecklistName(e.target.value)}
-                            />
-                            <button onClick={() => handleSaveClick(checklist)}>保存</button>
-                            <button onClick={() => setEditingChecklist(null)}>キャンセル</button>
-                          </div>
-                        ) : (
-                          <div>
-                            {checklist.name}
-                            <button onClick={() => handleEditClick(checklist)}>編集</button>
-                          </div>
-                        )}
-                      </li>
-                    ))}
+                  {flowstepChecklists.map((checklist) => (
+                    <li key={checklist.id} className="checklist-card">
+                      <FontAwesomeIcon icon={faClipboardCheck} className="icon-on-checklist-card" />
+                      <div className="checklist-name-and-icon-container">
+                        <div className="checklist-name">
+                          {checklist.name}
+                        </div>
+                        <div>
+                          <button onClick={() => handleEditClick(checklist)}>
+                            <FontAwesomeIcon icon={faEdit} className="faEdit-icon-on-checklist-card" />
+                          </button>
+                          <button onClick={() => handleDeleteClick(checklist)}>
+                            <FontAwesomeIcon icon={faTrash} className="faTrash-icon-on-checklist-card" />
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
                   </ul>
                 ) : (
                   <div className="non-flowstep-message-on-document">チェック項目はありません。</div>
