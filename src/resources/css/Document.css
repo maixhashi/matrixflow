@@ -72,23 +72,36 @@
 }
 
 .checklist-card {
+  display: flex;
+  align-items: center;
   background-color: white; /* カードの背景色 */
   border-radius: 8px;        /* 角の丸み */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* カードの影 */
   padding: 16px;           /* カードの内側の余白 */
   margin-left: 35px;       /* カード間の余白 */
   margin-bottom: 16px;       /* カード間の余白 */
+  max-width: 300px;
 }
 
 .checklist-title {
   font-size: 16px;
   margin-bottom: 8px;
   margin-left: 15px;
+  padding-right: 100px;
 }
 
 .checklist-container {
   list-style: none;
   padding: 0;
+}
+
+.checklist-name-and-icon-container {
+  display: flex;
+}
+
+.checklist-name {
+  width: 200px;
+  max-width: 200px;
 }
 
 .icon-on-checklist-card {
@@ -98,4 +111,8 @@
 .non-flowstep-message-on-document {
   margin-left: 35px;
   color: darkgray;
+}
+
+.faEdit-icon-on-checklist-card {
+  margin-left: 10px;
 }

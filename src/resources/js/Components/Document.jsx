@@ -4,7 +4,7 @@ import { fetchFlowsteps } from '../store/flowstepsSlice';
 import { fetchCheckLists, updateChecklist } from '../store/checklistSlice';
 import { fetchWorkflow } from '../store/workflowSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardCheck, faEdit } from '@fortawesome/free-solid-svg-icons';
 import '../../css/Document.css';
 
 const Document = ({ workflowId }) => {
@@ -35,7 +35,7 @@ const Document = ({ workflowId }) => {
     setUpdatedChecklistName(checklist.name);
     dispatch(fetchCheckLists(workflowId));
   };
-
+  
   const handleSaveClick = (checklist) => {
     dispatch(updateChecklist({
       workflowId,
@@ -43,6 +43,7 @@ const Document = ({ workflowId }) => {
       updatedData: { name: updatedChecklistName }
     }));
     setEditingChecklist(null); // 編集モード解除
+    dispatch(fetchCheckLists(workflowId));
   };
 
   const workflowName = workflows[0]?.name;
@@ -85,9 +86,13 @@ const Document = ({ workflowId }) => {
                             <button onClick={() => setEditingChecklist(null)}>キャンセル</button>
                           </div>
                         ) : (
-                          <div>
-                            {checklist.name}
-                            <button onClick={() => handleEditClick(checklist)}>編集</button>
+                          <div className="checklist-name-and-icon-container">
+                            <div className="checklist-name">
+                              {checklist.name}
+                            </div>
+                            <div>
+                              <button onClick={() => handleEditClick(checklist)}> <FontAwesomeIcon icon={faEdit} className="faEdit-icon-on-checklist-card" /> </button>
+                            </div>
                           </div>
                         )}
                       </li>
