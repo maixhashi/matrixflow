@@ -6,7 +6,8 @@
 ![React:18.3.1](https://img.shields.io/badge/React-18.3.1-paleturquoise.svg?longCache=true)
 
 
-### **https://matrixflow-d2987557bad9.herokuapp.com**
+ - URL : **https://matrixflow-d2987557bad9.herokuapp.com**
+ - Qiitaに投稿しました : [【Laravel × React】業務フローを明瞭に！ポートフォリオMATRIXFLOWを作成しました](https://qiita.com/maixhashi/items/5da649e290ec13e71465)
 
 ## サービス概要
 **今のフローを明瞭に**
