@@ -87,7 +87,7 @@
   font-size: 16px;
   margin-bottom: 8px;
   margin-left: 15px;
-  padding-right: 100px;
+  max-width: 200px;
 }
 
 .checklist-container {

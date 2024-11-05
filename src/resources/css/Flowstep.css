@@ -15,9 +15,18 @@
   background-color: #e0f7fa; /* Slightly darker blue on hover */
 }
 
-.flow-step-name {
+.flowstep-name {
   color: #333; /* Darker text color */
   font-size: 1.2em; /* Larger font size */
   text-align: center; /* Center the text */
   margin: 0; /* Remove default margin */
+  margin-left: 5px;
+}
+
+.flowstep-name-container {
+  display: flex;
+}
+
+.flowstep-name-edit-button {
+  margin-left: 5px;
 }

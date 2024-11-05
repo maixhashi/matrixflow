@@ -22,6 +22,7 @@ const FlowStep = ({ flowstep, workflowId }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(flowstep.name); // Initial value from flowstep.name
+    const [isHovered, setIsHovered] = useState(false); // Hover state
     const dispatch = useDispatch();
 
     const handleDelete = async () => {
@@ -48,7 +49,13 @@ const FlowStep = ({ flowstep, workflowId }) => {
     };
 
     return (
-        <div ref={drag} className="flow-step" style={{ opacity: isDragging ? 0.5 : 1 }}>
+        <div 
+            ref={drag} 
+            className="flow-step" 
+            style={{ opacity: isDragging ? 0.5 : 1 }} 
+            onMouseEnter={() => setIsHovered(true)} // Set hover state
+            onMouseLeave={() => setIsHovered(false)} // Reset hover state
+        >
             {isEditing ? (
                 <form onSubmit={handleSubmit} className="edit-flowstep-form">
                     <input 
@@ -62,10 +69,14 @@ const FlowStep = ({ flowstep, workflowId }) => {
                 </form>
             ) : (
                 <>
-                    <h4 className="flow-step-name">{flowstep.name}</h4>
-                    <button onClick={handleEditClick} className="edit-button">
-                        <FontAwesomeIcon icon={faEdit} />
-                    </button>
+                    <div className="flowstep-name-container">
+                        <div className="flowstep-name">{flowstep.name}</div>
+                        {isHovered && ( // Show edit button only on hover
+                            <button onClick={handleEditClick} className="flowstep-name-edit-button">
+                                <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                        )}
+                    </div>
                     <button onClick={handleDelete} className="delete-button" disabled={isDeleting}>
                         <FontAwesomeIcon icon={faTrash} />
                     </button>
