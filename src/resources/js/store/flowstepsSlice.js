@@ -98,29 +98,20 @@ export const assignFlowStep = createAsyncThunk(
 export const updateFlowstepAsync = createAsyncThunk(
   'flowsteps/updateFlowstep',
   async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
-
     try {
-      const response = await axios.put(`/api/flowsteps/${id}`, {
-        method: 'PUT',
+      const response = await axios.put(`/api/flowsteps/${id}`, updatedFlowstep, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFlowstep),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to edit FlowStep');
-      }
-
-      const data = await response.json();
-      
       // 成功した場合はstateを更新するアクションをdispatch
-      dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: data }));
+      dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: response.data }));
       
-      return data;
+      return response.data;
 
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
