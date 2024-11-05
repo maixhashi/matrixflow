@@ -27,6 +27,15 @@
   display: flex;
 }
 
+.button-container-for-flowstep {
+  display: flex;
+  justify-content: center;
+}
+
 .flowstep-name-edit-button {
   margin-left: 5px;
+}
+
+.faPencil-button-for-flowstep {
+  margin-right: 10px;
 }

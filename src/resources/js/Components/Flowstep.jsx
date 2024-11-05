@@ -4,7 +4,7 @@ import '../../css/Flowstep.css';
 import { useDispatch } from 'react-redux';
 import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepAsync } from '../store/flowstepsSlice'; // Import the async actions
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faEdit, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit, faSave, faCancel, faPencil } from '@fortawesome/free-solid-svg-icons';
 
 const FlowStep = ({ flowstep, workflowId }) => {
     if (!flowstep) {
@@ -77,9 +77,14 @@ const FlowStep = ({ flowstep, workflowId }) => {
                             </button>
                         )}
                     </div>
-                    <button onClick={handleDelete} className="delete-button" disabled={isDeleting}>
-                        <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                    <div className="button-container-for-flowstep">
+                        <div className="faPencil-button-for-flowstep">
+                            <FontAwesomeIcon icon={faPencil} />
+                        </div>
+                        <div onClick={handleDelete} className="delete-button" disabled={isDeleting}>
+                            <FontAwesomeIcon icon={faTrash} />
+                        </div>
+                    </div>
                 </>
             )}
         </div>
