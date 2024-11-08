@@ -3,8 +3,8 @@ import memberReducer from './memberSlice';
 import flowstepsReducer from './flowstepsSlice';
 import checklistsReducer from './checklistSlice';
 import workflowReducer from './workflowSlice';
+import modalReducer from './modalSlice';
 import memberReducerForGuest from './memberSliceForGuest';
-import workflowSlice from './workflowSlice';
 
 
 const store = configureStore({
@@ -13,6 +13,7 @@ const store = configureStore({
         flowsteps: flowstepsReducer,
         checkLists: checklistsReducer,
         workflow: workflowReducer,
+        modal: modalReducer,
         membersForGuest: memberReducerForGuest
     },
 });

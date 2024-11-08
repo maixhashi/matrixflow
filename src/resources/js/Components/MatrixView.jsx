@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
+// Store Redux Sliceのインポート
 import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
+import { openCheckListModal } from '../store/modalSlice';
+
+// FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+
+// コンポーネントのインポート
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
@@ -15,9 +22,15 @@ import CheckListModal from '../Components/CheckListModal';
 import CheckListModalContent from '../Components/CheckListModalContent';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+
+// スタイル
 import '../../css/MatrixView.css';
 
+
+// コンポーネントの定義
 const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId }) => {
+    const dispatch = useDispatch();
+
     const checkListsFromStore = useSelector(selectCheckListsByColumn);
     const checkListsForFlowNumber = checkListsFromStore[flowNumber] || [];
     
@@ -28,8 +41,7 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId
     console.log("hasCheckList:", hasCheckList);
 
     const handleCheckListClick = (checklist) => {
-        setSelectedCheckList(checklist); // 選択されたチェックリストを設定
-        setIsModalOpen(true); // モーダルを開く
+        dispatch(openCheckListModal({ checkList: checklist }));
     };
 
     const closeModal = () => {
@@ -292,6 +304,7 @@ const MatrixRow = ({
 
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { isAddFlowStepModalOpen } = useSelector((state) => state.modal);
     const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
