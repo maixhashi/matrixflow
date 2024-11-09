@@ -3,9 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   isCheckListModalOpen: false,
   isAddFlowstepModalOpen: false,
-  selectedCheckList: null,
-  selectedMember: null,
-  selectedStepNumber: null,
+  isUpdateFlowstepModalOpen: false,
 };
 
 const modalSlice = createSlice({
@@ -22,13 +20,15 @@ const modalSlice = createSlice({
     },
     openAddFlowstepModal: (state, action) => {
       state.isAddFlowstepModalOpen = true;
-      state.selectedMember = action.payload.member;
-      state.selectedStepNumber = action.payload.stepNumber;
     },
     closeAddFlowstepModal: (state) => {
       state.isAddFlowstepModalOpen = false;
-      state.selectedMember = null;
-      state.selectedStepNumber = null;
+    },
+    openUpdateFlowstepModal: (state, action) => {
+      state.isUpdateFlowstepModalOpen = true;
+    },
+    closeUpdateFlowstepModal: (state) => {
+      state.isUpdateFlowstepModalOpen = false;
     }
   },
 });
@@ -38,6 +38,8 @@ export const {
   closeCheckListModal,
   openAddFlowstepModal,
   closeAddFlowstepModal,
+  openUpdateFlowstepModal,
+  closeUpdateFlowstepModal,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

@@ -3,6 +3,8 @@ import { useDrag } from 'react-dnd';
 import '../../css/Flowstep.css';
 import { useDispatch } from 'react-redux';
 import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepAsync } from '../store/flowstepsSlice'; // Import the async actions
+import { openUpdateFlowstepModal } from '../store/modalSlice';
+import { setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit, faSave, faCancel, faPencil } from '@fortawesome/free-solid-svg-icons';
 
@@ -48,6 +50,13 @@ const FlowStep = ({ flowstep, workflowId }) => {
         dispatch(fetchFlowsteps(workflowId));
     };
 
+    const handleOpenUpdateFlowstepModal = (member, stepNumber) => {
+        dispatch(setSelectedMember(member));
+        dispatch(setSelectedStepNumber(stepNumber));
+        dispatch(openUpdateFlowstepModal(member, stepNumber));
+    };
+
+
     return (
         <div 
             ref={drag} 
@@ -78,7 +87,7 @@ const FlowStep = ({ flowstep, workflowId }) => {
                         )}
                     </div>
                     <div className="button-container-for-flowstep">
-                        <div className="faPencil-button-for-flowstep">
+                        <div onClick={handleOpenUpdateFlowstepModal} className="faPencil-button-for-flowstep">
                             <FontAwesomeIcon icon={faPencil} />
                         </div>
                         <div onClick={handleDelete} className="delete-button" disabled={isDeleting}>

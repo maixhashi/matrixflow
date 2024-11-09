@@ -17,8 +17,10 @@ import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBa
 import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
+import UpdateFlowStepForm from '../Components/UpdateFlowStepForm';
 import AddCheckListForm from '../Components/AddCheckListForm';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
+import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
 import CheckListModal from '../Components/CheckListModal';
 import CheckListModalContent from '../Components/CheckListModalContent';
@@ -336,6 +338,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     const members = useSelector((state) => state.members);
     const flowsteps = useSelector((state) => state.flowsteps);
     const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
+    const isUpdateFlowstepModalOpen = useSelector((state) => state.modal.isUpdateFlowstepModalOpen);
     
     useEffect(() => {
         dispatch(fetchMembers(workflowId));
@@ -544,6 +547,21 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                         workflowId={workflowId}
                     />
                 </ModalforAddFlowStepForm>
+            )}
+
+            {/* モーダルの表示 */}
+            {isUpdateFlowstepModalOpen && (
+                <ModalforUpdateFlowStepForm>
+                    <UpdateFlowStepForm
+                        members={orderedMembers}
+                        member={selectedMember}
+                        stepNumber={selectedStepNumber}
+                        nextStepNumber={maxFlowNumber + 1}
+                        onClose={closeAddFlowStepModal}
+                        onFlowStepAdded={onFlowStepAdded}
+                        workflowId={workflowId}
+                    />
+                </ModalforUpdateFlowStepForm>
             )}
 
 
