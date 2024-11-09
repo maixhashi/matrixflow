@@ -35,24 +35,20 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId
     const checkListsForFlowNumber = checkListsFromStore[flowNumber] || [];
     
     const [selectedCheckList, setSelectedCheckList] = useState(null); // 選択されたチェックリストを保持する状態
-    const [isModalOpen, setIsModalOpen] = useState(false); // モーダルのオープン状態を管理
-
+    
     const hasCheckList = checkListsForFlowNumber.some(checklist => checklist.workflow_id === workflowId);
     console.log("hasCheckList:", hasCheckList);
 
-    const handleCheckListClick = (checklist) => {
+    // モーダルを開く
+    const isCheckListModalOpen = useSelector(state => state.modal.isCheckListModalOpen);
+    const handleOpenChecklistModal = (checklist) => {
         dispatch(openCheckListModal({ checkList: checklist }));
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false); // モーダルを閉じる
-        setSelectedCheckList(null); // 選択をリセット
     };
 
     return (
         <td className="matrix-check-item-column">
             {hasCheckList ? (
-                <div className="check-item" onClick={() => handleCheckListClick(checkListsForFlowNumber[0])}>
+                <div className="check-item" onClick={() => handleOpenChecklistModal(checkListsForFlowNumber[0])}>
                     <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
                 </div>
             ) : (
@@ -62,10 +58,8 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId
             )}
 
             {/* モーダルの表示 */}
-            {isModalOpen && (
+            {isCheckListModalOpen && (
                 <CheckListModal 
-                    isOpen={isModalOpen} 
-                    onClose={closeModal} 
                     checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
                 >
                     <CheckListModalContent
