@@ -95,32 +95,48 @@ export const assignFlowStep = createAsyncThunk(
 );
 
 // FlowStepを編集するアクション
-export const updateFlowstepAsync = createAsyncThunk(
+export const updateFlowstep = createAsyncThunk(
   'flowsteps/updateFlowstep',
-  async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
-
+  async ({ updatedFlowstep }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.put(`/api/flowsteps/${id}`, {
-        method: 'PUT',
+      // flowNumber を flow_number に変更
+      const response = await axios.put(`/api/flowsteps/${updatedFlowstep.id}`, {
+        ...updatedFlowstep,
+        flow_number: updatedFlowstep.flow_number // flow_number にリネーム
+      }, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFlowstep),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to edit FlowStep');
-      }
-
-      const data = await response.json();
+      dispatch(flowstepsSlice.actions.editFlowstep({ id: updatedFlowstep.id, updatedFlowstep: response.data }));
       
-      // 成功した場合はstateを更新するアクションをdispatch
-      dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: data }));
-      
-      return data;
+      return response.data;
 
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// FlowStepを編集するアクション
+export const updateFlowstepName = createAsyncThunk(
+  'flowsteps/updateFlowstepName',
+  async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios.put(`/api/flowsteps/update-name/${id}`, updatedFlowstep, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // 成功した場合はstateを更新するアクションをdispatch
+      dispatch(flowstepsSlice.actions.editFlowstep({ id, updatedFlowstep: response.data }));
+      
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
