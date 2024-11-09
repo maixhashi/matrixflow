@@ -95,6 +95,31 @@ export const assignFlowStep = createAsyncThunk(
 );
 
 // FlowStepを編集するアクション
+export const updateFlowstep = createAsyncThunk(
+  'flowsteps/updateFlowstep',
+  async ({ updatedFlowstep }, { dispatch, rejectWithValue }) => {
+    try {
+      // flowNumber を flow_number に変更
+      const response = await axios.put(`/api/flowsteps/${updatedFlowstep.id}`, {
+        ...updatedFlowstep,
+        flow_number: updatedFlowstep.flow_number // flow_number にリネーム
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      dispatch(flowstepsSlice.actions.editFlowstep({ id: updatedFlowstep.id, updatedFlowstep: response.data }));
+      
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// FlowStepを編集するアクション
 export const updateFlowstepName = createAsyncThunk(
   'flowsteps/updateFlowstepName',
   async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {

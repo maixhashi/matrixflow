@@ -126,6 +126,7 @@ const MatrixCol = ({ openAddFlowStepModal, openAddCheckListModal, flowNumber, on
                     <div key={flowstep.id} className="member-cell">
                         <FlowStep
                             flowstep={flowstep}
+                            flowNumber={flowNumber}
                             workflowId={workflowId}
                         />
                     </div>

@@ -4,11 +4,11 @@ import '../../css/Flowstep.css';
 import { useDispatch } from 'react-redux';
 import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepName } from '../store/flowstepsSlice'; // Import the async actions
 import { openUpdateFlowstepModal } from '../store/modalSlice';
-import { setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
+import { setSelectedFlowstep, setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit, faSave, faCancel, faPencil } from '@fortawesome/free-solid-svg-icons';
 
-const FlowStep = ({ flowstep, workflowId }) => {
+const FlowStep = ({ flowstep, flowNumber, workflowId }) => {
     if (!flowstep) {
         return <div>フローステップのデータがありません</div>;
     }
@@ -53,6 +53,7 @@ const FlowStep = ({ flowstep, workflowId }) => {
     const handleOpenUpdateFlowstepModal = (member, stepNumber) => {
         dispatch(setSelectedMember(member));
         dispatch(setSelectedStepNumber(stepNumber));
+        dispatch(setSelectedFlowstep(flowstep));
         dispatch(openUpdateFlowstepModal(member, stepNumber));
     };
 
