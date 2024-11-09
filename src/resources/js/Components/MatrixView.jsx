@@ -103,6 +103,14 @@ const MatrixCol = ({ openAddFlowStepModal, openAddCheckListModal, flowNumber, on
     // Ensure flowsteps is an array
     const validFlowsteps = Array.isArray(flowsteps) ? flowsteps : [];
 
+    const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
+    const handleOpenAddFlowstepModal = (member, stepNumber) => {
+        dispatch(setSelectedMember(member));
+        dispatch(setSelectedStepNumber(stepNumber));
+        dispatch(openAddFlowstepModal(member, stepNumber));
+    };
+
+
     return (
         <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
             {/* flowstepsをループして、flow_numberとメンバーに基づいて表示 */}
@@ -130,7 +138,7 @@ const MatrixCol = ({ openAddFlowStepModal, openAddCheckListModal, flowNumber, on
                 <div className="member-cell">
                     <button 
                         className="add-step-button" 
-                        onClick={() => openModal(member, flowNumber)}
+                        onClick={() => handleOpenAddFlowstepModal(member, flowNumber)}
                     >
                         <FontAwesomeIcon icon={faSquarePlus} />
                     </button>
