@@ -27,10 +27,13 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
         if (selectedFlowstep) {
             setName(selectedFlowstep.name);
             setFlowNumber(selectedFlowstep.flow_number);
-            setSelectedMembers(selectedFlowstep.member_id); 
         }
-    }, [selectedFlowstep]);
-
+        if (selectedMember) {
+            setSelectedMembers([selectedMember.id]);
+        }
+        console.log("selectedMembers:", selectedMembers);
+    }, [selectedFlowstep, selectedMember]);
+    
     // フローステップを更新するためのフォーム送信処理
     const handleSubmit = async (e) => {
         e.preventDefault();

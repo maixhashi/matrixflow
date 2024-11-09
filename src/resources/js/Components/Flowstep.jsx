@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import '../../css/Flowstep.css';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepName } from '../store/flowstepsSlice'; // Import the async actions
 import { openUpdateFlowstepModal } from '../store/modalSlice';
 import { setSelectedFlowstep, setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit, faSave, faCancel, faPencil } from '@fortawesome/free-solid-svg-icons';
 
-const FlowStep = ({ flowstep, flowNumber, workflowId }) => {
+const FlowStep = ({ member, flowstep, flowNumber, workflowId }) => {
     if (!flowstep) {
         return <div>フローステップのデータがありません</div>;
     }
@@ -26,6 +26,18 @@ const FlowStep = ({ flowstep, flowNumber, workflowId }) => {
     const [newName, setNewName] = useState(flowstep.name); // Initial value from flowstep.name
     const [isHovered, setIsHovered] = useState(false); // Hover state
     const dispatch = useDispatch();
+
+    // Reduxから選択されたメンバーとフローステップの状態を取得
+    const selectedMember = useSelector((state) => state.selected.selectedMember);
+    const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
+    const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
+
+    // デバッグ用ログ
+    console.log('selectedMember on Flowstep.jsx:', selectedMember);
+    console.log('selectedFlowstep on Flowstep.jsx:', selectedFlowstep);
+    console.log('selectedStepNumber on Flowstep.jsx:', selectedStepNumber);
+    
+    
 
     const handleDelete = async () => {
         setIsDeleting(true); // Set deleting state
@@ -50,11 +62,11 @@ const FlowStep = ({ flowstep, flowNumber, workflowId }) => {
         dispatch(fetchFlowsteps(workflowId));
     };
 
-    const handleOpenUpdateFlowstepModal = (member, stepNumber) => {
-        dispatch(setSelectedMember(member));
+    const handleOpenUpdateFlowstepModal = (member, flowstep, stepNumber) => {
+        dispatch(setSelectedMember(selectedMember));
         dispatch(setSelectedStepNumber(stepNumber));
         dispatch(setSelectedFlowstep(flowstep));
-        dispatch(openUpdateFlowstepModal(member, stepNumber));
+        dispatch(openUpdateFlowstepModal());
     };
 
 
