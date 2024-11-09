@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import '../../css/Flowstep.css';
 import { useDispatch } from 'react-redux';
-import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepAsync } from '../store/flowstepsSlice'; // Import the async actions
+import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepName } from '../store/flowstepsSlice'; // Import the async actions
 import { openUpdateFlowstepModal } from '../store/modalSlice';
 import { setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -45,7 +45,7 @@ const FlowStep = ({ flowstep, workflowId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await dispatch(updateFlowstepAsync({ id: flowstep.id, updatedFlowstep: { name: newName } }));
+        await dispatch(updateFlowstepName({ id: flowstep.id, updatedFlowstep: { name: newName } }));
         setIsEditing(false); // Close the form after submitting
         dispatch(fetchFlowsteps(workflowId));
     };

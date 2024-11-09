@@ -95,11 +95,11 @@ export const assignFlowStep = createAsyncThunk(
 );
 
 // FlowStepを編集するアクション
-export const updateFlowstepAsync = createAsyncThunk(
-  'flowsteps/updateFlowstep',
+export const updateFlowstepName = createAsyncThunk(
+  'flowsteps/updateFlowstepName',
   async ({ id, updatedFlowstep }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.put(`/api/flowsteps/${id}`, updatedFlowstep, {
+      const response = await axios.put(`/api/flowsteps/update-name/${id}`, updatedFlowstep, {
         headers: {
           'Content-Type': 'application/json',
         },

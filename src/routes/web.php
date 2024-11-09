@@ -39,7 +39,7 @@ Route::get('/api/workflows/{workflowId}/flowsteps', [FlowstepController::class, 
 Route::post('/api/workflows/{workflowId}/flowsteps', [FlowstepController::class, 'store']);
 Route::post('/api/update-flowstep-stepnumber', [FlowstepController::class, 'updateFlowstepStepnumber']);
 Route::delete('/api/flowsteps/{id}', [FlowstepController::class, 'destroy']);
-Route::put('/api/flowsteps/{id}', [FlowStepController::class, 'update']);
+Route::put('/api/flowsteps/update-name/{id}', [FlowstepController::class, 'updateName']);
 
 
 use App\Http\Controllers\FlowstepMemberController;

@@ -74,7 +74,7 @@ class FlowstepController extends Controller
         return response()->json(['message' => 'Flow step deleted successfully'], 200);
     }
 
-    public function update(Request $request, $id)
+    public function updateName(Request $request, $id)
     {
         // Validate the request
         $request->validate([
