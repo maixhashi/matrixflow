@@ -6,6 +6,8 @@ import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSli
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
+import { setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
+
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -154,6 +156,14 @@ const MatrixRow = ({
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(member.name);
     const [checkLists, setCheckLists] = useState({}); // チェックリストの状態管理
+
+    const selectedMember = useSelector((state) => state.selected.selectedMember);
+    const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
+      // 状態をコンソールに表示
+    console.log('selectedMember:', selectedMember);
+    console.log('selectedStepNumber:', selectedStepNumber);
+
+  
     const dispatch = useDispatch();
     
     // Reduxからチェックリストを取得
@@ -174,8 +184,10 @@ const MatrixRow = ({
     }, [checkListsFromStore]);
 
     const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
-    const handleOpenAddFlowstepModal = (member, selectedStepNumber) => {
-        dispatch(openAddFlowstepModal(member, selectedStepNumber));
+    const handleOpenAddFlowstepModal = (member, stepNumber) => {
+        dispatch(setSelectedMember(member));
+        dispatch(setSelectedStepNumber(stepNumber));
+        dispatch(openAddFlowstepModal(member, stepNumber));
     };
 
 

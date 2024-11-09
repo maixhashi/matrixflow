@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addFlowstep, deleteFlowstepAsync, fetchFlowsteps } from '../store/flowstepsSlice'; // Adjust the import path as needed
 import '../../css/AddFlowStepForm.css';
 
@@ -7,46 +7,46 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
     const [name, setName] = useState(''); 
     const [error, setError] = useState(null);
     const [flowNumber, setFlowNumber] = useState(stepNumber); 
-    const [selectedMembers, setSelectedMembers] = useState(member ? [member.id] : []); 
-    const [selectedStepNumber, setSelectedStepNumber] = useState(stepNumber); 
+    const [selectedMembers, setSelectedMembers] = useState([]); 
     const [searchTerm, setSearchTerm] = useState(''); 
+    
+    const selectedMember = useSelector((state) => state.selected.selectedMember);
+    const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
 
-    const dispatch = useDispatch(); // Get the dispatch function
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        if (member) {
-            setSelectedMembers([member.id]);
+        if (selectedMember) {
+            setSelectedMembers([selectedMember.id]);
         }
         if (stepNumber) {
             setFlowNumber(stepNumber);
-            setSelectedStepNumber(stepNumber);
         }
-    }, [member, stepNumber]);
+    }, [selectedMember, stepNumber]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-
+    
         const flowstepData = {
             name: name,
-            flow_number: flowNumber,
+            flow_number: flowNumber || selectedStepNumber, // flow_number が設定されていない場合は selectedStepNumber を使用
             member_id: selectedMembers,
             step_number: selectedStepNumber,
         };
-        console.log('Sending data:', flowstepData, 'to workflowId:', workflowId); // 送信されるデータをログ
-
+        console.log('Sending data:', flowstepData, 'to workflowId:', workflowId); // データ確認用
+    
         try {
-            // Reduxアクションをディスパッチ
             const action = await dispatch(addFlowstep({ workflowId, newFlowstep: flowstepData })).unwrap();
-            setName(''); // 入力をクリア
-            console.log('Flowstep added:', action); // 成功した場合の処理
+            setName('');
+            console.log('Flowstep added:', action);
             dispatch(fetchFlowsteps(workflowId));
         } catch (error) {
-            console.error('Error adding Flowstep:', error); // エラーの詳細をログ
-            setError('Failed to add Flowstep.'); // エラーメッセージを設定
+            console.error('Error adding Flowstep:', error);
+            setError('Failed to add Flowstep.');
         }
     };
-
+    
     const handleDelete = (id) => {
         dispatch(deleteFlowstepAsync(id));
     };
@@ -63,7 +63,7 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
     };
 
     const handleStepChange = (e) => {
-        setSelectedStepNumber(e.target.value);
+        setFlowNumber(e.target.value);
     };
 
     const filteredMembers = members.filter((m) => 
@@ -86,7 +86,7 @@ const AddFlowStepForm = ({ members = [], onFlowStepAdded = () => {}, member = nu
                 <div>
                     <label>ステップNo.:</label>
                     <select
-                        value={selectedStepNumber}
+                        value={flowNumber}
                         onChange={handleStepChange}
                         required
                     >
