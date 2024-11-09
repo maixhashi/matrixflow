@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
-import { openCheckListModal } from '../store/modalSlice';
+import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -149,7 +149,7 @@ const MatrixRow = ({
     updateFlowStepNumber,
     onMemberDelete,
     workflowId,
-}) => {
+    }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(member.name);
@@ -172,6 +172,12 @@ const MatrixRow = ({
             console.log("checkListsFromStore by useEffect on MatrixRow" ,JSON.stringify(checkListsFromStore, null, 2));
         }
     }, [checkListsFromStore]);
+
+    const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
+    const handleOpenAddFlowstepModal = (member, selectedStepNumber) => {
+        dispatch(openAddFlowstepModal(member, selectedStepNumber));
+    };
+
 
     const handleAddCheckItem = (flowNumber) => {
         const newCheckItemId = Date.now(); // 一意のIDを生成
@@ -287,7 +293,7 @@ const MatrixRow = ({
                 );
             })}
             <td className="matrix-cell next-step-column">
-                <button onClick={() => openAddFlowStepModal(member, maxFlowNumber + 1)} className="add-step-button">
+                <button onClick={() => handleOpenAddFlowstepModal(member, maxFlowNumber + 1)} className="add-step-button">
                     <FontAwesomeIcon icon={faSquarePlus} />
                 </button>
             </td>
@@ -298,18 +304,18 @@ const MatrixRow = ({
 
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { isAddFlowStepModalOpen } = useSelector((state) => state.modal);
     const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
     const [maxFlowNumber, setMaxFlowNumber] = useState(0);
     const [orderedMembers, setOrderedMembers] = useState([]);
-
+    
     const dispatch = useDispatch();
-
+    
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const members = useSelector((state) => state.members);
     const flowsteps = useSelector((state) => state.flowsteps);
+    const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
     
     useEffect(() => {
         dispatch(fetchMembers(workflowId));
@@ -339,6 +345,12 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
         setSelectedMember(member);
         setSelectedStepNumber(stepNumber);
         setIsModalOpen(true);
+    };
+
+    const handleOpenAddFlowstepModalonMatrixView = (member, stepNumber) => {
+        setSelectedMember(member);
+        setSelectedStepNumber(stepNumber);
+        dispatch(openAddFlowStepModal());
     };
 
     const closeAddFlowStepModal = () => {
@@ -435,7 +447,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                     </div>
                                 </td>
                                 <td className="matrix-cell next-step-column">
-                                    <button onClick={() => openAddFlowStepModal(null, 2)} className="add-step-button">
+                                    <button onClick={() => handleOpenAddFlowstepModalonMatrixView(null, 2)} className="add-step-button">
                                         <FontAwesomeIcon icon={faSquarePlus} />
                                     </button>
                                 </td>
@@ -499,7 +511,9 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                     </table>
                 )}
 
-                <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeAddFlowStepModal}>
+            {/* モーダルの表示 */}
+            {isAddFlowstepModalOpen && (
+                <ModalforAddFlowStepForm isOpen={isAddFlowstepModalOpen} onClose={closeAddFlowStepModal}>
                     <AddFlowStepForm
                         members={orderedMembers}
                         member={selectedMember}
@@ -510,6 +524,9 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                         workflowId={workflowId}
                     />
                 </ModalforAddFlowStepForm>
+            )}
+
+
                 
                 <ModalforAddCheckListForm isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
                     <AddCheckListForm

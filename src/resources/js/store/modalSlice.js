@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   isCheckListModalOpen: false,
-  isOpenModalforAddFlowStepForm: false,
+  isAddFlowstepModalOpen: false,
   selectedCheckList: null,
   selectedMember: null,
   selectedStepNumber: null,
@@ -20,32 +20,24 @@ const modalSlice = createSlice({
       state.isCheckListModalOpen = false;
       state.selectedCheckList = null;
     },
-    openAddFlowStepModal: (state, action) => {
-      state.isAddFlowStepModalOpen = true;
+    openAddFlowstepModal: (state, action) => {
+      state.isAddFlowstepModalOpen = true;
       state.selectedMember = action.payload.member;
       state.selectedStepNumber = action.payload.stepNumber;
     },
-    closeAddFlowStepModal: (state) => {
-      state.isAddFlowStepModalOpen = false;
+    closeAddFlowstepModal: (state) => {
+      state.isAddFlowstepModalOpen = false;
       state.selectedMember = null;
       state.selectedStepNumber = null;
-    },
-    openModalforAddFlowStepForm: (state) => { // 追加
-      state.isOpenModalforAddFlowStepForm = true;
-    },
-    closeModalforAddFlowStepForm: (state) => { // 追加
-      state.isOpenModalforAddFlowStepForm = false;
-    },
+    }
   },
 });
 
 export const {
   openCheckListModal,
   closeCheckListModal,
-  openAddFlowStepModal,
-  closeAddFlowStepModal,
-  openModalforAddFlowStepForm, // 追加
-  closeModalforAddFlowStepForm, // 追加
+  openAddFlowstepModal,
+  closeAddFlowstepModal,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;
