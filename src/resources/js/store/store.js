@@ -5,6 +5,7 @@ import checklistsReducer from './checklistSlice';
 import workflowReducer from './workflowSlice';
 import modalReducer from './modalSlice';
 import selectedReducer from './selectedSlice';
+import documentSettingsReducer from './documentSettingsSlice';
 import memberReducerForGuest from './memberSliceForGuest';
 
 
@@ -16,6 +17,7 @@ const store = configureStore({
         workflow: workflowReducer,
         modal: modalReducer,
         selected: selectedReducer,
+        documentSettings: documentSettingsReducer,
         membersForGuest: memberReducerForGuest
     },
 });

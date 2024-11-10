@@ -1,11 +1,11 @@
 import React from 'react';
 import '../../css/DocumentSettingsForm.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { showChecklistsOnDocument, hideChecklistsOnDocument } from '../store/checklistSlice';
+import { showChecklistsOnDocument, hideChecklistsOnDocument } from '../store/documentSettingsSlice';
 
 const DocumentSettingsForm = () => {
   const dispatch = useDispatch();
-  const showChecklists = useSelector((state) => state.checkLists.showingChecklistsOnDocument);
+  const showChecklists = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);
 
   const handleCheckboxChange = (e) => {
     if (e.target.checked) {

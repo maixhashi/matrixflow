@@ -18,12 +18,11 @@ const Document = ({ workflowId }) => {
   const dispatch = useDispatch();
   const [editingChecklist, setEditingChecklist] = useState(null);
   const [updatedChecklistName, setUpdatedChecklistName] = useState('');
-  const [showChecklists, setShowChecklists] = useState(true); // 新規：チェックリスト表示・非表示用のステート
 
   const { workflows, loading, error } = useSelector((state) => state.workflow);
   const flowsteps = useSelector((state) => state.flowsteps);
   const checklists = useSelector((state) => state.checkLists);
-  const showingChecklistsOnDocument = useSelector((state) => state.checkLists.showingChecklistsOnDocument);
+  const showingChecklistsOnDocument = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);
 
   useEffect(() => {
     dispatch(fetchFlowsteps(workflowId));
