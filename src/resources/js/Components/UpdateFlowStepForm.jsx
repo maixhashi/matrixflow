@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateFlowstep, deleteFlowstepAsync, fetchFlowsteps } from '../store/flowstepsSlice'; // インポートパスを適宜調整
+
+// FontAwesomeのアイコンのインポート
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencil} from '@fortawesome/free-solid-svg-icons';
+
 import '../../css/UpdateFlowStepForm.css';
 
 const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
@@ -73,75 +78,84 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
     );
 
     return (
-        <div>
-            <form className="form-container" onSubmit={handleSubmit}>
-                <div>
-                    <label>フローステップ名:</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)} 
-                        required
-                        placeholder="担当者がフローとして行うことを入力しましょう"
-                    />
-                </div>
-                <div>
-                    <label>ステップNo.:</label>
-                    <select
-                        value={flowNumber}
-                        onChange={handleStepChange}
-                        required
-                    >
-                        {Array.from({ length: nextStepNumber }, (_, index) => (
-                            <option key={index + 1} value={index + 1}>
-                                STEP {index + 1}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label>担当者を検索:</label>
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="担当者を名前検索できます"
-                    />
-                </div>
-                <div>
-                    <label>担当者を選択:</label>
-                    <select
-                        multiple
-                        value={selectedMembers}
-                        onChange={handleMemberChange}
-                        required
-                    >
-                        {filteredMembers.length > 0 ? (
-                            filteredMembers.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                    {m.name}
-                                </option>
-                            ))
-                        ) : (
-                            <option disabled>メンバーが利用できません</option>
-                        )}
-                    </select>
-                </div>
-                <div>
-                    <label>詳細:</label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)} 
-                        required
-                        placeholder="フローの詳細を入力しましょう"
-                    />
-                </div>
-                <div>
-                    <button type="submit">フローステップを更新</button>
-                </div>
-            </form>
-            {error && <p>{error}</p>}
-        </div>
+        <>
+            <div className="UpdateFlowStepForm-title">
+                <FontAwesomeIcon icon={faPencil} className="UpdateFlowStepForm-title-icon" /> フローステップの更新 <FontAwesomeIcon icon={faPencil} className="UpdateFlowStepForm-title-icon" />
+            </div>
+            <div className="UpdateFlowStepForm-container">
+                <form className="UpdateFlowStepForm-form-container" onSubmit={handleSubmit}>
+                    <div className="description-except-container">
+                        <div>
+                            <label>フローステップ名:</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)} 
+                                required
+                                placeholder="担当者がフローとして行うことを入力しましょう"
+                            />
+                        </div>
+                        <div>
+                            <label>ステップNo.:</label>
+                            <select
+                                value={flowNumber}
+                                onChange={handleStepChange}
+                                required
+                            >
+                                {Array.from({ length: nextStepNumber }, (_, index) => (
+                                    <option key={index + 1} value={index + 1}>
+                                        STEP {index + 1}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label>担当者を検索:</label>
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="担当者を名前検索できます"
+                            />
+                        </div>
+                        <div>
+                            <label>担当者を選択:</label>
+                            <select
+                                multiple
+                                value={selectedMembers}
+                                onChange={handleMemberChange}
+                                required
+                            >
+                                {filteredMembers.length > 0 ? (
+                                    filteredMembers.map((m) => (
+                                        <option key={m.id} value={m.id}>
+                                            {m.name}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>メンバーが利用できません</option>
+                                )}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="description-container">
+                        <div>
+                            <label className="description-label">詳細:</label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)} 
+                                required
+                                placeholder="フローの詳細を入力しましょう"
+                            />
+                        </div>
+                    </div>
+                    <div className="UpdateFlowStepForm-submit-button">
+                        <button type="submit">フローステップを更新</button>
+                    </div>
+                </form>
+                {error && <p>{error}</p>}
+            </div>
+        </>
     );
 };
 
