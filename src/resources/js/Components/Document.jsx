@@ -23,6 +23,7 @@ const Document = ({ workflowId }) => {
   const { workflows, loading, error } = useSelector((state) => state.workflow);
   const flowsteps = useSelector((state) => state.flowsteps);
   const checklists = useSelector((state) => state.checkLists);
+  const showingChecklistsOnDocument = useSelector((state) => state.checkLists.showingChecklistsOnDocument);
 
   useEffect(() => {
     dispatch(fetchFlowsteps(workflowId));
@@ -96,7 +97,7 @@ const Document = ({ workflowId }) => {
                 </div>
               </div>
 
-              {showChecklists && ( // showChecklists の状態で表示を切り替え
+              {showingChecklistsOnDocument && ( // showChecklists の状態で表示を切り替え
                 <div className="checklist-container-card">
                   <div className="checklist-title">チェック項目</div>
                   {flowstepChecklists.length > 0 ? (
