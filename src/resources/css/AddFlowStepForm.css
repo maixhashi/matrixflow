@@ -1,3 +1,13 @@
+.AddFlowStepForm-title {
+  display: flex;
+  justify-content: center;
+}
+
+.AddFlowStepForm-title-icon {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
 .form-container {
   background-color: #f9f9f9;
   padding: 20px;
