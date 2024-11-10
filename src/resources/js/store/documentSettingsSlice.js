@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   showingChecklistsOnDocument: true,
   showingFlowstepDescriptionsOnDocument: true,
+  PDFViewerMode: false
 };
 
 const documentSettingsSlice = createSlice({
@@ -21,6 +22,12 @@ const documentSettingsSlice = createSlice({
     hideFlowstepDescriptionsOnDocument: (state) => {
       state.showingFlowstepDescriptionsOnDocument = false;
     },
+    onPDFViewerMode: (state) => {
+      state.PDFViewerMode = true;
+    },
+    offPDFViewerMode: (state) => {
+      state.PDFViewerMode = false;
+    },
   },
 });
 
@@ -29,6 +36,8 @@ export const {
   hideChecklistsOnDocument,
   showFlowstepDescriptionsOnDocument,
   hideFlowstepDescriptionsOnDocument,
+  onPDFViewerMode,
+  offPDFViewerMode
 } = documentSettingsSlice.actions;
 
 export default documentSettingsSlice.reducer;

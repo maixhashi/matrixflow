@@ -19,6 +19,14 @@
   height: 100vh; /* ビューポートの高さに合わせる */
   overflow-y: auto; /* 縦スクロールを可能にする */
 }
+.sidebar-on-PDFViewerMode {
+  width: 30%; /* サイドバーの幅 */
+  padding: 20px;
+  background-color: white; /* サイドバーの背景色 */
+  border-right: 1px solid #ccc; /* サイドバーの右側の境界線 */
+  height: 100vh; /* ビューポートの高さに合わせる */
+  overflow-y: auto; /* 縦スクロールを可能にする */
+}
 
 .main-content {
   flex-grow: 1; /* 残りのスペースを占める */
