@@ -1,6 +1,11 @@
 .document-container {
 }
 
+.settings-button {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .document-title {
   font-size: 18px; /* 見出しのフォントサイズ */
   font-weight: bold;

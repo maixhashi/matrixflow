@@ -457,7 +457,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                     <table className="matrix-table">
                         <thead>
                             <tr>
-                                <th className="matrix-corner-header">Members / FlowStep</th>
+                                <th className="matrix-corner-header">担当者 / フローステップ</th>
                                 {Array.from({ length: maxFlowNumber }, (_, i) => i + 1).map((flowNumber) => (
                                     <th key={flowNumber} className="matrix-header">STEP {flowNumber}</th>
                                 ))}

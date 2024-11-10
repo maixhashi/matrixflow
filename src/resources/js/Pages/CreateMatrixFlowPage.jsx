@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
+// Redux Slice Storeの読み込み
 import { fetchMembers } from '../store/memberSlice'; 
 import { fetchFlowsteps, assignFlowStep } from '../store/flowstepsSlice'; 
+
+// コンポーネントの読み込み
 import MatrixView from '../Components/MatrixView';
 import Document from '../Components/Document';
+import ModalforDocumentSettings from '../Components/ModalforDocumentSettings';
+import DocumentSettingsForm from '../Components/DocumentSettingsForm';
 import FlashMessage from '../Components/FlashMessage';
+
+// スタイル
 import '../../css/CreateMatrixFlowPage.css';
-import AuthenticatedLayout from '../Layouts/AuthenticatedLayout'; 
 
 const CreateMatrixFlowPage = (props) => {
     const dispatch = useDispatch();
@@ -14,9 +21,11 @@ const CreateMatrixFlowPage = (props) => {
     const [membersUpdated, setMembersUpdated] = useState(false);
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
+    const [showChecklists, setShowChecklists] = useState(true); 
     const { workflowId } = props;
 
     const members = useSelector((state) => state.members);
+    const isDocumentSettingsModalOpen = useSelector((state) => state.modal.isDocumentSettingsModalOpen);
 
     useEffect(() => {
         dispatch(fetchMembers(workflowId));
@@ -73,6 +82,15 @@ const CreateMatrixFlowPage = (props) => {
                         onFlowStepAdded={handleFlowStepAdded}
                         workflowId={workflowId}
                     />
+
+                    {isDocumentSettingsModalOpen && (
+                        <ModalforDocumentSettings>
+                            <DocumentSettingsForm
+                                showChecklists={showChecklists} 
+                                setShowChecklists={setShowChecklists} 
+                            />
+                        </ModalforDocumentSettings>
+                    )}
                 </div>
             </div>
         </div>

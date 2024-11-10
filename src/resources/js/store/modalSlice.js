@@ -4,6 +4,7 @@ const initialState = {
   isCheckListModalOpen: false,
   isAddFlowstepModalOpen: false,
   isUpdateFlowstepModalOpen: false,
+  isDocumentSettingsModalOpen: false,
 };
 
 const modalSlice = createSlice({
@@ -18,17 +19,23 @@ const modalSlice = createSlice({
       state.isCheckListModalOpen = false;
       state.selectedCheckList = null;
     },
-    openAddFlowstepModal: (state, action) => {
+    openAddFlowstepModal: (state) => {
       state.isAddFlowstepModalOpen = true;
     },
     closeAddFlowstepModal: (state) => {
       state.isAddFlowstepModalOpen = false;
     },
-    openUpdateFlowstepModal: (state, action) => {
+    openUpdateFlowstepModal: (state) => {
       state.isUpdateFlowstepModalOpen = true;
     },
     closeUpdateFlowstepModal: (state) => {
       state.isUpdateFlowstepModalOpen = false;
+    },
+    openDocumentSettingsModal: (state) => {
+      state.isDocumentSettingsModalOpen = true;
+    },
+    closeDocumentSettingsModal: (state) => {
+      state.isDocumentSettingsModalOpen = false;
     }
   },
 });
@@ -40,6 +47,8 @@ export const {
   closeAddFlowstepModal,
   openUpdateFlowstepModal,
   closeUpdateFlowstepModal,
+  openDocumentSettingsModal,
+  closeDocumentSettingsModal,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

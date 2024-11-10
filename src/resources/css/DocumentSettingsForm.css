@@ -1,0 +1,7 @@
+.document-settings-checklist-visible {
+  display: flex;
+}
+
+.document-setting-item {
+  margin-left: 10px;
+}
