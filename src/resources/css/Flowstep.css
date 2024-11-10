@@ -39,3 +39,7 @@
 .faPencil-button-for-flowstep {
   margin-right: 10px;
 }
+
+.faPencil-button-for-flowstep:hover {
+  cursor: pointer;
+}

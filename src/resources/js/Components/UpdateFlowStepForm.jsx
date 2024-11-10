@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateFlowstep, deleteFlowstepAsync, fetchFlowsteps } from '../store/flowstepsSlice'; // インポートパスを適宜調整
-import '../../css/AddFlowStepForm.css';
+import '../../css/UpdateFlowStepForm.css';
 
 const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
     const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
     const [error, setError] = useState(null);
     const [flowNumber, setFlowNumber] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
@@ -12,20 +13,14 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
 
     const dispatch = useDispatch();
 
-    // Reduxから選択されたメンバーとフローステップの状態を取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
     const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
     const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
 
-    // デバッグ用ログ
-    console.log('selectedMember on UpdateFlowStepForm.jsx:', selectedMember);
-    console.log('selectedFlowstep on UpdateFlowStepForm.jsx:', selectedFlowstep);
-    console.log('selectedStepNumber on UpdateFlowStepForm.jsx:', selectedStepNumber);
-
-    // `flowstep`が渡された場合、初期値を設定
     useEffect(() => {
         if (selectedFlowstep) {
             setName(selectedFlowstep.name);
+            setDescription(selectedFlowstep.description);
             setFlowNumber(selectedFlowstep.flow_number);
         }
         if (selectedMember) {
@@ -34,31 +29,30 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
         console.log("selectedMembers:", selectedMembers);
     }, [selectedFlowstep, selectedMember]);
     
-    // フローステップを更新するためのフォーム送信処理
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
         const flowstepData = {
-            id: selectedFlowstep.id, // 既存のIDを含める
+            id: selectedFlowstep.id,
             name: name,
-            flow_number: selectedFlowstep.flow_number, // フローステップの番号はフォームの値か、選択されたステップ番号を使用
+            description: description,
+            flow_number: selectedFlowstep.flow_number,
             member_id: selectedMembers,
-            step_number: selectedFlowstep?.flow_number, // `step_number`は適切に処理
+            step_number: selectedFlowstep?.flow_number,
         };
         console.log('更新するデータ:', flowstepData, 'workflowId:', workflowId);
 
         try {
             const action = await dispatch(updateFlowstep({ workflowId, updatedFlowstep: flowstepData })).unwrap();
             console.log('フローステップが更新されました:', action);
-            dispatch(fetchFlowsteps(workflowId)); // 更新されたフローステップを取得
+            dispatch(fetchFlowsteps(workflowId));
         } catch (error) {
             console.error('フローステップの更新エラー:', error);
             setError('フローステップの更新に失敗しました。');
         }
     };
 
-    // メンバー選択処理
     const handleMemberChange = (e) => {
         const options = e.target.options;
         const value = [];
@@ -70,12 +64,10 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
         setSelectedMembers(value);
     };
 
-    // フローステップ番号の変更処理
     const handleStepChange = (e) => {
         setFlowNumber(e.target.value);
     };
 
-    // メンバーのフィルタリング
     const filteredMembers = members.filter((m) =>
         m.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -135,7 +127,18 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
                         )}
                     </select>
                 </div>
-                <button type="submit">フローステップを更新</button>
+                <div>
+                    <label>詳細:</label>
+                    <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)} 
+                        required
+                        placeholder="フローの詳細を入力しましょう"
+                    />
+                </div>
+                <div>
+                    <button type="submit">フローステップを更新</button>
+                </div>
             </form>
             {error && <p>{error}</p>}
         </div>

@@ -86,6 +86,7 @@ class FlowstepController extends Controller
         $flowStep = FlowStep::findOrFail($id);
         $flowStep->name = $request->input('name');
         $flowStep->flow_number = $request->input('flow_number');
+        $flowStep->description = $request->input('description');
         $flowStep->save();
 
         return response()->json($flowStep, 200); // Return updated flow step
