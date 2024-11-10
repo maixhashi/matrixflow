@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   showingChecklistsOnDocument: true,
+  showingFlowstepDescriptionsOnDocument: true,
 };
 
 const documentSettingsSlice = createSlice({
@@ -14,12 +15,20 @@ const documentSettingsSlice = createSlice({
     hideChecklistsOnDocument: (state) => {
       state.showingChecklistsOnDocument = false;
     },
+    showFlowstepDescriptionsOnDocument: (state) => {
+      state.showingFlowstepDescriptionsOnDocument = true;
+    },
+    hideFlowstepDescriptionsOnDocument: (state) => {
+      state.showingFlowstepDescriptionsOnDocument = false;
+    },
   },
 });
 
 export const {
   showChecklistsOnDocument,
-  hideChecklistsOnDocument
+  hideChecklistsOnDocument,
+  showFlowstepDescriptionsOnDocument,
+  hideFlowstepDescriptionsOnDocument,
 } = documentSettingsSlice.actions;
 
 export default documentSettingsSlice.reducer;

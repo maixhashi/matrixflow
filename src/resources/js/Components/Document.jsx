@@ -23,6 +23,7 @@ const Document = ({ workflowId }) => {
   const flowsteps = useSelector((state) => state.flowsteps);
   const checklists = useSelector((state) => state.checkLists);
   const showingChecklistsOnDocument = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);
+  const showingFlowstepDescriptionsOnDocument = useSelector((state) => state.documentSettings.showingFlowstepDescriptionsOnDocument);
 
   useEffect(() => {
     dispatch(fetchFlowsteps(workflowId));
@@ -91,9 +92,11 @@ const Document = ({ workflowId }) => {
                     ? `${flowstep.members.map(member => member.name).join(', ')} は${flowstep.name}を行う。`
                     : 'Unknown Member が行うタスク:'}
                 </div>
-                <div className="flowstep-description-content">
-                  {flowstep.description}
-                </div>
+                {showingFlowstepDescriptionsOnDocument && (
+                  <div className="flowstep-description-content">
+                    {flowstep.description}
+                  </div>
+                )}
               </div>
 
               {showingChecklistsOnDocument && ( // showChecklists の状態で表示を切り替え
