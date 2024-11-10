@@ -18,11 +18,12 @@ const Document = ({ workflowId }) => {
   const dispatch = useDispatch();
   const [editingChecklist, setEditingChecklist] = useState(null);
   const [updatedChecklistName, setUpdatedChecklistName] = useState('');
-  const [showChecklists, setShowChecklists] = useState(true); // 新規：チェックリスト表示・非表示用のステート
 
   const { workflows, loading, error } = useSelector((state) => state.workflow);
   const flowsteps = useSelector((state) => state.flowsteps);
   const checklists = useSelector((state) => state.checkLists);
+  const showingChecklistsOnDocument = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);
+  const showingFlowstepDescriptionsOnDocument = useSelector((state) => state.documentSettings.showingFlowstepDescriptionsOnDocument);
 
   useEffect(() => {
     dispatch(fetchFlowsteps(workflowId));
@@ -65,11 +66,6 @@ const Document = ({ workflowId }) => {
     dispatch(openDocumentSettingsModal());
   }
 
-  // 新規：表示・非表示トグル用の関数
-  // const toggleChecklistsVisibility = () => {
-  //   setShowChecklists((prev) => !prev);
-  // };
-
   return (
     <div className="document-container">
       <div className="settings-button">
@@ -91,13 +87,19 @@ const Document = ({ workflowId }) => {
             <div key={flowstep.id}>
               <div className="chapter">{index + 1}: {flowstep.name}</div>
               <div className="content">
-                {flowstep.members && flowstep.members.length > 0
-                  ? `${flowstep.members.map(member => member.name).join(', ')} は${flowstep.name}を行う。`
-                  : 'Unknown Member が行うタスク:'}
-                {flowstep.content}
+                <div className="main-content">
+                  {flowstep.members && flowstep.members.length > 0
+                    ? `${flowstep.members.map(member => member.name).join(', ')} は${flowstep.name}を行う。`
+                    : 'Unknown Member が行うタスク:'}
+                </div>
+                {showingFlowstepDescriptionsOnDocument && (
+                  <div className="flowstep-description-content">
+                    {flowstep.description}
+                  </div>
+                )}
               </div>
 
-              {showChecklists && ( // showChecklists の状態で表示を切り替え
+              {showingChecklistsOnDocument && ( // showChecklists の状態で表示を切り替え
                 <div className="checklist-container-card">
                   <div className="checklist-title">チェック項目</div>
                   {flowstepChecklists.length > 0 ? (

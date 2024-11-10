@@ -1,6 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const initialState = {
+  showingChecklistsOnDocument: true,
+};
+
+
 export const fetchCheckLists = createAsyncThunk(
   'checkLists/fetchCheckLists',
   async (workflowId) => {
@@ -41,8 +46,15 @@ export const deleteChecklist = createAsyncThunk(
 
 const checkListSlice = createSlice({
   name: 'checkLists',
-  initialState: {},
-  reducers: {},
+  initialState,
+  reducers: {
+    showChecklistsOnDocument: (state) => {
+      state.showingChecklistsOnDocument = true;
+    },
+    hideChecklistsOnDocument: (state) => {
+      state.showingChecklistsOnDocument = false;
+    },
+  },
   extraReducers: (builder) => {
       builder
           .addCase(fetchCheckLists.fulfilled, (state, action) => {
@@ -76,6 +88,11 @@ const checkListSlice = createSlice({
           });
   },
 });
+
+export const {
+  showChecklistsOnDocument,
+  hideChecklistsOnDocument
+} = checkListSlice.actions;
 
 export const selectCheckListsByColumn = (state) => state.checkLists;
 export default checkListSlice.reducer;

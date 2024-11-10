@@ -1,10 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  isCheckListModalOpen: false,
-  isAddFlowstepModalOpen: false,
-  isUpdateFlowstepModalOpen: false,
-  isDocumentSettingsModalOpen: false,
+  showingChecklistsOnDocument: true,
 };
 
 const modalSlice = createSlice({

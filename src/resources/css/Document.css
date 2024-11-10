@@ -32,6 +32,10 @@
   margin-bottom: 10px;
 }
 
+.flowstep-description-content {
+  margin-left: 30px;
+}
+
 .chapter h3 {
   font-size: 16px; /* 章の見出しのフォントサイズ */
   color: #555; /* 章見出しの色 */
