@@ -5,13 +5,16 @@ import {
     showChecklistsOnDocument, 
     hideChecklistsOnDocument,
     showFlowstepDescriptionsOnDocument,
-    hideFlowstepDescriptionsOnDocument
+    hideFlowstepDescriptionsOnDocument,
+    onPDFViewerMode,
+    offPDFViewerMode
  } from '../store/documentSettingsSlice';
 
 const DocumentSettingsForm = () => {
   const dispatch = useDispatch();
   const showChecklists = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);
   const showFlowstepDescriptions = useSelector((state) => state.documentSettings.showingFlowstepDescriptionsOnDocument);
+  const showPDFViewerMode = useSelector((state) => state.documentSettings.PDFViewerMode);
 
   const handleShowChecklistsChange = (e) => {
     if (e.target.checked) {
@@ -26,6 +29,14 @@ const DocumentSettingsForm = () => {
       dispatch(showFlowstepDescriptionsOnDocument());
     } else {
       dispatch(hideFlowstepDescriptionsOnDocument());
+    }
+  };
+
+  const handleShowPDFViewerModeChange = (e) => {
+    if (e.target.checked) {
+      dispatch(onPDFViewerMode());
+    } else {
+      dispatch(offPDFViewerMode());
     }
   };
 
@@ -53,6 +64,18 @@ const DocumentSettingsForm = () => {
         </div>
         <div className="document-setting-item">
           フローステップの詳細を表示する
+        </div>
+      </div>
+      <div className="document-settings-checklist-visible">
+        <div>
+          <input 
+            type="checkbox" 
+            checked={showPDFViewerMode} 
+            onChange={handleShowPDFViewerModeChange} 
+          />
+        </div>
+        <div className="document-setting-item">
+          PDFを表示する
         </div>
       </div>
     </div>

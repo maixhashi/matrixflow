@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { PDFViewer } from '@react-pdf/renderer';
 
 // Redux Slice Storeの読み込み
 import { fetchMembers } from '../store/memberSlice'; 
 import { fetchFlowsteps, assignFlowStep } from '../store/flowstepsSlice'; 
+import { openDocumentSettingsModal } from '../store/modalSlice';
 
 // コンポーネントの読み込み
 import MatrixView from '../Components/MatrixView';
@@ -11,6 +13,12 @@ import Document from '../Components/Document';
 import ModalforDocumentSettings from '../Components/ModalforDocumentSettings';
 import DocumentSettingsForm from '../Components/DocumentSettingsForm';
 import FlashMessage from '../Components/FlashMessage';
+import DocumentPDF from '../Components/DocumentPDF';
+
+// Font Awesome アイコンの設定
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
+
 
 // スタイル
 import '../../css/CreateMatrixFlowPage.css';
@@ -26,6 +34,7 @@ const CreateMatrixFlowPage = (props) => {
 
     const members = useSelector((state) => state.members);
     const isDocumentSettingsModalOpen = useSelector((state) => state.modal.isDocumentSettingsModalOpen);
+    const PDFViewerMode = useSelector((state) => state.documentSettings.PDFViewerMode);
 
     useEffect(() => {
         dispatch(fetchMembers(workflowId));
@@ -64,15 +73,35 @@ const CreateMatrixFlowPage = (props) => {
         dispatch(fetchFlowsteps(workflowId));
     };
 
+    const handleOpenDocumentSettingsModal = () => {
+        dispatch(openDocumentSettingsModal());
+    }
+    
+
     return (
         <div>
             <FlashMessage message={flashMessage} />
             <div className="content-container">
+            { !PDFViewerMode && (
                 <div className="sidebar">
                     <Document 
                         workflowId={workflowId}
                     />
                 </div>
+            )} 
+            { PDFViewerMode && (
+                <div className="sidebar-on-PDFViewerMode">
+                    <div className="settings-button">
+                        <button onClick={handleOpenDocumentSettingsModal}>
+                           <FontAwesomeIcon icon={faCog} />
+                         </button>
+                     </div>
+
+                    <PDFViewer style={{ width: '100%', height: '80vh' }}>
+                      <DocumentPDF />
+                    </PDFViewer>
+                </div>
+            )}
                 <div className="main-content">
                     <MatrixView
                         members={members}
