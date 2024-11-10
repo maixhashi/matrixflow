@@ -65,11 +65,6 @@ const Document = ({ workflowId }) => {
     dispatch(openDocumentSettingsModal());
   }
 
-  // 新規：表示・非表示トグル用の関数
-  // const toggleChecklistsVisibility = () => {
-  //   setShowChecklists((prev) => !prev);
-  // };
-
   return (
     <div className="document-container">
       <div className="settings-button">
@@ -91,10 +86,14 @@ const Document = ({ workflowId }) => {
             <div key={flowstep.id}>
               <div className="chapter">{index + 1}: {flowstep.name}</div>
               <div className="content">
-                {flowstep.members && flowstep.members.length > 0
-                  ? `${flowstep.members.map(member => member.name).join(', ')} は${flowstep.name}を行う。`
-                  : 'Unknown Member が行うタスク:'}
-                {flowstep.content}
+                <div className="main-content">
+                  {flowstep.members && flowstep.members.length > 0
+                    ? `${flowstep.members.map(member => member.name).join(', ')} は${flowstep.name}を行う。`
+                    : 'Unknown Member が行うタスク:'}
+                </div>
+                <div className="flowstep-description-content">
+                  {flowstep.description}
+                </div>
               </div>
 
               {showChecklists && ( // showChecklists の状態で表示を切り替え
