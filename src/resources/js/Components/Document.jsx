@@ -14,12 +14,13 @@ import { faClipboardCheck, faEdit, faSave, faCancel, faTrash, faCog } from '@for
 // スタイル
 import '../../css/Document.css';
 
-const Document = ({ workflowId }) => {
+const Document = () => {
   const dispatch = useDispatch();
   const [editingChecklist, setEditingChecklist] = useState(null);
   const [updatedChecklistName, setUpdatedChecklistName] = useState('');
 
   const { workflows, loading, error } = useSelector((state) => state.workflow);
+  const workflowId = useSelector((state) => state.workflow.workflowId);
   const flowsteps = useSelector((state) => state.flowsteps);
   const checklists = useSelector((state) => state.checkLists);
   const showingChecklistsOnDocument = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);

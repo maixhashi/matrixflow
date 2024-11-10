@@ -154,7 +154,7 @@ const AddCheckListForm = ({ members = [], onFlowStepAdded = () => {}, member, st
                         )}
                     </select>
                 </div>
-                <button type="submit">フローステップを追加</button>
+                <button type="submit">チェック項目を追加</button>
             </form>
         </div>
     );

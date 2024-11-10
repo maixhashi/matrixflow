@@ -23,18 +23,28 @@ import { faCog } from '@fortawesome/free-solid-svg-icons';
 // スタイル
 import '../../css/CreateMatrixFlowPage.css';
 
-const CreateMatrixFlowPage = (props) => {
+const CreateMatrixFlowPage = () => {
     const dispatch = useDispatch();
-    const [flowsteps, setFlowsteps] = useState([]);
     const [membersUpdated, setMembersUpdated] = useState(false);
     const [flowstepsUpdated, setFlowstepsUpdated] = useState(false);
     const [flashMessage, setFlashMessage] = useState('');
     const [showChecklists, setShowChecklists] = useState(true); 
-    const { workflowId } = props;
-
+    
+    const flowsteps = useSelector((state) => state.flowsteps);
+    const checklists = useSelector((state) => state.checkLists);
+  
     const members = useSelector((state) => state.members);
+    const { workflows, loading, error } = useSelector((state) => state.workflow);
     const isDocumentSettingsModalOpen = useSelector((state) => state.modal.isDocumentSettingsModalOpen);
+    const showingChecklistsOnDocument = useSelector((state) => state.documentSettings.showingChecklistsOnDocument);
+    const showingFlowstepDescriptionsOnDocument = useSelector((state) => state.documentSettings.showingFlowstepDescriptionsOnDocument);
     const PDFViewerMode = useSelector((state) => state.documentSettings.PDFViewerMode);
+    const workflowId = useSelector((state) => state.workflow.workflowId);
+
+    if (!workflowId) {
+        return <div>Workflow IDがありません</div>;
+      }
+    
 
     useEffect(() => {
         dispatch(fetchMembers(workflowId));
@@ -72,7 +82,7 @@ const CreateMatrixFlowPage = (props) => {
         setTimeout(() => setFlashMessage(''), 5000);
         dispatch(fetchFlowsteps(workflowId));
     };
-
+    
     const handleOpenDocumentSettingsModal = () => {
         dispatch(openDocumentSettingsModal());
     }
@@ -98,7 +108,14 @@ const CreateMatrixFlowPage = (props) => {
                      </div>
 
                     <PDFViewer style={{ width: '100%', height: '80vh' }}>
-                      <DocumentPDF />
+                      <DocumentPDF
+                        workflowId={workflowId}
+                        workflows={workflows}
+                        flowsteps={flowsteps}
+                        checklists={checklists}
+                        showingChecklistsOnDocument={showingChecklistsOnDocument}
+                        showingFlowstepDescriptionsOnDocument={showingFlowstepDescriptionsOnDocument}
+                      />
                     </PDFViewer>
                 </div>
             )}
@@ -116,7 +133,7 @@ const CreateMatrixFlowPage = (props) => {
                         <ModalforDocumentSettings>
                             <DocumentSettingsForm
                                 showChecklists={showChecklists} 
-                                setShowChecklists={setShowChecklists} 
+                                showingFlowstepDescriptionsOnDocument={showingFlowstepDescriptionsOnDocument}
                             />
                         </ModalforDocumentSettings>
                     )}
