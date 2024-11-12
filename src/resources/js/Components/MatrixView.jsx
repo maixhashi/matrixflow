@@ -11,7 +11,7 @@ import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '.
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck, faDatabase } from '@fortawesome/free-solid-svg-icons';
 
 // コンポーネントのインポート
 import FlowStep from '../Components/Flowstep';
@@ -521,16 +521,28 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                         />
                                     </div>
                                 </td>
-                                {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => (
-                                    <td key={i} className="matrix-cell-between-steps">
-                                        <div className="matrix-empty-cell-between-steps">
-                                            <FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" />
-                                        </div> {/* This keeps the cell empty for alignment */}
-                                    </td> // ここを修正
-                                ))}
+                                {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => {
+                                    // iが奇数番目かどうかをチェック
+                                    const isOddColumn = i % 2 === 0; // 偶数インデックス（0, 2, 4,...）が奇数番目の列
+                                    const hasFlowsteps = flowsteps.length > 0;
+
+                                    return (
+                                        <td 
+                                            key={i} 
+                                            className={`matrix-cell-between-steps ${!hasFlowsteps ? 'next-step-column' : ''}`}
+                                        >
+                                            <div className="matrix-empty-cell-between-steps">
+                                                {/* 奇数番目の列にfaDatabaseを表示 */}
+                                                {isOddColumn && hasFlowsteps && (
+                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" />
+                                                )}
+                                            </div>
+                                        </td>
+                                    );
+                                })}
+
                                 {maxFlowNumber > 0 && (  // maxFlowNumber が 1 より大きい場合のみ表示
                                     <td className="matrix-cell next-step-column next-step-column-faRoadBarrier">
-                                        <FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" />
                                     </td>
                                 )}
                             </tr>
