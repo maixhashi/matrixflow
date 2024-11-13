@@ -25,6 +25,7 @@ import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
 import CheckListModal from '../Components/CheckListModal';
 import CheckListModalContent from '../Components/CheckListModalContent';
+import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -387,10 +388,12 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
 
     // faDaseBaseアイコンの位置情報を取得
     const dataBaseIconPositions = useSelector((state) => state.positions.dataBaseIconPositions);
+    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
 
     useEffect(() => {
         console.log("dataBaseIconPositions:", dataBaseIconPositions); // Reduxから位置情報を確認
-      }, [dataBaseIconPositions]);
+        console.log("flowstepPositions:", flowstepPositions); // Reduxから位置情報を確認
+      }, [dataBaseIconPositions, flowstepPositions]);
 
     useEffect(() => {
       const getDatabaseIconPositions = () => {
@@ -661,6 +664,13 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                     />
                 </ModalforAddCheckListForm>
             </div>
+
+            {flowstepPositions.map((position, index) => (
+             dataBaseIconPositions[index] && (
+                <ArrowRenderer key={index} from={position} to={dataBaseIconPositions[index]} color="gray" strokeWidth={2} />
+                )
+            ))}
+
         </DndProvider>
     );
 };
