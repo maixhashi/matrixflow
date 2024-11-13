@@ -73,7 +73,7 @@ const FlowStep = ({ member, flowstep, flowNumber, workflowId }) => {
     return (
         <div 
             ref={drag} 
-            className="flow-step" 
+            className="Flowstep"
             style={{ opacity: isDragging ? 0.5 : 1 }} 
             onMouseEnter={() => setIsHovered(true)} // Set hover state
             onMouseLeave={() => setIsHovered(false)} // Reset hover state

@@ -1,6 +1,6 @@
 /* Flowstep.css */
 
-.flow-step {
+.Flowstep {
   background-color: #f0f8ff; /* Light blue background */
   border: 1px solid #ccc; /* Light gray border */
   border-radius: 8px; /* Rounded corners */
@@ -11,7 +11,7 @@
   max-width: 125px;
 }
 
-.flow-step:hover {
+.Flowstep:hover {
   background-color: #e0f7fa; /* Slightly darker blue on hover */
 }
 

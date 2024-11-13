@@ -1,18 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  positions: [],
+  dataBaseIconPositions: [],
+  flowstepPositions: [],
 };
 
 const positionsSlice = createSlice({
   name: 'positions',
   initialState,
   reducers: {
-    setPositions: (state, action) => {
-      state.positions = action.payload;
+    setDataBaseIconPositions: (state, action) => {
+      state.dataBaseIconPositions = action.payload;
+    },
+    setFlowstepPositions: (state, action) => {
+      state.flowstepPositions = action.payload;
     },
   },
 });
 
-export const { setPositions } = positionsSlice.actions;
+export const { setDataBaseIconPositions, setFlowstepPositions } = positionsSlice.actions;
 export default positionsSlice.reducer;

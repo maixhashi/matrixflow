@@ -7,7 +7,7 @@ import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
 import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '../store/selectedSlice';
-import { setPositions } from '../store/positionSlice';
+import { setDataBaseIconPositions, setFlowstepPositions } from '../store/positionSlice';
 
 
 // FontAwesomeのアイコンのインポート
@@ -112,6 +112,41 @@ const MatrixCol = ({ openAddCheckListModal, flowNumber, onAssignFlowStep, update
         dispatch(setSelectedStepNumber(stepNumber));
         dispatch(openAddFlowstepModal(member, stepNumber));
     };
+
+    // faDaseBaseアイコンの位置情報を取得
+    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
+
+    useEffect(() => {
+        console.log("flowstepPositions:", flowstepPositions); // Reduxから位置情報を確認
+      }, [flowstepPositions]);
+
+    useEffect(() => {
+      const getFlowstepPositions = () => {
+        const icons = document.querySelectorAll('.Flowstep');
+        const positionsArray = Array.from(icons).map(icon => {
+          const rect = icon.getBoundingClientRect();
+          return {
+            bottom: rect.bottom,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          };
+        });
+        dispatch(setFlowstepPositions(positionsArray));
+      };
+  
+      // DOMが更新された後に位置を取得
+      getFlowstepPositions();
+  
+      // 位置情報を再取得するためにDOMの変化を監視
+      const observer = new MutationObserver(getFlowstepPositions);
+      observer.observe(document.body, { childList: true, subtree: true });
+  
+      return () => {
+        observer.disconnect();
+      };
+    }, [dispatch]);
+
     
     // Reduxから選択されたメンバーとフローステップの状態を取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
@@ -340,7 +375,6 @@ const MatrixRow = ({
     );
 };
 
-
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
@@ -352,11 +386,11 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     const dispatch = useDispatch();
 
     // faDaseBaseアイコンの位置情報を取得
-    const positions = useSelector((state) => state.positions.positions);
+    const dataBaseIconPositions = useSelector((state) => state.positions.dataBaseIconPositions);
 
     useEffect(() => {
-        console.log(positions); // Reduxから位置情報を確認
-      }, [positions]);
+        console.log("dataBaseIconPositions:", dataBaseIconPositions); // Reduxから位置情報を確認
+      }, [dataBaseIconPositions]);
 
     useEffect(() => {
       const getDatabaseIconPositions = () => {
@@ -370,7 +404,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
             height: rect.height,
           };
         });
-        dispatch(setPositions(positionsArray));
+        dispatch(setDataBaseIconPositions(positionsArray));
       };
   
       // DOMが更新された後に位置を取得
