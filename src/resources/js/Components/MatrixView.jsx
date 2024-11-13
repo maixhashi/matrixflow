@@ -7,6 +7,7 @@ import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
 import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '../store/selectedSlice';
+import { setPositions } from '../store/positionSlice';
 
 
 // FontAwesomeのアイコンのインポート
@@ -349,6 +350,40 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     const [orderedMembers, setOrderedMembers] = useState([]);
     
     const dispatch = useDispatch();
+
+    // faDaseBaseアイコンの位置情報を取得
+    const positions = useSelector((state) => state.positions.positions);
+
+    useEffect(() => {
+        console.log(positions); // Reduxから位置情報を確認
+      }, [positions]);
+
+    useEffect(() => {
+      const getDatabaseIconPositions = () => {
+        const icons = document.querySelectorAll('.faDatabase');
+        const positionsArray = Array.from(icons).map(icon => {
+          const rect = icon.getBoundingClientRect();
+          return {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          };
+        });
+        dispatch(setPositions(positionsArray));
+      };
+  
+      // DOMが更新された後に位置を取得
+      getDatabaseIconPositions();
+  
+      // 位置情報を再取得するためにDOMの変化を監視
+      const observer = new MutationObserver(getDatabaseIconPositions);
+      observer.observe(document.body, { childList: true, subtree: true });
+  
+      return () => {
+        observer.disconnect();
+      };
+    }, [dispatch]);
     
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
@@ -534,7 +569,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                             <div className="matrix-empty-cell-between-steps">
                                                 {/* 奇数番目の列にfaDatabaseを表示 */}
                                                 {isOddColumn && hasFlowsteps && (
-                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" />
+                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="faDatabase" />
                                                 )}
                                             </div>
                                         </td>
