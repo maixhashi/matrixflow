@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFlowstep, deleteFlowstepAsync, fetchFlowsteps } from '../store/flowstepsSlice'; // インポートパスを適宜調整
+import { updateFlowstep, fetchFlowsteps } from '../store/flowstepsSlice';
+import { fetchToolsByFlowstep, updateToolsForFlowstep } from '../store/toolsystemSlice';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil} from '@fortawesome/free-solid-svg-icons';
+import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 
 import '../../css/UpdateFlowStepForm.css';
 
 const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
     const [name, setName] = useState('');
+    const [toolsystemName, setToolsystemName] = useState('');
     const [description, setDescription] = useState('');
-    const [error, setError] = useState(null);
     const [flowNumber, setFlowNumber] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
 
     const dispatch = useDispatch();
 
-    const selectedMember = useSelector((state) => state.selected.selectedMember);
-    const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
     const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
 
     useEffect(() => {
@@ -27,134 +25,101 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
             setName(selectedFlowstep.name);
             setDescription(selectedFlowstep.description);
             setFlowNumber(selectedFlowstep.flow_number);
+
+            // 関連するToolsystemの取得
+            dispatch(fetchToolsByFlowstep(selectedFlowstep.id));
         }
-        if (selectedMember) {
-            setSelectedMembers([selectedMember.id]);
-        }
-        console.log("selectedMembers:", selectedMembers);
-    }, [selectedFlowstep, selectedMember]);
-    
+    }, [selectedFlowstep, dispatch]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-
+    
         const flowstepData = {
             id: selectedFlowstep.id,
             name: name,
             description: description,
             flow_number: selectedFlowstep.flow_number,
             member_id: selectedMembers,
-            step_number: selectedFlowstep?.flow_number,
         };
-        console.log('更新するデータ:', flowstepData, 'workflowId:', workflowId);
-
+    
         try {
-            const action = await dispatch(updateFlowstep({ workflowId, updatedFlowstep: flowstepData })).unwrap();
-            console.log('フローステップが更新されました:', action);
+            // フローステップの更新
+            await dispatch(updateFlowstep({ workflowId, updatedFlowstep: flowstepData })).unwrap();
+    
+            // Toolsystem の追加
+            await dispatch(
+                updateToolsForFlowstep({
+                    flowstepId: selectedFlowstep.id,
+                    toolsystemName: toolsystemName, // ツール名を送信
+                })
+            ).unwrap();
+    
+            // フローステップリストを再取得
             dispatch(fetchFlowsteps(workflowId));
         } catch (error) {
-            console.error('フローステップの更新エラー:', error);
-            setError('フローステップの更新に失敗しました。');
+            console.error('エラー:', error);
         }
     };
-
-    const handleMemberChange = (e) => {
-        const options = e.target.options;
-        const value = [];
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) {
-                value.push(options[i].value);
-            }
-        }
-        setSelectedMembers(value);
-    };
-
-    const handleStepChange = (e) => {
-        setFlowNumber(e.target.value);
-    };
-
-    const filteredMembers = members.filter((m) =>
-        m.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
+    
     return (
         <>
-            <div className="UpdateFlowStepForm-title">
-                <FontAwesomeIcon icon={faPencil} className="UpdateFlowStepForm-title-icon" /> フローステップの更新 <FontAwesomeIcon icon={faPencil} className="UpdateFlowStepForm-title-icon" />
+            <div className="AddFlowStepForm-title">
+                <FontAwesomeIcon icon={faSquarePlus} className="AddFlowStepForm-title-icon" />
+                フローステップの追加
+                <FontAwesomeIcon icon={faSquarePlus} className="AddFlowStepForm-title-icon" />
             </div>
-            <div className="UpdateFlowStepForm-container">
-                <form className="UpdateFlowStepForm-form-container" onSubmit={handleSubmit}>
-                    <div className="description-except-container">
-                        <div>
-                            <label>フローステップ名:</label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)} 
-                                required
-                                placeholder="担当者がフローとして行うことを入力しましょう"
-                            />
-                        </div>
-                        <div>
-                            <label>ステップNo.:</label>
-                            <select
-                                value={flowNumber}
-                                onChange={handleStepChange}
-                                required
-                            >
-                                {Array.from({ length: nextStepNumber }, (_, index) => (
-                                    <option key={index + 1} value={index + 1}>
-                                        STEP {index + 1}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label>担当者を検索:</label>
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="担当者を名前検索できます"
-                            />
-                        </div>
-                        <div>
-                            <label>担当者を選択:</label>
-                            <select
-                                multiple
-                                value={selectedMembers}
-                                onChange={handleMemberChange}
-                                required
-                            >
-                                {filteredMembers.length > 0 ? (
-                                    filteredMembers.map((m) => (
-                                        <option key={m.id} value={m.id}>
-                                            {m.name}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option disabled>メンバーが利用できません</option>
-                                )}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="description-container">
-                        <div>
-                            <label className="description-label">詳細:</label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)} 
-                                required
-                                placeholder="フローの詳細を入力しましょう"
-                            />
-                        </div>
-                    </div>
-                    <div className="UpdateFlowStepForm-submit-button">
-                        <button type="submit">フローステップを更新</button>
-                    </div>
-                </form>
-                {error && <p>{error}</p>}
-            </div>
+
+            <form className="form-container" onSubmit={handleSubmit}>
+                <div>
+                    <label>フローステップ名:</label>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>ステップNo.:</label>
+                    <select value={flowNumber} onChange={(e) => setFlowNumber(e.target.value)} required>
+                        {Array.from({ length: nextStepNumber }, (_, index) => (
+                            <option key={index + 1} value={index + 1}>
+                                STEP {index + 1}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label>担当者を選択:</label>
+                    <select
+                        multiple
+                        value={selectedMembers}
+                        onChange={(e) => {
+                            const options = e.target.options;
+                            const selected = [];
+                            for (let i = 0; i < options.length; i++) {
+                                if (options[i].selected) selected.push(options[i].value);
+                            }
+                            setSelectedMembers(selected);
+                        }}
+                    >
+                        {members.map((m) => (
+                            <option key={m.id} value={m.id}>
+                                {m.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label>ツールシステム名:</label>
+                    <input
+                        type="text"
+                        value={toolsystemName}
+                        onChange={(e) => setToolsystemName(e.target.value)}
+                    />
+                </div>
+                <button type="submit">フローステップを更新</button>
+            </form>
         </>
     );
 };

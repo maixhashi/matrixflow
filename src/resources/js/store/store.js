@@ -7,6 +7,7 @@ import modalReducer from './modalSlice';
 import selectedReducer from './selectedSlice';
 import documentSettingsReducer from './documentSettingsSlice';
 import positionsReducer from './positionSlice';
+import toolsystemReducer from './toolsystemSlice';
 import memberReducerForGuest from './memberSliceForGuest';
 
 
@@ -20,6 +21,7 @@ const store = configureStore({
         selected: selectedReducer,
         positions: positionsReducer,
         documentSettings: documentSettingsReducer,
+        toolsystem: toolsystemReducer,
         membersForGuest: memberReducerForGuest
     },
 });
