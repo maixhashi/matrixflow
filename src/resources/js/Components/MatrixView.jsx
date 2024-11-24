@@ -593,10 +593,16 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                         />
                                     </div>
                                 </td>
+
                                 {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => {
-                                    // iが奇数番目かどうかをチェック
-                                    const isOddColumn = i % 2 === 0; // 偶数インデックス（0, 2, 4,...）が奇数番目の列
+                                    const isOddColumn = i % 2 === 0; // 奇数番目の列
+                                    const flowstep = flowsteps.find(step => step.flow_number === i + 1); // `flow_number` に基づいて取得
                                     const hasFlowsteps = flowsteps.length > 0;
+                                    const hasToolSystem = Array.isArray(flowstep?.toolsystems) && flowstep.toolsystems.length > 0;
+
+                                    console.log(`Index: ${i}, Flowstep:`, flowstep); // デバッグ用
+                                    console.log("flowstep?.toolsystems:", flowstep?.toolsystems ); // デバッグ用
+                                    console.log("hasToolSystem:", hasToolSystem ); // デバッグ用
 
                                     return (
                                         <td 
@@ -604,14 +610,14 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                             className={`matrix-cell-between-steps ${!hasFlowsteps ? 'next-step-column' : ''}`}
                                         >
                                             <div className="matrix-empty-cell-between-steps">
-                                                {/* 奇数番目の列にfaDatabaseを表示 */}
-                                                {isOddColumn && hasFlowsteps && (
+                                                {isOddColumn && hasFlowsteps && hasToolSystem && (
                                                     <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="faDatabase" />
                                                 )}
                                             </div>
                                         </td>
                                     );
                                 })}
+
 
                                 {maxFlowNumber > 0 && (  // maxFlowNumber が 1 より大きい場合のみ表示
                                     <td className="matrix-cell next-step-column next-step-column-faRoadBarrier">
