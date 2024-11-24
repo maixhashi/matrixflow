@@ -600,10 +600,6 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                     const hasFlowsteps = flowsteps.length > 0;
                                     const hasToolSystem = Array.isArray(flowstep?.toolsystems) && flowstep.toolsystems.length > 0;
 
-                                    console.log(`Index: ${i}, Flowstep:`, flowstep); // デバッグ用
-                                    console.log("flowstep?.toolsystems:", flowstep?.toolsystems ); // デバッグ用
-                                    console.log("hasToolSystem:", hasToolSystem ); // デバッグ用
-
                                     return (
                                         <td 
                                             key={i} 
