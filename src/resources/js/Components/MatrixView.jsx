@@ -378,6 +378,7 @@ const MatrixRow = ({
 
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
     // const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
@@ -605,9 +606,21 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                             key={i} 
                                             className={`matrix-cell-between-steps ${!hasFlowsteps ? 'next-step-column' : ''}`}
                                         >
-                                            <div className="matrix-empty-cell-between-steps">
+                                            <div className="matrix-empty-cell-between-steps" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                                                 {isOddColumn && hasFlowsteps && hasToolSystem && (
-                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="dataBaseIcon" />
+                                                    <>
+                                                        <FontAwesomeIcon icon={faDatabase} color="navy" className="dataBaseIcon fa-xl" />
+                                                        <div className="toolsystem-name-container">
+                                                            <div className="toolsystem-name">
+                                                                {flowstep.toolsystems.map(toolsystem => toolsystem.name).join(', ')}
+                                                            </div>
+                                                            {isHovered && (
+                                                            <div className="toolsystem-name-edit-icon" onClick={() => setIsEditing(true)} style={{ marginLeft: '5px' }}>
+                                                                <FontAwesomeIcon icon={faEdit} size="1x" />
+                                                            </div>
+                                                            )}
+                                                        </div>
+                                                    </>
                                                 )}
                                             </div>
                                         </td>
