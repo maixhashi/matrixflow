@@ -397,7 +397,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
 
     useEffect(() => {
       const getDatabaseIconPositions = () => {
-        const icons = document.querySelectorAll('.faDatabase');
+        const icons = document.querySelectorAll('.dataBaseIcon');
         const positionsArray = Array.from(icons).map(icon => {
           const rect = icon.getBoundingClientRect();
           return {
@@ -607,7 +607,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                         >
                                             <div className="matrix-empty-cell-between-steps">
                                                 {isOddColumn && hasFlowsteps && hasToolSystem && (
-                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="faDatabase" />
+                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="dataBaseIcon" />
                                                 )}
                                             </div>
                                         </td>
