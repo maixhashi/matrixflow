@@ -124,3 +124,23 @@ td.matrix-empty-cell-between-steps {
   margin-top: 0.2rem; /* アイコンとの間隔を調整 */
   text-align: center; /* 中央揃え */
 }
+
+.toolsystem-name-input {
+  margin-top: 10px;
+  width: 110px;
+}
+
+.toolsystem-name-editing-form-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.toolsystem-name-save-button {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.toolsystem-name-cancel-button {
+  margin-left: 5px;
+  margin-right: 5px;
+}
