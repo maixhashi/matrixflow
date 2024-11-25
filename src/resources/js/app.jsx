@@ -10,6 +10,7 @@ import { DndProvider } from 'react-dnd'; // react-dnd の DndProvider をイン�
 import { HTML5Backend } from 'react-dnd-html5-backend'; // HTML5Backend をインポート
 import Layout from './Layouts/Layout';
 import { Helmet } from 'react-helmet';
+import PositionUpdater from './Components/PositionUpdater';
 
 
 // CSRFトークンを取得する関数（nullチェックを追加）
@@ -38,6 +39,7 @@ createInertiaApp({
         root.render(
             <>
                 <Provider store={store}>
+                    <PositionUpdater />
                     <DndProvider backend={HTML5Backend}>
                         <Layout>
                             <Helmet>

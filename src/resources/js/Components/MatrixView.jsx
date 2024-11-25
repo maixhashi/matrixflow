@@ -7,11 +7,12 @@ import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
 import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '../store/selectedSlice';
+import { setDataBaseIconPositions, setFlowstepPositions } from '../store/positionSlice';
 
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck, faDatabase } from '@fortawesome/free-solid-svg-icons';
 
 // コンポーネントのインポート
 import FlowStep from '../Components/Flowstep';
@@ -24,6 +25,7 @@ import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
 import CheckListModal from '../Components/CheckListModal';
 import CheckListModalContent from '../Components/CheckListModalContent';
+import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -111,6 +113,41 @@ const MatrixCol = ({ openAddCheckListModal, flowNumber, onAssignFlowStep, update
         dispatch(setSelectedStepNumber(stepNumber));
         dispatch(openAddFlowstepModal(member, stepNumber));
     };
+
+    // faDaseBaseアイコンの位置情報を取得
+    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
+
+    useEffect(() => {
+        console.log("flowstepPositions:", flowstepPositions); // Reduxから位置情報を確認
+      }, [flowstepPositions]);
+
+    useEffect(() => {
+      const getFlowstepPositions = () => {
+        const icons = document.querySelectorAll('.Flowstep');
+        const positionsArray = Array.from(icons).map(icon => {
+          const rect = icon.getBoundingClientRect();
+          return {
+            bottom: rect.bottom,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          };
+        });
+        dispatch(setFlowstepPositions(positionsArray));
+      };
+  
+      // DOMが更新された後に位置を取得
+      getFlowstepPositions();
+  
+      // 位置情報を再取得するためにDOMの変化を監視
+      const observer = new MutationObserver(getFlowstepPositions);
+      observer.observe(document.body, { childList: true, subtree: true });
+  
+      return () => {
+        observer.disconnect();
+      };
+    }, [dispatch]);
+
     
     // Reduxから選択されたメンバーとフローステップの状態を取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
@@ -339,7 +376,6 @@ const MatrixRow = ({
     );
 };
 
-
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
@@ -349,6 +385,42 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     const [orderedMembers, setOrderedMembers] = useState([]);
     
     const dispatch = useDispatch();
+
+    // faDaseBaseアイコンの位置情報を取得
+    const dataBaseIconPositions = useSelector((state) => state.positions.dataBaseIconPositions);
+    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
+
+    useEffect(() => {
+        console.log("dataBaseIconPositions:", dataBaseIconPositions); // Reduxから位置情報を確認
+        console.log("flowstepPositions:", flowstepPositions); // Reduxから位置情報を確認
+      }, [dataBaseIconPositions, flowstepPositions]);
+
+    useEffect(() => {
+      const getDatabaseIconPositions = () => {
+        const icons = document.querySelectorAll('.dataBaseIcon');
+        const positionsArray = Array.from(icons).map(icon => {
+          const rect = icon.getBoundingClientRect();
+          return {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          };
+        });
+        dispatch(setDataBaseIconPositions(positionsArray));
+      };
+  
+      // DOMが更新された後に位置を取得
+      getDatabaseIconPositions();
+  
+      // 位置情報を再取得するためにDOMの変化を監視
+      const observer = new MutationObserver(getDatabaseIconPositions);
+      observer.observe(document.body, { childList: true, subtree: true });
+  
+      return () => {
+        observer.disconnect();
+      };
+    }, [dispatch]);
     
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
@@ -521,16 +593,30 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                         />
                                     </div>
                                 </td>
-                                {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => (
-                                    <td key={i} className="matrix-cell-between-steps">
-                                        <div className="matrix-empty-cell-between-steps">
-                                            <FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" />
-                                        </div> {/* This keeps the cell empty for alignment */}
-                                    </td> // ここを修正
-                                ))}
+
+                                {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => {
+                                    const isOddColumn = i % 2 === 0; // 奇数番目の列
+                                    const flowstep = flowsteps.find(step => step.flow_number === i + 1); // `flow_number` に基づいて取得
+                                    const hasFlowsteps = flowsteps.length > 0;
+                                    const hasToolSystem = Array.isArray(flowstep?.toolsystems) && flowstep.toolsystems.length > 0;
+
+                                    return (
+                                        <td 
+                                            key={i} 
+                                            className={`matrix-cell-between-steps ${!hasFlowsteps ? 'next-step-column' : ''}`}
+                                        >
+                                            <div className="matrix-empty-cell-between-steps">
+                                                {isOddColumn && hasFlowsteps && hasToolSystem && (
+                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="dataBaseIcon" />
+                                                )}
+                                            </div>
+                                        </td>
+                                    );
+                                })}
+
+
                                 {maxFlowNumber > 0 && (  // maxFlowNumber が 1 より大きい場合のみ表示
                                     <td className="matrix-cell next-step-column next-step-column-faRoadBarrier">
-                                        <FontAwesomeIcon icon={faRoadBarrier} color="navy" size="1x" />
                                     </td>
                                 )}
                             </tr>
@@ -580,6 +666,13 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                     />
                 </ModalforAddCheckListForm>
             </div>
+
+            {flowstepPositions.map((position, index) => (
+             dataBaseIconPositions[index] && (
+                <ArrowRenderer key={index} from={position} to={dataBaseIconPositions[index]} color="gray" strokeWidth={2} />
+                )
+            ))}
+
         </DndProvider>
     );
 };

@@ -11,7 +11,9 @@ class FlowstepController extends Controller
     // メンバー情報を取得するメソッド
     public function index($workflowId)
     {
-        $flowsteps = Flowstep::with('members')->where('workflow_id', $workflowId)->get();
+        $flowsteps = Flowstep::with(['members', 'toolsystems'])
+                     ->where('workflow_id', $workflowId)
+                    ->get();
         // JSON response
         return response()->json($flowsteps, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }

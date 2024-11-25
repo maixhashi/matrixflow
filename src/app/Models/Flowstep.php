@@ -33,4 +33,9 @@ class Flowstep extends Model
         // 中間テーブル flowstep_member を介して members を取得するリレーション
         return $this->belongsToMany(Member::class, 'flowstep_member', 'flowstep_id', 'member_id');
     }
+
+    public function toolsystems()
+    {
+        return $this->belongsToMany(Toolsystem::class, 'flowstep_toolsystem');
+    }
 }
