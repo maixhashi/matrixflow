@@ -6,13 +6,14 @@ import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSli
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
-import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '../store/selectedSlice';
+import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber, setSelectedToolsystem } from '../store/selectedSlice';
 import { setDataBaseIconPositions, setFlowstepPositions } from '../store/positionSlice';
+import { updateToolsystemForFlowstep } from '../store/toolsystemSlice';
 
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faRoadBarrier, faPlus, faClipboardCheck, faDatabase } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, faClipboardCheck, faDatabase, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 
 // コンポーネントのインポート
 import FlowStep from '../Components/Flowstep';
@@ -378,6 +379,9 @@ const MatrixRow = ({
 
 const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isEditingToolsystemName, setIsEditingToolsystemName] = useState(false);
+    const [updatedToolsystemName, setUpdatedToolsystemName] = useState(''); // toolsystem.nameの初期値で初期化
     const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
     // const [selectedMember, setSelectedMember] = useState(null);
     const [selectedStepNumber, setSelectedStepNumber] = useState(null);
@@ -424,6 +428,8 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
+    const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
+    const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
     const members = useSelector((state) => state.members);
     const flowsteps = useSelector((state) => state.flowsteps);
     const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
@@ -511,6 +517,25 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
         dispatch(fetchFlowsteps(workflowId));
     };
 
+    const handleUpdateToolsystemName = async (toolsystemName) => {
+        try {
+            // toolsystem.name を更新
+            await dispatch(updateToolsystemForFlowstep({ 
+                flowstepId: selectedFlowstep.id, 
+                toolsystemId: selectedToolsystem.id,
+                toolsystemName: toolsystemName 
+            })).unwrap(); // エラー時にキャッチできるようにunwrapを使用
+            
+            // flowstepの状態を再取得
+            dispatch(fetchFlowsteps(workflowId));
+            
+            // 編集モードを終了
+            setIsEditingToolsystemName(false);
+        } catch (error) {
+            console.error('更新エラー:', error);
+        }
+    };    
+
     const handleMemberDelete = (memberId) => {
         dispatch(deleteMember(memberId))
             .then(() => {
@@ -519,6 +544,10 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
             .catch((error) => {
                 console.error('Error deleting member:', error);
             });
+    };
+
+    const handleSetSelectedToolsystem = (toolsystem) => {
+        dispatch(setSelectedToolsystem(toolsystem))
     };
 
     return (
@@ -605,9 +634,76 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                             key={i} 
                                             className={`matrix-cell-between-steps ${!hasFlowsteps ? 'next-step-column' : ''}`}
                                         >
-                                            <div className="matrix-empty-cell-between-steps">
+                                            <div
+                                                className="matrix-empty-cell-between-steps"
+                                                onMouseEnter={() => setIsHovered(true)}
+                                                onMouseLeave={() => setIsHovered(false)}
+                                            >
                                                 {isOddColumn && hasFlowsteps && hasToolSystem && (
-                                                    <FontAwesomeIcon icon={faDatabase} color="navy" size="1x" className="dataBaseIcon" />
+                                                    <>
+                                                        <FontAwesomeIcon icon={faDatabase} color="navy" className="dataBaseIcon fa-xl" />
+                                                        <div className="toolsystem-name-container">
+                                                            {isEditingToolsystemName ? (
+                                                                // フォーム表示
+                                                                <form
+                                                                    onSubmit={(e) => {
+                                                                        e.preventDefault();
+                                                                        // toolsystem.name を更新する処理を実行
+                                                                        handleUpdateToolsystemName(updatedToolsystemName);
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="text"
+                                                                        value={updatedToolsystemName} // stateで管理する更新後の名前
+                                                                        onChange={(e) => setUpdatedToolsystemName(e.target.value)} // 入力値の更新
+                                                                        className="toolsystem-name-input"
+                                                                    />
+                                                                    <div className="toolsystem-name-editing-form-buttons">
+                                                                        <div>
+                                                                            <button type="submit" className="toolsystem-name-save-button">
+                                                                                <FontAwesomeIcon icon={faSave} color="navy" />
+                                                                            </button>
+                                                                        </div>
+                                                                        <div>
+                                                                            <button
+                                                                                type="button"
+                                                                                className="toolsystem-name-cancel-button"
+                                                                                onClick={() => setIsEditingToolsystemName(false)} // 編集モードを終了
+                                                                            >
+                                                                                <FontAwesomeIcon icon={faCancel} color="navy" />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+
+                                                            ) : (
+                                                            // 名前表示
+                                                            <div className="toolsystem-name-container">
+                                                                <div className="toolsystem-name">
+                                                                    {flowstep.toolsystems.map((toolsystem, index) => (
+                                                                        <span key={index}>
+                                                                            {toolsystem.name}
+                                                                            {index < flowstep.toolsystems.length - 1 && ', '}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                                {isHovered && flowstep.toolsystems.map(toolsystem => (
+                                                                    <div
+                                                                        key={toolsystem.id} // toolsystemのIDがある場合を想定
+                                                                        className="toolsystem-name-edit-icon"
+                                                                        onClick={() => {
+                                                                            setIsEditingToolsystemName(true);
+                                                                            handleSetSelectedToolsystem(toolsystem);
+                                                                        }}
+                                                                        style={{ marginLeft: '5px' }}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faEdit} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            )}
+                                                        </div>
+                                                    </>
                                                 )}
                                             </div>
                                         </td>
