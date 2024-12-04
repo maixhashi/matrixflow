@@ -4,6 +4,7 @@ const initialState = {
   selectedMember: null,  // 初期状態ではnullに設定
   selectedFlowstep: null,  // 初期状態ではnullに設定
   selectedStepNumber: null,  // 初期状態ではnullに設定
+  selectedToolsystem: null,  // 初期状態ではnullに設定
 };
 
 const selectedSlice = createSlice({
@@ -19,9 +20,12 @@ const selectedSlice = createSlice({
     setSelectedStepNumber: (state, action) => {
       state.selectedStepNumber = action.payload;
     },
+    setSelectedToolsystem: (state, action) => {
+      state.selectedToolsystem = action.payload;
+    }
   },
 });
 
-export const { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } = selectedSlice.actions;
+export const { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber, setSelectedToolsystem } = selectedSlice.actions;
 
 export default selectedSlice.reducer;

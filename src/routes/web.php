@@ -47,7 +47,7 @@ use App\Http\Controllers\ToolsystemController;
 Route::prefix('/api/flowsteps/{flowstep}')->group(function () {
     Route::get('toolsystems', [ToolsystemController::class, 'index']);
     Route::post('toolsystems', [ToolsystemController::class, 'store']);
-    Route::put('toolsystems', [ToolsystemController::class, 'update']);
+    Route::put('toolsystems/{toolsystem}', [ToolsystemController::class, 'update']);
     Route::delete('toolsystems/{toolsystem}', [ToolsystemController::class, 'destroy']);
 });
 

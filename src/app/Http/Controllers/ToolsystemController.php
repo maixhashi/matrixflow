@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Flowstep;
 use App\Models\Toolsystem;
+use Illuminate\Support\Facades\Log;
+
 
 class ToolsystemController extends Controller
 {
@@ -28,21 +30,40 @@ class ToolsystemController extends Controller
         ]);
     }
 
-    public function update(Request $request, Flowstep $flowstep)
+
+    public function update(Request $request, Flowstep $flowstep, $toolsystemId)
     {
+        Log::debug('Received Request:', $request->all());  // リクエストデータをログに記録
+    
         $validated = $request->validate([
-            'toolsystem_ids' => 'array|required',
-            'toolsystem_ids.*' => 'exists:toolsystems,id',
+            'toolsystemName' => 'string|required',
         ]);
-
-        $flowstep->toolsystems()->sync($validated['toolsystem_ids']);
-
+    
+        Log::debug('Validated Data:', $validated);  // バリデーション後のデータをログに記録
+    
+        // Flowstepに関連するツールシステムをtoolsystemIdで取得
+        $toolsystem = $flowstep->toolsystems()->find($toolsystemId);
+    
+        if ($toolsystem) {
+            Log::debug('Found ToolSystem:', $toolsystem->toArray());  // ツールシステムが見つかった場合、データをログに記録
+    
+            // 既存のツールシステムの名前を更新
+            $toolsystem->update(['name' => $validated['toolsystemName']]);
+        } else {
+            Log::warning('ToolSystem Not Found', ['toolsystemId' => $toolsystemId]);  // ツールシステムが見つからない場合、警告ログ
+            return response()->json([
+                'message' => 'Toolsystem not found.',
+            ], 404);
+        }
+    
+        Log::debug('Updated ToolSystem:', $toolsystem->toArray());  // 更新後のツールシステムのデータをログに記録
+    
         return response()->json([
-            'message' => 'Tools updated successfully',
+            'message' => 'Tool updated successfully',
             'toolsystems' => $flowstep->toolsystems()->get(),
         ]);
     }
-
+            
     public function destroy(Flowstep $flowstep, Toolsystem $toolsystem)
     {
         $flowstep->toolsystems()->detach($toolsystem->id);

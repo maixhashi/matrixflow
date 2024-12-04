@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateFlowstep, fetchFlowsteps } from '../store/flowstepsSlice';
-import { fetchToolsByFlowstep, updateToolsForFlowstep } from '../store/toolsystemSlice';
+import { fetchToolsByFlowstep, addToolsystemForFlowstep } from '../store/toolsystemSlice';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,6 +19,7 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
     const dispatch = useDispatch();
 
     const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
+    const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
 
     useEffect(() => {
         if (selectedFlowstep) {
@@ -48,7 +49,7 @@ const UpdateFlowStepForm = ({ members = [], nextStepNumber, workflowId }) => {
     
             // Toolsystem の追加
             await dispatch(
-                updateToolsForFlowstep({
+                addToolsystemForFlowstep({
                     flowstepId: selectedFlowstep.id,
                     toolsystemName: toolsystemName, // ツール名を送信
                 })

@@ -6,8 +6,9 @@ import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSli
 import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
-import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '../store/selectedSlice';
+import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber, setSelectedToolsystem } from '../store/selectedSlice';
 import { setDataBaseIconPositions, setFlowstepPositions } from '../store/positionSlice';
+import { updateToolsystemForFlowstep } from '../store/toolsystemSlice';
 
 
 // FontAwesomeのアイコンのインポート
@@ -427,6 +428,8 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
     
     // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
     const selectedMember = useSelector((state) => state.selected.selectedMember);
+    const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
+    const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
     const members = useSelector((state) => state.members);
     const flowsteps = useSelector((state) => state.flowsteps);
     const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
@@ -514,14 +517,24 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
         dispatch(fetchFlowsteps(workflowId));
     };
 
-    const handleUpdateToolsystemName = () => {
-        // ここで toolsystem.name を更新する処理を実装
-        // 例: APIを呼び出すかReduxなどの状態管理で更新
-        console.log('Updating toolsystem name to:', updatedToolsystemName);
-    
-        // 更新完了後、編集モードを終了
-        setIsEditingToolsystemName(false);
-    };
+    const handleUpdateToolsystemName = async (toolsystemName) => {
+        try {
+            // toolsystem.name を更新
+            await dispatch(updateToolsystemForFlowstep({ 
+                flowstepId: selectedFlowstep.id, 
+                toolsystemId: selectedToolsystem.id,
+                toolsystemName: toolsystemName 
+            })).unwrap(); // エラー時にキャッチできるようにunwrapを使用
+            
+            // flowstepの状態を再取得
+            dispatch(fetchFlowsteps(workflowId));
+            
+            // 編集モードを終了
+            setIsEditingToolsystemName(false);
+        } catch (error) {
+            console.error('更新エラー:', error);
+        }
+    };    
 
     const handleMemberDelete = (memberId) => {
         dispatch(deleteMember(memberId))
@@ -531,6 +544,10 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
             .catch((error) => {
                 console.error('Error deleting member:', error);
             });
+    };
+
+    const handleSetSelectedToolsystem = (toolsystem) => {
+        dispatch(setSelectedToolsystem(toolsystem))
     };
 
     return (
@@ -632,7 +649,7 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                                                     onSubmit={(e) => {
                                                                         e.preventDefault();
                                                                         // toolsystem.name を更新する処理を実行
-                                                                        handleUpdateToolsystemName();
+                                                                        handleUpdateToolsystemName(updatedToolsystemName);
                                                                     }}
                                                                 >
                                                                     <input
@@ -660,21 +677,30 @@ const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflow
                                                                 </form>
 
                                                             ) : (
-                                                                // 名前表示
-                                                                <div className="toolsystem-name-container">
-                                                                    <div className="toolsystem-name">
-                                                                        {flowstep.toolsystems.map(toolsystem => toolsystem.name).join(', ')}
-                                                                    </div>
-                                                                    {isHovered && (
+                                                            // 名前表示
+                                                            <div className="toolsystem-name-container">
+                                                                <div className="toolsystem-name">
+                                                                    {flowstep.toolsystems.map((toolsystem, index) => (
+                                                                        <span key={index}>
+                                                                            {toolsystem.name}
+                                                                            {index < flowstep.toolsystems.length - 1 && ', '}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                                {isHovered && flowstep.toolsystems.map(toolsystem => (
                                                                     <div
+                                                                        key={toolsystem.id} // toolsystemのIDがある場合を想定
                                                                         className="toolsystem-name-edit-icon"
-                                                                        onClick={() => setIsEditingToolsystemName(true)}
+                                                                        onClick={() => {
+                                                                            setIsEditingToolsystemName(true);
+                                                                            handleSetSelectedToolsystem(toolsystem);
+                                                                        }}
                                                                         style={{ marginLeft: '5px' }}
                                                                     >
                                                                         <FontAwesomeIcon icon={faEdit} />
                                                                     </div>
-                                                                    )}
-                                                                </div>
+                                                                ))}
+                                                            </div>
                                                             )}
                                                         </div>
                                                     </>
