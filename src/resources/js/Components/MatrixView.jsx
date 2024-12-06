@@ -30,27 +30,21 @@ import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
+// カスタムフック
+import { useCheckItemColumn } from '../Hooks/useCheckItemColumn'
+
 // スタイル
 import '../../css/MatrixView.css';
 
 
 // コンポーネントの定義
-const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal, workflowId }) => {
-    const dispatch = useDispatch();
-
-    const checkListsFromStore = useSelector(selectCheckListsByColumn);
-    const checkListsForFlowNumber = checkListsFromStore[flowNumber] || [];
-    
-    const [selectedCheckList, setSelectedCheckList] = useState(null); // 選択されたチェックリストを保持する状態
-    
-    const hasCheckList = checkListsForFlowNumber.some(checklist => checklist.workflow_id === workflowId);
-    console.log("hasCheckList:", hasCheckList);
-
-    // モーダルを開く
-    const isCheckListModalOpen = useSelector(state => state.modal.isCheckListModalOpen);
-    const handleOpenChecklistModal = (checklist) => {
-        dispatch(openCheckListModal({ checkList: checklist }));
-    };
+const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
+    const { 
+        workflowId, isCheckListModalOpen,
+        checkListsForFlowNumber, hasCheckList,
+        selectedCheckList,
+        handleOpenChecklistModal,
+    } = useCheckItemColumn(flowNumber);
 
     return (
         <td className="matrix-check-item-column">
