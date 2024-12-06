@@ -32,6 +32,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // カスタムフック
 import { useCheckItemColumn } from '../Hooks/useCheckItemColumn'
+import { useMatrixCol } from '../Hooks/useMatrixCol'
 
 // スタイル
 import '../../css/MatrixView.css';
@@ -74,18 +75,12 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
     );
 };
 
-const MatrixCol = ({ openAddCheckListModal, flowNumber, onAssignFlowStep, updateFlowStepNumber, member, workflowId }) => {
-    const dispatch = useDispatch();
-    const flowsteps = useSelector((state) => state.flowsteps); // Redux ストアから flowsteps を取得
-
-    useEffect(() => {
-        dispatch(fetchFlowsteps(workflowId)); // コンポーネントがマウントされたときにフローステップを取得
-    }, [dispatch, workflowId]);
-
-    useEffect(() => {
-        console.log('workflowId in MatrixRow:', workflowId);
-    }, [workflowId]);
-
+const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber }) => {
+    const { 
+        workflowId,
+        validFlowsteps,
+        handleOpenAddFlowstepModal, handleSetSelectedFlowstep,
+    } = useMatrixCol(member, flowNumber);
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'FLOWSTEP',
@@ -98,68 +93,6 @@ const MatrixCol = ({ openAddCheckListModal, flowNumber, onAssignFlowStep, update
             isOver: !!monitor.isOver(),
         }),
     }));
-
-    // Ensure flowsteps is an array
-    const validFlowsteps = Array.isArray(flowsteps) ? flowsteps : [];
-
-    const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
-    const handleOpenAddFlowstepModal = (member, stepNumber) => {
-        dispatch(setSelectedMember(member));
-        dispatch(setSelectedStepNumber(stepNumber));
-        dispatch(openAddFlowstepModal(member, stepNumber));
-    };
-
-    // faDaseBaseアイコンの位置情報を取得
-    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
-
-    useEffect(() => {
-        console.log("flowstepPositions:", flowstepPositions); // Reduxから位置情報を確認
-      }, [flowstepPositions]);
-
-    useEffect(() => {
-      const getFlowstepPositions = () => {
-        const icons = document.querySelectorAll('.Flowstep');
-        const positionsArray = Array.from(icons).map(icon => {
-          const rect = icon.getBoundingClientRect();
-          return {
-            bottom: rect.bottom,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-          };
-        });
-        dispatch(setFlowstepPositions(positionsArray));
-      };
-  
-      // DOMが更新された後に位置を取得
-      getFlowstepPositions();
-  
-      // 位置情報を再取得するためにDOMの変化を監視
-      const observer = new MutationObserver(getFlowstepPositions);
-      observer.observe(document.body, { childList: true, subtree: true });
-  
-      return () => {
-        observer.disconnect();
-      };
-    }, [dispatch]);
-
-    
-    // Reduxから選択されたメンバーとフローステップの状態を取得
-    const selectedMember = useSelector((state) => state.selected.selectedMember);
-    const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
-    const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
-
-    // デバッグ用ログ
-    console.log('selectedMember on Flowstep.jsx:', selectedMember);
-    console.log('selectedFlowstep on Flowstep.jsx:', selectedFlowstep);
-    console.log('selectedStepNumber on Flowstep.jsx:', selectedStepNumber);
-
-
-    const handleSetSelectedFlowstep = (flowstep) => {
-        dispatch(setSelectedFlowstep(flowstep));
-        console.log("selectedFlowstep on Matrix Col component:" ,selectedFlowstep)
-    }
-
 
     return (
         <td className="matrix-cell" ref={drop} style={{ backgroundColor: isOver ? 'lightblue' : 'white' }}>
