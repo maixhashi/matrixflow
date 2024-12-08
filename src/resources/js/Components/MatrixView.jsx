@@ -10,7 +10,6 @@ import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber, setSelec
 import { setDataBaseIconPositions, setFlowstepPositions } from '../store/positionSlice';
 import { updateToolsystemForFlowstep } from '../store/toolsystemSlice';
 
-
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, faClipboardCheck, faDatabase, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
@@ -33,10 +32,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 // カスタムフック
 import { useCheckItemColumn } from '../Hooks/useCheckItemColumn'
 import { useMatrixCol } from '../Hooks/useMatrixCol'
+import { useMatrixRow } from '../Hooks/useMatrixRow'
 
 // スタイル
 import '../../css/MatrixView.css';
-
 
 // コンポーネントの定義
 const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
@@ -142,66 +141,15 @@ const MatrixRow = ({
     moveRow,
     updateFlowStepNumber,
     onMemberDelete,
-    workflowId,
     }) => {
-    const [isHovered, setIsHovered] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [newName, setNewName] = useState(member.name);
-    const [checkLists, setCheckLists] = useState({}); // チェックリストの状態管理
 
-    const selectedMember = useSelector((state) => state.selected.selectedMember);
-    const selectedStepNumber = useSelector((state) => state.selected.selectedStepNumber);
-      // 状態をコンソールに表示
-    console.log('selectedMember:', selectedMember);
-    console.log('selectedStepNumber:', selectedStepNumber);
+    const {
+        isHovered, setIsHovered, isEditing, setIsEditing, newName, checkLists, 
+        workflowId,
+        handleOpenAddFlowstepModal, handleAddCheckItem, handleNameChange, handleNameEdit
+    } = useMatrixRow(member)
 
-  
-    const dispatch = useDispatch();
-    
-    // Reduxからチェックリストを取得
-    const checkListsFromStore = useSelector(selectCheckListsByColumn);
-
-    useEffect(() => {
-        // チェックリストを取得
-        dispatch(fetchCheckLists(workflowId));
-        dispatch(fetchMembers(workflowId)); // メンバーも取得
-    }, [dispatch, workflowId]);
-
-    useEffect(() => {
-        // チェックリストのデータを状態にセット
-        if (checkListsFromStore) {
-            setCheckLists(checkListsFromStore);
-            console.log("checkListsFromStore by useEffect on MatrixRow" ,JSON.stringify(checkListsFromStore, null, 2));
-        }
-    }, [checkListsFromStore]);
-
-    const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
-    const handleOpenAddFlowstepModal = (member, stepNumber) => {
-        dispatch(setSelectedMember(member));
-        dispatch(setSelectedStepNumber(stepNumber));
-        dispatch(openAddFlowstepModal(member, stepNumber));
-    };
-
-
-    const handleAddCheckItem = (flowNumber) => {
-        const newCheckItemId = Date.now(); // 一意のIDを生成
-        const newCheckItem = {
-            id: newCheckItemId,
-            check_content: `New Check Item ${flowNumber}`,
-            member_id: member.id,
-        };
-
-        setCheckLists((prev) => ({
-            ...prev,
-            [flowNumber]: prev[flowNumber]
-                ? prev[flowNumber].map(checkItem => ({
-                    ...checkItem,
-                    check_items: [...(checkItem.check_items || []), newCheckItem],
-                }))
-                : [{ check_items: [newCheckItem] }],
-        }));
-    };
-
+    // DnD 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'ROW',
         item: { index, memberId: member.id },
@@ -219,15 +167,6 @@ const MatrixRow = ({
             }
         },
     }), [index, moveRow]);
-
-    const handleNameChange = (e) => {
-        setNewName(e.target.value);
-    };
-
-    const handleNameEdit = async () => {
-        await dispatch(updateMemberName({ id: member.id, name: newName }));
-        setIsEditing(false);
-    };
 
     return (
         <tr ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
