@@ -2,13 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 // Store Redux Sliceのインポート
-import { fetchMembers, updateMemberName, deleteMember } from '../store/memberSlice';
-import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
-import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
-import { openCheckListModal, openAddFlowstepModal } from '../store/modalSlice';
-import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber, setSelectedToolsystem } from '../store/selectedSlice';
-import { setDataBaseIconPositions, setFlowstepPositions } from '../store/positionSlice';
-import { updateToolsystemForFlowstep } from '../store/toolsystemSlice';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,6 +26,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useCheckItemColumn } from '../Hooks/useCheckItemColumn'
 import { useMatrixCol } from '../Hooks/useMatrixCol'
 import { useMatrixRow } from '../Hooks/useMatrixRow'
+import { useMatrixView } from '../Hooks/useMatrixView'
 
 // スタイル
 import '../../css/MatrixView.css';
@@ -243,178 +237,21 @@ const MatrixRow = ({
     );
 };
 
-const MatrixView = ({ onAssignFlowStep, onMemberAdded, onFlowStepAdded, workflowId }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [isEditingToolsystemName, setIsEditingToolsystemName] = useState(false);
-    const [updatedToolsystemName, setUpdatedToolsystemName] = useState(''); // toolsystem.nameの初期値で初期化
-    const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
-    // const [selectedMember, setSelectedMember] = useState(null);
-    const [selectedStepNumber, setSelectedStepNumber] = useState(null);
-    const [maxFlowNumber, setMaxFlowNumber] = useState(0);
-    const [orderedMembers, setOrderedMembers] = useState([]);
+const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
+    const { 
+        // Local State
+        isHovered, setIsHovered, isEditingToolsystemName, setIsEditingToolsystemName, updatedToolsystemName, setUpdatedToolsystemName,
+        isModalforAddCheckListFormOpen, selectedStepNumber, maxFlowNumber, orderedMembers,
     
-    const dispatch = useDispatch();
-
-    // faDaseBaseアイコンの位置情報を取得
-    const dataBaseIconPositions = useSelector((state) => state.positions.dataBaseIconPositions);
-    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
-
-    useEffect(() => {
-        console.log("dataBaseIconPositions:", dataBaseIconPositions); // Reduxから位置情報を確認
-        console.log("flowstepPositions:", flowstepPositions); // Reduxから位置情報を確認
-      }, [dataBaseIconPositions, flowstepPositions]);
-
-    useEffect(() => {
-      const getDatabaseIconPositions = () => {
-        const icons = document.querySelectorAll('.dataBaseIcon');
-        const positionsArray = Array.from(icons).map(icon => {
-          const rect = icon.getBoundingClientRect();
-          return {
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-          };
-        });
-        dispatch(setDataBaseIconPositions(positionsArray));
-      };
-  
-      // DOMが更新された後に位置を取得
-      getDatabaseIconPositions();
-  
-      // 位置情報を再取得するためにDOMの変化を監視
-      const observer = new MutationObserver(getDatabaseIconPositions);
-      observer.observe(document.body, { childList: true, subtree: true });
-  
-      return () => {
-        observer.disconnect();
-      };
-    }, [dispatch]);
+        // Global State
+        dataBaseIconPositions, flowstepPositions, selectedMember,
+        flowsteps, isAddFlowstepModalOpen, isUpdateFlowstepModalOpen, workflowId,
     
-    // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
-    const selectedMember = useSelector((state) => state.selected.selectedMember);
-    const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
-    const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
-    const members = useSelector((state) => state.members);
-    const flowsteps = useSelector((state) => state.flowsteps);
-    const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
-    const isUpdateFlowstepModalOpen = useSelector((state) => state.modal.isUpdateFlowstepModalOpen);
+        // Event Handler
+        handleMemberAdded, handleOpenAddFlowstepModalonMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
+        handleUpdateFlowStepNumber, handleUpdateToolsystemName, handleMemberDelete, handleSetSelectedToolsystem,
+    } = useMatrixView();
     
-    useEffect(() => {
-        dispatch(fetchMembers(workflowId));
-        dispatch(fetchFlowsteps(workflowId));
-    }, [dispatch, workflowId]);
-
-    useEffect(() => {
-        if (flowsteps.length > 0) {
-            const maxFlowNumber = Math.max(0, ...flowsteps.map(step => step.flow_number));
-            setMaxFlowNumber(maxFlowNumber);
-        } else {
-            setMaxFlowNumber(0);
-        }
-    }, [flowsteps]);
-
-    useEffect(() => {
-        setOrderedMembers(members);
-    }, [members]);
-
-    const handleMemberAdded = async (newMember) => {
-        await onMemberAdded(newMember); // Call the provided onMemberAdded function
-        dispatch(fetchMembers()); // Fetch updated members from the Redux store
-    };
-        
-
-    const handleOpenAddFlowstepModalonMatrixView = (member, stepNumber) => {
-        dispatch(setSelectedMember(member));
-        dispatch(setSelectedStepNumber(stepNumber));
-        dispatch(openAddFlowStepModal());
-    };
-
-    const openAddCheckListModal = (member, stepNumber) => {
-        setSelectedMember(member);
-        setSelectedStepNumber(stepNumber);
-        setIsModalforAddCheckListFormOpen(true);
-    };
-
-    const closeAddCheckListModal = () => {
-        setSelectedMember(null);
-        setSelectedStepNumber(null);
-        setIsModalforAddCheckListFormOpen(false);
-    };
-
-    const moveRow = async (fromIndex, toIndex) => {
-        const updatedMembers = [...orderedMembers]; // orderedMembersを使用
-        const [movedMember] = updatedMembers.splice(fromIndex, 1);
-        updatedMembers.splice(toIndex, 0, movedMember);
-        setOrderedMembers(updatedMembers); // 状態を更新
-
-        const response = await saveOrderToServer(updatedMembers);
-        if (response.success) {
-            console.log('Order saved successfully');
-            // 最新のフローステップを取得
-            dispatch(fetchFlowsteps()); // Add this to ensure fresh data
-        } else {
-            console.error('Error saving order:', response.error);
-        }
-    };
-
-    const saveOrderToServer = async (updatedMembers) => {
-        try {
-            const response = await axios.post('/api/save-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ member_ids: updatedMembers.map(member => member.id) }),
-            });
-
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error saving order:', error);
-            return { success: false, error };
-        }
-    };
-
-    const handleUpdateFlowStepNumber = async (flowStepId, newFlowNumber) => {
-        // ReduxのupdateFlowStepNumberをdispatch
-        dispatch(updateFlowStepNumber({ flowStepId, newFlowNumber }));
-        dispatch(fetchFlowsteps(workflowId));
-    };
-
-    const handleUpdateToolsystemName = async (toolsystemName) => {
-        try {
-            // toolsystem.name を更新
-            await dispatch(updateToolsystemForFlowstep({ 
-                flowstepId: selectedFlowstep.id, 
-                toolsystemId: selectedToolsystem.id,
-                toolsystemName: toolsystemName 
-            })).unwrap(); // エラー時にキャッチできるようにunwrapを使用
-            
-            // flowstepの状態を再取得
-            dispatch(fetchFlowsteps(workflowId));
-            
-            // 編集モードを終了
-            setIsEditingToolsystemName(false);
-        } catch (error) {
-            console.error('更新エラー:', error);
-        }
-    };    
-
-    const handleMemberDelete = (memberId) => {
-        dispatch(deleteMember(memberId))
-            .then(() => {
-                dispatch(fetchMembers(workflowId)); // Refresh members after deletion
-            })
-            .catch((error) => {
-                console.error('Error deleting member:', error);
-            });
-    };
-
-    const handleSetSelectedToolsystem = (toolsystem) => {
-        dispatch(setSelectedToolsystem(toolsystem))
-    };
 
     return (
         <DndProvider backend={HTML5Backend}>
