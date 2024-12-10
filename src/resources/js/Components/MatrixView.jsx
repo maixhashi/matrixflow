@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
-// Store Redux Sliceのインポート
+import React from 'react';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, faClipboardCheck, faDatabase, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 
 // コンポーネントのインポート
-import FlowStep from '../Components/Flowstep';
+import Flowstep from '../Components/Flowstep';
 import FormforAddMember from '../Components/FormforAddMember';
-import AddFlowStepForm from '../Components/AddFlowStepForm';
+import FormforAddFlowstep from '../Components/FormforAddFlowstep';
 import UpdateFlowStepForm from '../Components/UpdateFlowStepForm';
 import FormforAddChecklist from '../Components/FormforAddChecklist';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
@@ -98,7 +95,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
                 )
                 .map(flowstep => (
                     <div key={flowstep.id} className="member-cell" onClick={() => handleSetSelectedFlowstep(flowstep)}>
-                        <FlowStep
+                        <Flowstep
                             member={member}
                             flowstep={flowstep}
                             flowNumber={flowNumber}
@@ -424,13 +421,12 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
             {/* モーダルの表示 */}
             {isAddFlowstepModalOpen && (
                 <ModalforAddFlowStepForm>
-                    <AddFlowStepForm
+                    <FormforAddFlowstep
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
                         nextStepNumber={maxFlowNumber + 1}
                         onFlowStepAdded={onFlowStepAdded}
-                        workflowId={workflowId}
                     />
                 </ModalforAddFlowStepForm>
             )}

@@ -6,7 +6,7 @@ import { faPlus, faTrash, faArrowUp, faArrowDown } from '@fortawesome/free-solid
 import FlowStep from '../Components/Flowstep';
 import AddMemberFormForGuest from '../Components/AddMemberFormForGuest';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
-import AddFlowStepForm from '../Components/AddFlowStepForm';
+import FormforAddFlowstep from '../Components/FormforAddFlowstep';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import '../../css/MatrixView.css';
@@ -186,7 +186,7 @@ const MatrixViewForGuest = () => {
                 </table>
 
                 <ModalforAddFlowStepForm isOpen={isModalOpen} onClose={closeModal}>
-                    <AddFlowStepForm
+                    <FormforAddFlowstep
                         member={selectedMember}
                         onClose={closeModal}
                         onFlowStepAdded={(newFlowStep) => {
