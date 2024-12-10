@@ -9,7 +9,7 @@ import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, 
 
 // コンポーネントのインポート
 import FlowStep from '../Components/Flowstep';
-import AddMemberForm from '../Components/AddMemberForm';
+import FormforAddMember from '../Components/FormforAddMember';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
 import UpdateFlowStepForm from '../Components/UpdateFlowStepForm';
 import FormforAddChecklist from '../Components/FormforAddChecklist';
@@ -272,9 +272,8 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm
+                                        <FormforAddMember
                                             onMemberAdded={handleMemberAdded}
-                                            workflowId={workflowId}
                                         />
                                     </div>
                                 </td>
@@ -319,9 +318,8 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm
+                                        <FormforAddMember
                                             onMemberAdded={handleMemberAdded}
-                                            workflowId={workflowId}
                                         />
                                     </div>
                                 </td>

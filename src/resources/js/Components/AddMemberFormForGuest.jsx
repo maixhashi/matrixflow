@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
-import '../../css/AddMemberForm.css';
+import '../../css/FormforAddMember.css';
 import { fetchMembers, addMemberForGuest } from '../store/memberSliceForGuest';
 
 const AddMemberFormForGuest = () => {
