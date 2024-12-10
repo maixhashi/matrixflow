@@ -8,10 +8,10 @@ import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, 
 import Flowstep from '../Components/Flowstep';
 
 // Form
-import FormforAddMember from '../Components/FormforAddMember';
-import FormforAddFlowstep from '../Components/FormforAddFlowstep';
-import FormforUpdateFlowstep from '../Components/FormforUpdateFlowstep';
-import FormforAddChecklist from '../Components/FormforAddChecklist';
+import FormforAddMember from '../Components/Forms/FormforAddMember';
+import FormforAddFlowstep from '../Components/Forms/FormforAddFlowstep';
+import FormforUpdateFlowstep from '../Components/Forms/FormforUpdateFlowstep';
+import FormforAddChecklist from '../Components/Forms/FormforAddChecklist';
 
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
