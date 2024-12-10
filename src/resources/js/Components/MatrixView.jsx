@@ -6,10 +6,13 @@ import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, 
 
 // コンポーネントのインポート
 import Flowstep from '../Components/Flowstep';
+
+// Form
 import FormforAddMember from '../Components/FormforAddMember';
 import FormforAddFlowstep from '../Components/FormforAddFlowstep';
-import UpdateFlowStepForm from '../Components/UpdateFlowStepForm';
+import FormforUpdateFlowstep from '../Components/FormforUpdateFlowstep';
 import FormforAddChecklist from '../Components/FormforAddChecklist';
+
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
@@ -434,7 +437,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
             {/* モーダルの表示 */}
             {isUpdateFlowstepModalOpen && (
                 <ModalforUpdateFlowStepForm>
-                    <UpdateFlowStepForm
+                    <FormforUpdateFlowstep
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}

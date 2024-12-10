@@ -1,4 +1,6 @@
 import React from 'react';
+
+// カスタムフックのインポート
 import { useFormforAddFlowstep } from '../Hooks/useFormforAddFlowstep';
 
 // FontAwesomeのアイコンのインポート
@@ -18,7 +20,7 @@ const FormforAddFlowstep = ({ members, stepNumber, nextStepNumber}) => {
         handleSubmit, handleMemberChange, handleStepChange,
         // const
         filteredMembers,
-      } = useFormforAddFlowstep(members, stepNumber)
+    } = useFormforAddFlowstep(members, stepNumber)
     
 
     return (
