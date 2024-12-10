@@ -1,14 +1,14 @@
 import React from 'react';
 
 // カスタムフックのインポート
-import { useFormforAddFlowstep } from '../Hooks/useFormforAddFlowstep';
+import { useFormforAddFlowstep } from '../../Hooks/useFormforAddFlowstep';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 
 // スタイル
-import '../../css/FormforAddFlowstep.css';
+import '../../../css/FormforAddFlowstep.css';
 
 const FormforAddFlowstep = ({ members, stepNumber, nextStepNumber}) => {
     const {
