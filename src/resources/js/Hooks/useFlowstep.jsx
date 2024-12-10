@@ -5,10 +5,6 @@ import { openUpdateFlowstepModal } from '../store/modalSlice';
 import { setSelectedFlowstep, setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
 
 export const useFlowstep = (flowstep) => {
-  if (!flowstep) {
-    return <div>フローステップのデータがありません</div>;
-  }
-  
   const dispatch = useDispatch();
   
   // Local State

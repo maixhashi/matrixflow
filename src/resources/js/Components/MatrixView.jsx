@@ -12,7 +12,7 @@ import FlowStep from '../Components/Flowstep';
 import AddMemberForm from '../Components/AddMemberForm';
 import AddFlowStepForm from '../Components/AddFlowStepForm';
 import UpdateFlowStepForm from '../Components/UpdateFlowStepForm';
-import AddCheckListForm from '../Components/AddCheckListForm';
+import FormforAddChecklist from '../Components/FormforAddChecklist';
 import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
 import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
@@ -454,7 +454,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
 
                 
                 <ModalforAddCheckListForm isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
-                    <AddCheckListForm
+                    <FormforAddChecklist
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
