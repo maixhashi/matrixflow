@@ -7,7 +7,7 @@ export const fetchToolsByFlowstep = createAsyncThunk(
     async (flowstepId, { rejectWithValue }) => {
         try {
             const response = await axios.get(`/api/flowsteps/${flowstepId}/toolsystems`);
-            return response.data.toolsystems;
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
         }

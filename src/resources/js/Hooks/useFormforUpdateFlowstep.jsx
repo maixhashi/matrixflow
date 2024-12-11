@@ -55,6 +55,8 @@ export const useFormforUpdateFlowstep = () => {
   
           // フローステップリストを再取得
           dispatch(fetchFlowsteps(workflowId));
+          dispatch(fetchToolsByFlowstep(selectedFlowstep.id));
+
       } catch (error) {
           console.error('エラー:', error);
       }
