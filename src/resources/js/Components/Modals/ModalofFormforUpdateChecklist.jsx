@@ -1,6 +1,6 @@
 import React from 'react';
-import '../../css/ModalofFormforUpdateChecklist.css';
-import { useModalofFormforUpdateChecklist } from '../Hooks/useModalofFormforUpdateChecklist';
+import '../../../css/ModalofFormforUpdateChecklist.css';
+import { useModalofFormforUpdateChecklist } from '../../Hooks/useModalofFormforUpdateChecklist';
 
 const CheckListModal = ({ children }) => {
     const {

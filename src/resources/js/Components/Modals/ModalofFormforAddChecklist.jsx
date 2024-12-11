@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../css/ModalofFormforAddFlowstep.css';
+import '../../../css/ModalofFormforAddFlowstep.css';
 
 const ModalofFormforAddChecklist = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null; // モーダルが開いていない場合は何も表示しない

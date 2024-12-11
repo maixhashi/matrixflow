@@ -7,18 +7,18 @@ import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, 
 // コンポーネントのインポート
 import Flowstep from '../Components/Flowstep';
 
-// Form
+// Forms
 import FormforAddMember from '../Components/Forms/FormforAddMember';
 import FormforAddFlowstep from '../Components/Forms/FormforAddFlowstep';
 import FormforUpdateFlowstep from '../Components/Forms/FormforUpdateFlowstep';
 import FormforAddChecklist from '../Components/Forms/FormforAddChecklist';
 import FormforUpdateChecklist from '../Components/Forms/FormforUpdateChecklist';
 
-// Modal
-import ModalofFormforAddFlowstep from '../Components/ModalofFormforAddFlowstep';
-import ModalofFormforUpdateFlowstep from '../Components/ModalofFormforUpdateFlowstep';
-import ModalofFormforAddChecklist from '../Components/ModalofFormforAddChecklist';
-import ModalofFormforUpdateChecklist from '../Components/ModalofFormforUpdateChecklist';
+// Modals
+import ModalofFormforAddFlowstep from '../Components/Modals/ModalofFormforAddFlowstep';
+import ModalofFormforUpdateFlowstep from '../Components/Modals/ModalofFormforUpdateFlowstep';
+import ModalofFormforAddChecklist from '../Components/Modals/ModalofFormforAddChecklist';
+import ModalofFormforUpdateChecklist from '../Components/Modals/ModalofFormforUpdateChecklist';
 
 import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';

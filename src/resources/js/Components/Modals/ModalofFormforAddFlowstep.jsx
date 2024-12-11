@@ -1,6 +1,6 @@
 import React from 'react';
-import { useModalofFormforAddFlowstep } from '../Hooks/useModalofFormforAddFlowstep';
-import '../../css/ModalofFormforAddFlowstep.css';
+import { useModalofFormforAddFlowstep } from '../../Hooks/useModalofFormforAddFlowstep';
+import '../../../css/ModalofFormforAddFlowstep.css';
 
 const ModalforAddFlowStepForm = ({ onClose, children }) => {
     const {
