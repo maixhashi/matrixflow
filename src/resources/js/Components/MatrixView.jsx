@@ -13,7 +13,8 @@ import FormforAddFlowstep from '../Components/Forms/FormforAddFlowstep';
 import FormforUpdateFlowstep from '../Components/Forms/FormforUpdateFlowstep';
 import FormforAddChecklist from '../Components/Forms/FormforAddChecklist';
 
-import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
+// Modal
+import ModalofFormforAddFlowstep from '../Components/ModalofFormforAddFlowstep';
 import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
 import CheckListModal from '../Components/CheckListModal';
@@ -331,10 +332,6 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                                     const hasFlowsteps = flowsteps.length > 0;
                                     const hasToolSystem = Array.isArray(flowstep?.toolsystems) && flowstep.toolsystems.length > 0;
 
-                                    console.log(`flowsteps:`, flowsteps);
-                                    console.log(`flowstep:`, flowstep);
-                                    console.log(`on column ${i}`, { isOddColumn, hasFlowsteps, hasToolSystem });
-
                                     return (
                                         <td 
                                             key={i} 
@@ -422,7 +419,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
 
             {/* モーダルの表示 */}
             {isAddFlowstepModalOpen && (
-                <ModalforAddFlowStepForm>
+                <ModalofFormforAddFlowstep>
                     <FormforAddFlowstep
                         members={orderedMembers}
                         member={selectedMember}
@@ -430,7 +427,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                         nextStepNumber={maxFlowNumber + 1}
                         onFlowStepAdded={onFlowStepAdded}
                     />
-                </ModalforAddFlowStepForm>
+                </ModalofFormforAddFlowstep>
             )}
 
             {/* モーダルの表示 */}
