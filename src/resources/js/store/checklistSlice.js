@@ -5,7 +5,6 @@ const initialState = {
   showingChecklistsOnDocument: true,
 };
 
-
 export const fetchCheckLists = createAsyncThunk(
   'checkLists/fetchCheckLists',
   async (workflowId) => {

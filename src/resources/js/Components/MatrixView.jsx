@@ -12,13 +12,14 @@ import FormforAddMember from '../Components/Forms/FormforAddMember';
 import FormforAddFlowstep from '../Components/Forms/FormforAddFlowstep';
 import FormforUpdateFlowstep from '../Components/Forms/FormforUpdateFlowstep';
 import FormforAddChecklist from '../Components/Forms/FormforAddChecklist';
+import FormforUpdateChecklist from '../Components/Forms/FormforUpdateChecklist';
 
 // Modal
 import ModalofFormforAddFlowstep from '../Components/ModalofFormforAddFlowstep';
 import ModalofFormforUpdateFlowstep from '../Components/ModalofFormforUpdateFlowstep';
-import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
+import ModalofFormforAddChecklist from '../Components/ModalofFormforAddChecklist';
 import CheckListModal from '../Components/CheckListModal';
-import CheckListModalContent from '../Components/CheckListModalContent';
+
 import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -58,8 +59,7 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
                 <CheckListModal 
                     checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
                 >
-                    <CheckListModalContent
-                      workflowId={workflowId}
+                    <FormforUpdateChecklist
                       flowNumber={flowNumber}
                       checkListsForFlowNumber={checkListsForFlowNumber}
                     />
@@ -446,7 +446,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
 
 
                 
-                <ModalforAddCheckListForm isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
+                <ModalofFormforAddChecklist isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
                     <FormforAddChecklist
                         members={orderedMembers}
                         member={selectedMember}
@@ -456,7 +456,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                         onFlowStepAdded={onFlowStepAdded}
                         workflowId={workflowId}
                     />
-                </ModalforAddCheckListForm>
+                </ModalofFormforAddChecklist>
             </div>
 
             {flowstepPositions.map((position, index) => (
