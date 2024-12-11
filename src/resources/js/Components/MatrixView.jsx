@@ -18,7 +18,7 @@ import FormforUpdateChecklist from '../Components/Forms/FormforUpdateChecklist';
 import ModalofFormforAddFlowstep from '../Components/ModalofFormforAddFlowstep';
 import ModalofFormforUpdateFlowstep from '../Components/ModalofFormforUpdateFlowstep';
 import ModalofFormforAddChecklist from '../Components/ModalofFormforAddChecklist';
-import CheckListModal from '../Components/CheckListModal';
+import ModalofFormforUpdateChecklist from '../Components/ModalofFormforUpdateChecklist';
 
 import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
@@ -56,14 +56,14 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
 
             {/* モーダルの表示 */}
             {isCheckListModalOpen && (
-                <CheckListModal 
+                <ModalofFormforUpdateChecklist 
                     checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
                 >
                     <FormforUpdateChecklist
                       flowNumber={flowNumber}
                       checkListsForFlowNumber={checkListsForFlowNumber}
                     />
-                </CheckListModal >
+                </ModalofFormforUpdateChecklist>
             )}
         </td>
     );
