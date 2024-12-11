@@ -1,15 +1,17 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { closeUpdateFlowstepModal } from '../store/modalSlice';
+import { useModalofFormforUpdateFlowstep } from '../Hooks/useModalofFormforUpdateFlowstep'
+
 import '../../css/ModalforAddFlowStepForm.css';
 
-const ModalforUpdateFlowStepForm = ({ isOpen, onClose, children }) => {
-    const dispatch = useDispatch();
+const ModalofFormforUpdateFlowstep = ({ onClose, children }) => {
+    const {
+        // Local State
+        // Global State
+        isUpdateFlowstepModalOpen,
+        // Event Handler
+        handleCloseUpdateFlowstepModal,
+    } = useModalofFormforUpdateFlowstep();
     
-    const isUpdateFlowstepModalOpen = useSelector(state => state.modal.isUpdateFlowstepModalOpen);
-    const handleCloseUpdateFlowstepModal = (member, selectedStepNumber) => {
-        dispatch(closeUpdateFlowstepModal(member, selectedStepNumber));
-    };
     
     if (!isUpdateFlowstepModalOpen) return null; // モーダルが開いていない場合は何も表示しない
 
@@ -23,4 +25,4 @@ const ModalforUpdateFlowStepForm = ({ isOpen, onClose, children }) => {
     );
 };
 
-export default ModalforUpdateFlowStepForm;
+export default ModalofFormforUpdateFlowstep;

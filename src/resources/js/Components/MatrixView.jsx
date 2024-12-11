@@ -15,7 +15,7 @@ import FormforAddChecklist from '../Components/Forms/FormforAddChecklist';
 
 // Modal
 import ModalofFormforAddFlowstep from '../Components/ModalofFormforAddFlowstep';
-import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
+import ModalofFormforUpdateFlowstep from '../Components/ModalofFormforUpdateFlowstep';
 import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
 import CheckListModal from '../Components/CheckListModal';
 import CheckListModalContent from '../Components/CheckListModalContent';
@@ -432,7 +432,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
 
             {/* モーダルの表示 */}
             {isUpdateFlowstepModalOpen && (
-                <ModalforUpdateFlowStepForm>
+                <ModalofFormforUpdateFlowstep>
                     <FormforUpdateFlowstep
                         members={orderedMembers}
                         member={selectedMember}
@@ -441,7 +441,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                         onFlowStepAdded={onFlowStepAdded}
                         workflowId={workflowId}
                     />
-                </ModalforUpdateFlowStepForm>
+                </ModalofFormforUpdateFlowstep>
             )}
 
 
