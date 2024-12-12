@@ -36,16 +36,16 @@ import '../../css/MatrixView.css';
 // コンポーネントの定義
 const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
     const { 
-        workflowId, isCheckListModalOpen,
+        workflowId, showingModalofFormforUpdateChecklist,
         checkListsForFlowNumber, hasCheckList,
         selectedCheckList,
-        handleOpenChecklistModal,
+        handleOpenModalofFormforUpdateChecklist,
     } = useCheckItemColumn(flowNumber);
 
     return (
         <td className="matrix-check-item-column">
             {hasCheckList ? (
-                <div className="check-item" onClick={() => handleOpenChecklistModal(checkListsForFlowNumber[0])}>
+                <div className="check-item" onClick={() => handleOpenModalofFormforUpdateChecklist(checkListsForFlowNumber[0])}>
                     <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
                 </div>
             ) : (
@@ -55,7 +55,7 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
             )}
 
             {/* モーダルの表示 */}
-            {isCheckListModalOpen && (
+            {showingModalofFormforUpdateChecklist && (
                 <ModalofFormforUpdateChecklist 
                     checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
                 >

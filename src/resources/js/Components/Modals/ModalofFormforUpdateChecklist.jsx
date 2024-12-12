@@ -7,13 +7,13 @@ const CheckListModal = ({ children }) => {
         // Local State
         // Global State
         // Event Handler
-        handleCloseChecklistModal,
+        handleCloseModalofFormforUpdateChecklist,
     } = useModalofFormforUpdateChecklist();
     
     return (
-        <div className="modal-overlay" onClick={handleCloseChecklistModal}>
+        <div className="modal-overlay" onClick={handleCloseModalofFormforUpdateChecklist}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={handleCloseChecklistModal}>×</button>
+                <button className="modal-close" onClick={handleCloseModalofFormforUpdateChecklist}>×</button>
                 {children}
             </div>
         </div>

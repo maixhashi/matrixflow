@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { closeCheckListModal } from '../store/modalSlice';
+import { closeModalofFormforUpdateChecklist } from '../store/modalSlice';
 
 
 export const useModalofFormforUpdateChecklist = () => {
@@ -7,21 +7,21 @@ export const useModalofFormforUpdateChecklist = () => {
 
   // Local State
   // Global State
-  const isCheckListModalOpen = useSelector(state => state.modal.isCheckListModalOpen);
+  const showingModalofFormforUpdateChecklist = useSelector(state => state.modal.showingModalofFormforUpdateChecklist);
   
   // Event Handler
-  const handleCloseChecklistModal = () => {
-    dispatch(closeCheckListModal());
+  const handleCloseModalofFormforUpdateChecklist = () => {
+    dispatch(closeModalofFormforUpdateChecklist());
   };
 
   // モーダルが開いていない場合は何も表示しない
-  if (!isCheckListModalOpen) return null;
+  if (!showingModalofFormforUpdateChecklist) return null;
   
   return {
     // Local State
     // Global State
-    isCheckListModalOpen,
+    showingModalofFormforUpdateChecklist,
     // Event Handler
-    handleCloseChecklistModal,
+    handleCloseModalofFormforUpdateChecklist,
   };
 };
