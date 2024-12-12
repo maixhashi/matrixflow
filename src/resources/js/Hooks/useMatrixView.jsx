@@ -5,24 +5,33 @@ import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { updateToolsystemForFlowstep } from '../store/toolsystemSlice';
 import { setDataBaseIconPositions } from '../store/positionSlice';
 import { setSelectedMember, setSelectedToolsystem } from '../store/selectedSlice';
-import { openAddFlowstepModal } from '../store/modalSlice';
+import { openModalofFormforAddFlowstep, openModalofFormforAddChecklist } from '../store/modalSlice';
 
 export const useMatrixView = () => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isEditingToolsystemName, setIsEditingToolsystemName] = useState(false);
-  const [updatedToolsystemName, setUpdatedToolsystemName] = useState(''); // toolsystem.nameの初期値で初期化
-  const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
-  // const [selectedMember, setSelectedMember] = useState(null);
-  const [selectedStepNumber, setSelectedStepNumber] = useState(null);
-  const [maxFlowNumber, setMaxFlowNumber] = useState(0);
-  const [orderedMembers, setOrderedMembers] = useState([]);
+    // Local State
+    const [isHovered, setIsHovered] = useState(false);
+    const [isEditingToolsystemName, setIsEditingToolsystemName] = useState(false);
+    const [updatedToolsystemName, setUpdatedToolsystemName] = useState(''); // toolsystem.nameの初期値で初期化
+    const [isModalforAddCheckListFormOpen, setIsModalforAddCheckListFormOpen] = useState(false);
+    const [selectedStepNumber, setSelectedStepNumber] = useState(null);
+    const [maxFlowNumber, setMaxFlowNumber] = useState(0);
+    const [orderedMembers, setOrderedMembers] = useState([]);
   
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  const workflowId = useSelector((state) => state.workflow.workflowId);
-  // faDaseBaseアイコンの位置情報を取得
-  const dataBaseIconPositions = useSelector((state) => state.positions.dataBaseIconPositions);
-  const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
+    // Global State
+    const workflowId = useSelector((state) => state.workflow.workflowId);
+    const dataBaseIconPositions = useSelector((state) => state.positions.dataBaseIconPositions);
+    const flowstepPositions = useSelector((state) => state.positions.flowstepPositions);
+    const selectedMember = useSelector((state) => state.selected.selectedMember);
+    const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
+    const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
+    const members = useSelector((state) => state.members);
+    const flowsteps = useSelector((state) => state.flowsteps);
+    const showingModalofFormforAddFlowstep = useSelector((state) => state.modal.showingModalofFormforAddFlowstep);
+    const showingModalofFormforUpdateFlowstep = useSelector((state) => state.modal.showingModalofFormforUpdateFlowstep);
+    const showingModalofFormforAddChecklist = useSelector((state) => state.modal.showingModalofFormforAddChecklist);
+  
 
   useEffect(() => {
     const getDatabaseIconPositions = () => {
@@ -51,15 +60,6 @@ export const useMatrixView = () => {
     };
   }, [dispatch]);
   
-  // Reduxストアから指定のworkflowIdに関連するメンバーとフローステップを取得
-  const selectedMember = useSelector((state) => state.selected.selectedMember);
-  const selectedFlowstep = useSelector((state) => state.selected.selectedFlowstep);
-  const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
-  const members = useSelector((state) => state.members);
-  const flowsteps = useSelector((state) => state.flowsteps);
-  const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
-  const isUpdateFlowstepModalOpen = useSelector((state) => state.modal.isUpdateFlowstepModalOpen);
-  
   useEffect(() => {
       dispatch(fetchMembers(workflowId));
       dispatch(fetchFlowsteps(workflowId));
@@ -83,18 +83,18 @@ export const useMatrixView = () => {
       dispatch(fetchMembers()); // Fetch updated members from the Redux store
   };
       
-  const handleOpenAddFlowstepModalonMatrixView = (member, stepNumber) => {
+  const handleOpenModalofFormforAddFlowsteponMatrixView = (member, stepNumber) => {
       dispatch(setSelectedMember(member));
       dispatch(setSelectedStepNumber(stepNumber));
-      dispatch(openAddFlowstepModal());
-  };
-
-  const openAddCheckListModal = (member, stepNumber) => {
+      dispatch(openModalofFormforAddFlowstep());
+    };
+    
+    const handleOpenModalofFormforAddChecklist = (member, stepNumber) => {
       setSelectedMember(member);
       setSelectedStepNumber(stepNumber);
-      setIsModalforAddCheckListFormOpen(true);
+      dispatch(openModalofFormforAddChecklist());
   };
-
+  
   const closeAddCheckListModal = () => {
       setSelectedMember(null);
       setSelectedStepNumber(null);
@@ -182,10 +182,14 @@ export const useMatrixView = () => {
 
     // Global State
     dataBaseIconPositions, flowstepPositions, selectedMember, selectedFlowstep, selectedToolsystem,
-    members, flowsteps, isAddFlowstepModalOpen, isUpdateFlowstepModalOpen, workflowId,
+    members, flowsteps, 
+    showingModalofFormforAddFlowstep, 
+    showingModalofFormforUpdateFlowstep,
+    showingModalofFormforAddChecklist,
+    workflowId,
 
     // Event Handler
-    handleMemberAdded, handleOpenAddFlowstepModalonMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
+    handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, handleOpenModalofFormforAddChecklist, closeAddCheckListModal, moveRow,
     handleUpdateFlowStepNumber, handleUpdateToolsystemName, handleMemberDelete, handleSetSelectedToolsystem,
   };
 };

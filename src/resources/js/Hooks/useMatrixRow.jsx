@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMembers } from '../store/memberSlice';
 import { fetchCheckLists, selectCheckListsByColumn } from '../store/checklistSlice';
 import { setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
-import { openAddFlowstepModal } from '../store/modalSlice';
+import { openModalofFormforAddFlowstep } from '../store/modalSlice';
 
 export const useMatrixRow = (member) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -34,11 +34,11 @@ export const useMatrixRow = (member) => {
       }
   }, [checkListsFromStore]);
 
-  const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
-  const handleOpenAddFlowstepModal = (member, stepNumber) => {
+  const showingModalofFormforAddFlowstep = useSelector(state => state.modal.showingModalofFormforAddFlowstep);
+  const handleOpenModalofFormforAddFlowstep = (member, stepNumber) => {
       dispatch(setSelectedMember(member));
       dispatch(setSelectedStepNumber(stepNumber));
-      dispatch(openAddFlowstepModal(member, stepNumber));
+      dispatch(openModalofFormforAddFlowstep(member, stepNumber));
   };
 
   const handleAddCheckItem = (flowNumber) => {
@@ -71,7 +71,7 @@ export const useMatrixRow = (member) => {
 
   return { 
     isHovered, setIsHovered, isEditing, setIsEditing, newName, setNewName, checkLists, setCheckLists,
-    selectedMember, selectedStepNumber, checkListsFromStore, isAddFlowstepModalOpen,
-    handleOpenAddFlowstepModal, handleAddCheckItem, handleNameChange, handleNameEdit
+    selectedMember, selectedStepNumber, checkListsFromStore, showingModalofFormforAddFlowstep,
+    handleOpenModalofFormforAddFlowstep, handleAddCheckItem, handleNameChange, handleNameEdit
   };
 };

@@ -1,23 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
-// Store Redux Sliceのインポート
+import React from 'react';
 
 // FontAwesomeのアイコンのインポート
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faSquarePlus, faArrowUp, faArrowDown, faTrash, faEdit, faPlus, faClipboardCheck, faDatabase, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 
 // コンポーネントのインポート
-import FlowStep from '../Components/Flowstep';
-import AddMemberForm from '../Components/AddMemberForm';
-import AddFlowStepForm from '../Components/AddFlowStepForm';
-import UpdateFlowStepForm from '../Components/UpdateFlowStepForm';
-import AddCheckListForm from '../Components/AddCheckListForm';
-import ModalforAddFlowStepForm from '../Components/ModalforAddFlowStepForm';
-import ModalforUpdateFlowStepForm from '../Components/ModalforUpdateFlowStepForm';
-import ModalforAddCheckListForm from '../Components/ModalforAddCheckListForm';
-import CheckListModal from '../Components/CheckListModal';
-import CheckListModalContent from '../Components/CheckListModalContent';
+import Flowstep from '../Components/Flowstep';
+
+// Forms
+import FormforAddMember from '../Components/Forms/FormforAddMember';
+import FormforAddFlowstep from '../Components/Forms/FormforAddFlowstep';
+import FormforUpdateFlowstep from '../Components/Forms/FormforUpdateFlowstep';
+import FormforAddChecklist from '../Components/Forms/FormforAddChecklist';
+import FormforUpdateChecklist from '../Components/Forms/FormforUpdateChecklist';
+
+// Modals
+import ModalofFormforAddFlowstep from '../Components/Modals/ModalofFormforAddFlowstep';
+import ModalofFormforUpdateFlowstep from '../Components/Modals/ModalofFormforUpdateFlowstep';
+import ModalofFormforAddChecklist from '../Components/Modals/ModalofFormforAddChecklist';
+import ModalofFormforUpdateChecklist from '../Components/Modals/ModalofFormforUpdateChecklist';
+
 import ArrowRenderer from '../Components/ArrowRenderer';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -32,37 +34,36 @@ import { useMatrixView } from '../Hooks/useMatrixView'
 import '../../css/MatrixView.css';
 
 // コンポーネントの定義
-const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
+const CheckItemColumn = ({ member, flowNumber, handleOpenModalofFormforAddChecklist }) => {
     const { 
-        workflowId, isCheckListModalOpen,
+        showingModalofFormforUpdateChecklist,
         checkListsForFlowNumber, hasCheckList,
         selectedCheckList,
-        handleOpenChecklistModal,
+        handleOpenModalofFormforUpdateChecklist,
     } = useCheckItemColumn(flowNumber);
 
     return (
         <td className="matrix-check-item-column">
             {hasCheckList ? (
-                <div className="check-item" onClick={() => handleOpenChecklistModal(checkListsForFlowNumber[0])}>
+                <div className="check-item" onClick={() => handleOpenModalofFormforUpdateChecklist(checkListsForFlowNumber[0])}>
                     <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
                 </div>
             ) : (
-                <div className="check-item" onClick={() => openAddCheckListModal(member, flowNumber)}>
+                <div className="check-item" onClick={() => handleOpenModalofFormforAddChecklist(member, flowNumber)}>
                     <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
                 </div>
             )}
 
             {/* モーダルの表示 */}
-            {isCheckListModalOpen && (
-                <CheckListModal 
+            {showingModalofFormforUpdateChecklist && (
+                <ModalofFormforUpdateChecklist 
                     checkList={selectedCheckList} // 選択されたチェックリストをモーダルに渡す
                 >
-                    <CheckListModalContent
-                      workflowId={workflowId}
+                    <FormforUpdateChecklist
                       flowNumber={flowNumber}
                       checkListsForFlowNumber={checkListsForFlowNumber}
                     />
-                </CheckListModal >
+                </ModalofFormforUpdateChecklist>
             )}
         </td>
     );
@@ -72,7 +73,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
     const { 
         workflowId,
         validFlowsteps,
-        handleOpenAddFlowstepModal, handleSetSelectedFlowstep,
+        handleOpenModalofFormforAddFlowstep, handleSetSelectedFlowstep,
     } = useMatrixCol(member, flowNumber);
 
     const [{ isOver }, drop] = useDrop(() => ({
@@ -98,7 +99,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
                 )
                 .map(flowstep => (
                     <div key={flowstep.id} className="member-cell" onClick={() => handleSetSelectedFlowstep(flowstep)}>
-                        <FlowStep
+                        <Flowstep
                             member={member}
                             flowstep={flowstep}
                             flowNumber={flowNumber}
@@ -116,7 +117,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
                 <div className="member-cell">
                     <button 
                         className="add-step-button" 
-                        onClick={() => handleOpenAddFlowstepModal(member, flowNumber)}
+                        onClick={() => handleOpenModalofFormforAddFlowstep(member, flowNumber)}
                     >
                         <FontAwesomeIcon icon={faSquarePlus} />
                     </button>
@@ -129,7 +130,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
 const MatrixRow = ({
     member,
     onAssignFlowStep,
-    openAddCheckListModal,
+    handleOpenModalofFormforAddChecklist,
     maxFlowNumber,
     index,
     moveRow,
@@ -140,7 +141,7 @@ const MatrixRow = ({
     const {
         isHovered, setIsHovered, isEditing, setIsEditing, newName, checkLists, 
         workflowId,
-        handleOpenAddFlowstepModal, handleAddCheckItem, handleNameChange, handleNameEdit
+        handleOpenModalofFormforAddFlowstep, handleAddCheckItem, handleNameChange, handleNameEdit
     } = useMatrixRow(member)
 
     // DnD 
@@ -209,7 +210,7 @@ const MatrixRow = ({
                         <MatrixCol
                             member={member}
                             isDragging={isDragging}
-                            openAddCheckListModal={openAddCheckListModal}
+                            handleOpenModalofFormforAddChecklist={handleOpenModalofFormforAddChecklist}
                             flowNumber={flowNumber}
                             onAssignFlowStep={onAssignFlowStep}
                             updateFlowStepNumber={updateFlowStepNumber}
@@ -221,7 +222,7 @@ const MatrixRow = ({
                                 flowNumber={flowNumber}
                                 checkItems={checkItems}
                                 onAddCheckItem={() => handleAddCheckItem(flowNumber)}
-                                openAddCheckListModal={openAddCheckListModal}
+                                handleOpenModalofFormforAddChecklist={handleOpenModalofFormforAddChecklist}
                                 workflowId={workflowId}
                             />
                         )}
@@ -229,7 +230,7 @@ const MatrixRow = ({
                 );
             })}
             <td className="matrix-cell next-step-column">
-                <button onClick={() => handleOpenAddFlowstepModal(member, maxFlowNumber + 1)} className="add-step-button">
+                <button onClick={() => handleOpenModalofFormforAddFlowstep(member, maxFlowNumber + 1)} className="add-step-button">
                     <FontAwesomeIcon icon={faSquarePlus} />
                 </button>
             </td>
@@ -245,10 +246,14 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
     
         // Global State
         dataBaseIconPositions, flowstepPositions, selectedMember,
-        flowsteps, isAddFlowstepModalOpen, isUpdateFlowstepModalOpen, workflowId,
+        flowsteps,
+        showingModalofFormforAddFlowstep, 
+        showingModalofFormforUpdateFlowstep, 
+        showingModalofFormforAddChecklist,
+        workflowId,
     
         // Event Handler
-        handleMemberAdded, handleOpenAddFlowstepModalonMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
+        handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, handleOpenModalofFormforAddChecklist, closeAddCheckListModal, moveRow,
         handleUpdateFlowStepNumber, handleUpdateToolsystemName, handleMemberDelete, handleSetSelectedToolsystem,
     } = useMatrixView();
     
@@ -272,14 +277,13 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm
+                                        <FormforAddMember
                                             onMemberAdded={handleMemberAdded}
-                                            workflowId={workflowId}
                                         />
                                     </div>
                                 </td>
                                 <td className="matrix-cell next-step-column">
-                                    <button onClick={() => handleOpenAddFlowstepModalonMatrixView(null, 2)} className="add-step-button">
+                                    <button onClick={() => handleOpenModalofFormforAddFlowsteponMatrixView(null, 2)} className="add-step-button">
                                         <FontAwesomeIcon icon={faSquarePlus} />
                                     </button>
                                 </td>
@@ -307,7 +311,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                                     member={member}
                                     flowsteps={flowsteps}
                                     onAssignFlowStep={onAssignFlowStep}
-                                    openAddCheckListModal={openAddCheckListModal}
+                                    handleOpenModalofFormforAddChecklist={handleOpenModalofFormforAddChecklist}
                                     maxFlowNumber={maxFlowNumber}
                                     index={index}
                                     moveRow={moveRow}
@@ -319,16 +323,16 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                             <tr>
                                 <td className="matrix-side-header">
                                     <div className="member-cell">
-                                        <AddMemberForm
+                                        <FormforAddMember
                                             onMemberAdded={handleMemberAdded}
-                                            workflowId={workflowId}
                                         />
                                     </div>
                                 </td>
 
                                 {Array.from({ length: maxFlowNumber === 0 ? 1 : 2 * maxFlowNumber - 1 }, (_, i) => {
-                                    const isOddColumn = i % 2 === 0; // 奇数番目の列
-                                    const flowstep = flowsteps.find(step => step.flow_number === i + 1); // `flow_number` に基づいて取得
+                                    const isOddColumn = i % 2 !== 0; // 奇数列かどうかを判定
+                                    const flow_number = !isOddColumn ? Math.floor(i / 2) + 1 : null; // 偶数列の場合のみ flow_number を計算
+                                    const flowstep = !isOddColumn ? flowsteps.find(step => step.flow_number === flow_number) : null; // 偶数列のみ取得
                                     const hasFlowsteps = flowsteps.length > 0;
                                     const hasToolSystem = Array.isArray(flowstep?.toolsystems) && flowstep.toolsystems.length > 0;
 
@@ -342,7 +346,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                                                 onMouseEnter={() => setIsHovered(true)}
                                                 onMouseLeave={() => setIsHovered(false)}
                                             >
-                                                {isOddColumn && hasFlowsteps && hasToolSystem && (
+                                                {!isOddColumn && hasFlowsteps && hasToolSystem && (
                                                     <>
                                                         <FontAwesomeIcon icon={faDatabase} color="navy" className="dataBaseIcon fa-xl" />
                                                         <div className="toolsystem-name-container">
@@ -351,59 +355,53 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                                                                 <form
                                                                     onSubmit={(e) => {
                                                                         e.preventDefault();
-                                                                        // toolsystem.name を更新する処理を実行
                                                                         handleUpdateToolsystemName(updatedToolsystemName);
                                                                     }}
                                                                 >
                                                                     <input
                                                                         type="text"
-                                                                        value={updatedToolsystemName} // stateで管理する更新後の名前
-                                                                        onChange={(e) => setUpdatedToolsystemName(e.target.value)} // 入力値の更新
+                                                                        value={updatedToolsystemName}
+                                                                        onChange={(e) => setUpdatedToolsystemName(e.target.value)}
                                                                         className="toolsystem-name-input"
                                                                     />
                                                                     <div className="toolsystem-name-editing-form-buttons">
-                                                                        <div>
-                                                                            <button type="submit" className="toolsystem-name-save-button">
-                                                                                <FontAwesomeIcon icon={faSave} color="navy" />
-                                                                            </button>
-                                                                        </div>
-                                                                        <div>
-                                                                            <button
-                                                                                type="button"
-                                                                                className="toolsystem-name-cancel-button"
-                                                                                onClick={() => setIsEditingToolsystemName(false)} // 編集モードを終了
-                                                                            >
-                                                                                <FontAwesomeIcon icon={faCancel} color="navy" />
-                                                                            </button>
-                                                                        </div>
+                                                                        <button type="submit" className="toolsystem-name-save-button">
+                                                                            <FontAwesomeIcon icon={faSave} color="navy" />
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="toolsystem-name-cancel-button"
+                                                                            onClick={() => setIsEditingToolsystemName(false)}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faCancel} color="navy" />
+                                                                        </button>
                                                                     </div>
                                                                 </form>
-
                                                             ) : (
-                                                            // 名前表示
-                                                            <div className="toolsystem-name-container">
-                                                                <div className="toolsystem-name">
-                                                                    {flowstep.toolsystems.map((toolsystem, index) => (
-                                                                        <span key={index}>
-                                                                            {toolsystem.name}
-                                                                            {index < flowstep.toolsystems.length - 1 && ', '}
-                                                                        </span>
+                                                                // 名前表示
+                                                                <div className="toolsystem-name-container">
+                                                                    <div className="toolsystem-name">
+                                                                        {flowstep.toolsystems.map((toolsystem, index) => (
+                                                                            <span key={index}>
+                                                                                {toolsystem.name}
+                                                                                {index < flowstep.toolsystems.length - 1 && ', '}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                    {isHovered && flowstep.toolsystems.map(toolsystem => (
+                                                                        <div
+                                                                            key={toolsystem.id}
+                                                                            className="toolsystem-name-edit-icon"
+                                                                            onClick={() => {
+                                                                                setIsEditingToolsystemName(true);
+                                                                                handleSetSelectedToolsystem(toolsystem);
+                                                                            }}
+                                                                            style={{ marginLeft: '5px' }}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faEdit} />
+                                                                        </div>
                                                                     ))}
                                                                 </div>
-                                                                {isHovered && flowstep.toolsystems.map(toolsystem => (
-                                                                    <div
-                                                                        key={toolsystem.id} // toolsystemのIDがある場合を想定
-                                                                        className="toolsystem-name-edit-icon"
-                                                                        onClick={() => {
-                                                                            setIsEditingToolsystemName(true);
-                                                                            handleSetSelectedToolsystem(toolsystem);
-                                                                        }}
-                                                                        style={{ marginLeft: '5px' }}
-                                                                    >
-                                                                        <FontAwesomeIcon icon={faEdit} />
-                                                                    </div>
-                                                                ))}
-                                                            </div>
                                                             )}
                                                         </div>
                                                     </>
@@ -424,23 +422,22 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                 )}
 
             {/* モーダルの表示 */}
-            {isAddFlowstepModalOpen && (
-                <ModalforAddFlowStepForm>
-                    <AddFlowStepForm
+            {showingModalofFormforAddFlowstep && (
+                <ModalofFormforAddFlowstep>
+                    <FormforAddFlowstep
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
                         nextStepNumber={maxFlowNumber + 1}
                         onFlowStepAdded={onFlowStepAdded}
-                        workflowId={workflowId}
                     />
-                </ModalforAddFlowStepForm>
+                </ModalofFormforAddFlowstep>
             )}
 
             {/* モーダルの表示 */}
-            {isUpdateFlowstepModalOpen && (
-                <ModalforUpdateFlowStepForm>
-                    <UpdateFlowStepForm
+            {showingModalofFormforUpdateFlowstep && (
+                <ModalofFormforUpdateFlowstep>
+                    <FormforUpdateFlowstep
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
@@ -448,13 +445,13 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                         onFlowStepAdded={onFlowStepAdded}
                         workflowId={workflowId}
                     />
-                </ModalforUpdateFlowStepForm>
+                </ModalofFormforUpdateFlowstep>
             )}
 
 
-                
-                <ModalforAddCheckListForm isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
-                    <AddCheckListForm
+            {showingModalofFormforAddChecklist && (
+                <ModalofFormforAddChecklist>
+                    <FormforAddChecklist
                         members={orderedMembers}
                         member={selectedMember}
                         stepNumber={selectedStepNumber}
@@ -463,7 +460,9 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                         onFlowStepAdded={onFlowStepAdded}
                         workflowId={workflowId}
                     />
-                </ModalforAddCheckListForm>
+                </ModalofFormforAddChecklist>
+            )}
+
             </div>
 
             {flowstepPositions.map((position, index) => (

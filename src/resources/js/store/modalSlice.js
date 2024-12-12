@@ -8,25 +8,31 @@ const modalSlice = createSlice({
   name: 'modal',
   initialState,
   reducers: {
-    openCheckListModal: (state, action) => {
-      state.isCheckListModalOpen = true;
+    openModalofFormforAddFlowstep: (state) => {
+      state.showingModalofFormforAddFlowstep = true;
+    },
+    closeModalofFormforAddFlowstep: (state) => {
+      state.showingModalofFormforAddFlowstep = false;
+    },
+    openModalofFormforUpdateFlowstep: (state) => {
+      state.showingModalofFormforUpdateFlowstep = true;
+    },
+    closeModalofFormforUpdateFlowstep: (state) => {
+      state.showingModalofFormforUpdateFlowstep = false;
+    },
+    openModalofFormforAddChecklist: (state) => {
+      state.showingModalofFormforAddChecklist = true;
+    },
+    closeModalofFormforAddChecklist: (state) => {
+      state.showingModalofFormforAddChecklist = false;
+    },
+    openModalofFormforUpdateChecklist: (state, action) => {
+      state.showingModalofFormforUpdateChecklist = true;
       state.selectedCheckList = action.payload.checkList;
     },
-    closeCheckListModal: (state) => {
-      state.isCheckListModalOpen = false;
+    closeModalofFormforUpdateChecklist: (state) => {
+      state.showingModalofFormforUpdateChecklist = false;
       state.selectedCheckList = null;
-    },
-    openAddFlowstepModal: (state) => {
-      state.isAddFlowstepModalOpen = true;
-    },
-    closeAddFlowstepModal: (state) => {
-      state.isAddFlowstepModalOpen = false;
-    },
-    openUpdateFlowstepModal: (state) => {
-      state.isUpdateFlowstepModalOpen = true;
-    },
-    closeUpdateFlowstepModal: (state) => {
-      state.isUpdateFlowstepModalOpen = false;
     },
     openDocumentSettingsModal: (state) => {
       state.isDocumentSettingsModalOpen = true;
@@ -38,12 +44,14 @@ const modalSlice = createSlice({
 });
 
 export const {
-  openCheckListModal,
-  closeCheckListModal,
-  openAddFlowstepModal,
-  closeAddFlowstepModal,
-  openUpdateFlowstepModal,
-  closeUpdateFlowstepModal,
+  openModalofFormforAddFlowstep,
+  closeModalofFormforAddFlowstep,
+  openModalofFormforUpdateFlowstep,
+  closeModalofFormforUpdateFlowstep,
+  openModalofFormforAddChecklist,
+  closeModalofFormforAddChecklist,
+  openModalofFormforUpdateChecklist,
+  closeModalofFormforUpdateChecklist,
   openDocumentSettingsModal,
   closeDocumentSettingsModal,
 } = modalSlice.actions;

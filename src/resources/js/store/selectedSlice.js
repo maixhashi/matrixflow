@@ -16,6 +16,7 @@ const selectedSlice = createSlice({
     },
     setSelectedFlowstep: (state, action) => {
       state.selectedFlowstep = action.payload;
+      console.log("selectedFlowstep:", state.selectedFlowstep)
     },
     setSelectedStepNumber: (state, action) => {
       state.selectedStepNumber = action.payload;
