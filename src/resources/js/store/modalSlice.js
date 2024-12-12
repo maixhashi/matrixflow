@@ -20,6 +20,12 @@ const modalSlice = createSlice({
     closeModalofFormforUpdateFlowstep: (state) => {
       state.showingModalofFormforUpdateFlowstep = false;
     },
+    openModalofFormforAddChecklist: (state) => {
+      state.showingModalofFormforAddChecklist = true;
+    },
+    closeModalofFormforAddChecklist: (state) => {
+      state.showingModalofFormforAddChecklist = false;
+    },
     openModalofFormforUpdateChecklist: (state, action) => {
       state.showingModalofFormforUpdateChecklist = true;
       state.selectedCheckList = action.payload.checkList;
@@ -38,12 +44,14 @@ const modalSlice = createSlice({
 });
 
 export const {
-  openModalofFormforUpdateChecklist,
-  closeModalofFormforUpdateChecklist,
   openModalofFormforAddFlowstep,
   closeModalofFormforAddFlowstep,
   openModalofFormforUpdateFlowstep,
   closeModalofFormforUpdateFlowstep,
+  openModalofFormforAddChecklist,
+  closeModalofFormforAddChecklist,
+  openModalofFormforUpdateChecklist,
+  closeModalofFormforUpdateChecklist,
   openDocumentSettingsModal,
   closeDocumentSettingsModal,
 } = modalSlice.actions;

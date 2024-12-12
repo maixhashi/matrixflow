@@ -34,9 +34,9 @@ import { useMatrixView } from '../Hooks/useMatrixView'
 import '../../css/MatrixView.css';
 
 // コンポーネントの定義
-const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
+const CheckItemColumn = ({ member, flowNumber, handleOpenModalofFormforAddChecklist }) => {
     const { 
-        workflowId, showingModalofFormforUpdateChecklist,
+        showingModalofFormforUpdateChecklist,
         checkListsForFlowNumber, hasCheckList,
         selectedCheckList,
         handleOpenModalofFormforUpdateChecklist,
@@ -49,7 +49,7 @@ const CheckItemColumn = ({ member, flowNumber, openAddCheckListModal }) => {
                     <FontAwesomeIcon icon={faClipboardCheck} /> {/* 1つだけ表示 */}
                 </div>
             ) : (
-                <div className="check-item" onClick={() => openAddCheckListModal(member, flowNumber)}>
+                <div className="check-item" onClick={() => handleOpenModalofFormforAddChecklist(member, flowNumber)}>
                     <FontAwesomeIcon icon={faPlus} /> {/* チェック項目追加 */}
                 </div>
             )}
@@ -130,7 +130,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
 const MatrixRow = ({
     member,
     onAssignFlowStep,
-    openAddCheckListModal,
+    handleOpenModalofFormforAddChecklist,
     maxFlowNumber,
     index,
     moveRow,
@@ -210,7 +210,7 @@ const MatrixRow = ({
                         <MatrixCol
                             member={member}
                             isDragging={isDragging}
-                            openAddCheckListModal={openAddCheckListModal}
+                            handleOpenModalofFormforAddChecklist={handleOpenModalofFormforAddChecklist}
                             flowNumber={flowNumber}
                             onAssignFlowStep={onAssignFlowStep}
                             updateFlowStepNumber={updateFlowStepNumber}
@@ -222,7 +222,7 @@ const MatrixRow = ({
                                 flowNumber={flowNumber}
                                 checkItems={checkItems}
                                 onAddCheckItem={() => handleAddCheckItem(flowNumber)}
-                                openAddCheckListModal={openAddCheckListModal}
+                                handleOpenModalofFormforAddChecklist={handleOpenModalofFormforAddChecklist}
                                 workflowId={workflowId}
                             />
                         )}
@@ -246,10 +246,14 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
     
         // Global State
         dataBaseIconPositions, flowstepPositions, selectedMember,
-        flowsteps, showingModalofFormforAddFlowstep, showingModalofFormforUpdateFlowstep, workflowId,
+        flowsteps,
+        showingModalofFormforAddFlowstep, 
+        showingModalofFormforUpdateFlowstep, 
+        showingModalofFormforAddChecklist,
+        workflowId,
     
         // Event Handler
-        handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
+        handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, handleOpenModalofFormforAddChecklist, closeAddCheckListModal, moveRow,
         handleUpdateFlowStepNumber, handleUpdateToolsystemName, handleMemberDelete, handleSetSelectedToolsystem,
     } = useMatrixView();
     
@@ -307,7 +311,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                                     member={member}
                                     flowsteps={flowsteps}
                                     onAssignFlowStep={onAssignFlowStep}
-                                    openAddCheckListModal={openAddCheckListModal}
+                                    handleOpenModalofFormforAddChecklist={handleOpenModalofFormforAddChecklist}
                                     maxFlowNumber={maxFlowNumber}
                                     index={index}
                                     moveRow={moveRow}
@@ -445,8 +449,8 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
             )}
 
 
-                
-                <ModalofFormforAddChecklist isOpen={isModalforAddCheckListFormOpen} onClose={closeAddCheckListModal}>
+            {showingModalofFormforAddChecklist && (
+                <ModalofFormforAddChecklist>
                     <FormforAddChecklist
                         members={orderedMembers}
                         member={selectedMember}
@@ -457,6 +461,8 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                         workflowId={workflowId}
                     />
                 </ModalofFormforAddChecklist>
+            )}
+
             </div>
 
             {flowstepPositions.map((position, index) => (
