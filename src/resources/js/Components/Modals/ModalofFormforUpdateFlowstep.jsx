@@ -7,18 +7,18 @@ const ModalofFormforUpdateFlowstep = ({ onClose, children }) => {
     const {
         // Local State
         // Global State
-        isUpdateFlowstepModalOpen,
+        showingModalofFormforUpdateFlowstep,
         // Event Handler
-        handleCloseUpdateFlowstepModal,
+        handleCloseModalofFormforUpdateFlowstep,
     } = useModalofFormforUpdateFlowstep();
     
     
-    if (!isUpdateFlowstepModalOpen) return null; // モーダルが開いていない場合は何も表示しない
+    if (!showingModalofFormforUpdateFlowstep) return null; // モーダルが開いていない場合は何も表示しない
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={handleCloseUpdateFlowstepModal}>×</button>
+                <button className="modal-close" onClick={handleCloseModalofFormforUpdateFlowstep}>×</button>
                 {children}
             </div>
         </div>

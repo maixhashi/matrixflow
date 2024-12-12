@@ -246,7 +246,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
     
         // Global State
         dataBaseIconPositions, flowstepPositions, selectedMember,
-        flowsteps, showingModalofFormforAddFlowstep, isUpdateFlowstepModalOpen, workflowId,
+        flowsteps, showingModalofFormforAddFlowstep, showingModalofFormforUpdateFlowstep, workflowId,
     
         // Event Handler
         handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
@@ -431,7 +431,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
             )}
 
             {/* モーダルの表示 */}
-            {isUpdateFlowstepModalOpen && (
+            {showingModalofFormforUpdateFlowstep && (
                 <ModalofFormforUpdateFlowstep>
                     <FormforUpdateFlowstep
                         members={orderedMembers}

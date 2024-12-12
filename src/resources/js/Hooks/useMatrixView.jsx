@@ -58,7 +58,7 @@ export const useMatrixView = () => {
   const members = useSelector((state) => state.members);
   const flowsteps = useSelector((state) => state.flowsteps);
   const showingModalofFormforAddFlowstep = useSelector((state) => state.modal.showingModalofFormforAddFlowstep);
-  const isUpdateFlowstepModalOpen = useSelector((state) => state.modal.isUpdateFlowstepModalOpen);
+  const showingModalofFormforUpdateFlowstep = useSelector((state) => state.modal.showingModalofFormforUpdateFlowstep);
   
   useEffect(() => {
       dispatch(fetchMembers(workflowId));
@@ -182,7 +182,7 @@ export const useMatrixView = () => {
 
     // Global State
     dataBaseIconPositions, flowstepPositions, selectedMember, selectedFlowstep, selectedToolsystem,
-    members, flowsteps, showingModalofFormforAddFlowstep, isUpdateFlowstepModalOpen, workflowId,
+    members, flowsteps, showingModalofFormforAddFlowstep, showingModalofFormforUpdateFlowstep, workflowId,
 
     // Event Handler
     handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFlowsteps, deleteFlowstepAsync, updateFlowstepName } from '../store/flowstepsSlice';
-import { openUpdateFlowstepModal } from '../store/modalSlice';
+import { openModalofFormforUpdateFlowstep } from '../store/modalSlice';
 import { setSelectedFlowstep, setSelectedMember, setSelectedStepNumber } from '../store/selectedSlice';
 
 export const useFlowstep = (flowstep) => {
@@ -43,11 +43,11 @@ export const useFlowstep = (flowstep) => {
     dispatch(fetchFlowsteps(workflowId));
   };
   
-  const handleOpenUpdateFlowstepModal = (member, flowstep, stepNumber) => {
+  const handleOpenModalofFormforUpdateFlowstep = (member, flowstep, stepNumber) => {
     dispatch(setSelectedMember(selectedMember));
     dispatch(setSelectedStepNumber(stepNumber));
     dispatch(setSelectedFlowstep(flowstep));
-    dispatch(openUpdateFlowstepModal());
+    dispatch(openModalofFormforUpdateFlowstep());
   };
   
   return { 
@@ -56,6 +56,6 @@ export const useFlowstep = (flowstep) => {
     // Global State
     selectedMember, selectedStepNumber, selectedFlowstep,
     // Event Handler
-    handleDelete, handleEditClick, handleCancel, handleSubmit, handleOpenUpdateFlowstepModal
+    handleDelete, handleEditClick, handleCancel, handleSubmit, handleOpenModalofFormforUpdateFlowstep
   };
 };

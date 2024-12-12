@@ -12,7 +12,7 @@ const FlowStep = ({ flowstep }) => {
         // Global State
           // none 
         // Event Handler
-        handleDelete, handleEditClick, handleCancel, handleSubmit, handleOpenUpdateFlowstepModal
+        handleDelete, handleEditClick, handleCancel, handleSubmit, handleOpenModalofFormforUpdateFlowstep
     } = useFlowstep(flowstep);
 
       
@@ -54,7 +54,7 @@ const FlowStep = ({ flowstep }) => {
                         )}
                     </div>
                     <div className="button-container-for-flowstep">
-                        <div onClick={handleOpenUpdateFlowstepModal} className="faPencil-button-for-flowstep">
+                        <div onClick={handleOpenModalofFormforUpdateFlowstep} className="faPencil-button-for-flowstep">
                             <FontAwesomeIcon icon={faPencil} />
                         </div>
                         <div onClick={handleDelete} className="delete-button" disabled={isDeleting}>
