@@ -73,7 +73,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
     const { 
         workflowId,
         validFlowsteps,
-        handleOpenAddFlowstepModal, handleSetSelectedFlowstep,
+        handleOpenModalofFormforAddFlowstep, handleSetSelectedFlowstep,
     } = useMatrixCol(member, flowNumber);
 
     const [{ isOver }, drop] = useDrop(() => ({
@@ -117,7 +117,7 @@ const MatrixCol = ({ member, flowNumber, onAssignFlowStep, updateFlowStepNumber 
                 <div className="member-cell">
                     <button 
                         className="add-step-button" 
-                        onClick={() => handleOpenAddFlowstepModal(member, flowNumber)}
+                        onClick={() => handleOpenModalofFormforAddFlowstep(member, flowNumber)}
                     >
                         <FontAwesomeIcon icon={faSquarePlus} />
                     </button>
@@ -141,7 +141,7 @@ const MatrixRow = ({
     const {
         isHovered, setIsHovered, isEditing, setIsEditing, newName, checkLists, 
         workflowId,
-        handleOpenAddFlowstepModal, handleAddCheckItem, handleNameChange, handleNameEdit
+        handleOpenModalofFormforAddFlowstep, handleAddCheckItem, handleNameChange, handleNameEdit
     } = useMatrixRow(member)
 
     // DnD 
@@ -230,7 +230,7 @@ const MatrixRow = ({
                 );
             })}
             <td className="matrix-cell next-step-column">
-                <button onClick={() => handleOpenAddFlowstepModal(member, maxFlowNumber + 1)} className="add-step-button">
+                <button onClick={() => handleOpenModalofFormforAddFlowstep(member, maxFlowNumber + 1)} className="add-step-button">
                     <FontAwesomeIcon icon={faSquarePlus} />
                 </button>
             </td>
@@ -246,10 +246,10 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
     
         // Global State
         dataBaseIconPositions, flowstepPositions, selectedMember,
-        flowsteps, isAddFlowstepModalOpen, isUpdateFlowstepModalOpen, workflowId,
+        flowsteps, showingModalofFormforAddFlowstep, isUpdateFlowstepModalOpen, workflowId,
     
         // Event Handler
-        handleMemberAdded, handleOpenAddFlowstepModalonMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
+        handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
         handleUpdateFlowStepNumber, handleUpdateToolsystemName, handleMemberDelete, handleSetSelectedToolsystem,
     } = useMatrixView();
     
@@ -279,7 +279,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                                     </div>
                                 </td>
                                 <td className="matrix-cell next-step-column">
-                                    <button onClick={() => handleOpenAddFlowstepModalonMatrixView(null, 2)} className="add-step-button">
+                                    <button onClick={() => handleOpenModalofFormforAddFlowsteponMatrixView(null, 2)} className="add-step-button">
                                         <FontAwesomeIcon icon={faSquarePlus} />
                                     </button>
                                 </td>
@@ -418,7 +418,7 @@ const MatrixView = ({ onAssignFlowStep, onFlowStepAdded }) => {
                 )}
 
             {/* モーダルの表示 */}
-            {isAddFlowstepModalOpen && (
+            {showingModalofFormforAddFlowstep && (
                 <ModalofFormforAddFlowstep>
                     <FormforAddFlowstep
                         members={orderedMembers}

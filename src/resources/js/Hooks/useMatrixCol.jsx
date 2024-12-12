@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchFlowsteps } from '../store/flowstepsSlice';
 import { setSelectedMember, setSelectedFlowstep, setSelectedStepNumber } from '../store/selectedSlice';
 import { setFlowstepPositions } from '../store/positionSlice';
-import { openAddFlowstepModal } from '../store/modalSlice';
+import { openModalofFormforAddFlowstep } from '../store/modalSlice';
 
 export const useMatrixCol = (member, flowNumber) => {
   const dispatch = useDispatch();
@@ -18,12 +18,12 @@ export const useMatrixCol = (member, flowNumber) => {
   const flowsteps = useSelector((state) => state.flowsteps);
   const validFlowsteps = Array.isArray(flowsteps) ? flowsteps : [];
 
-  const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
+  const showingModalofFormforAddFlowstep = useSelector(state => state.modal.showingModalofFormforAddFlowstep);
 
-  const handleOpenAddFlowstepModal = (member, flowNumber) => {
+  const handleOpenModalofFormforAddFlowstep = (member, flowNumber) => {
       dispatch(setSelectedMember(member));
       dispatch(setSelectedStepNumber(flowNumber));
-      dispatch(openAddFlowstepModal(member, flowNumber));
+      dispatch(openModalofFormforAddFlowstep(member, flowNumber));
   };
 
   // faDaseBaseアイコンの位置情報を取得
@@ -66,8 +66,9 @@ export const useMatrixCol = (member, flowNumber) => {
   }
 
   return { 
-    workflowId, isAddFlowstepModalOpen, flowstepPositions, selectedMember, selectedStepNumber, selectedFlowstep,
+    workflowId, showingModalofFormforAddFlowstep, flowstepPositions, selectedMember, selectedStepNumber, selectedFlowstep,
     validFlowsteps,
-    handleOpenAddFlowstepModal, handleSetSelectedFlowstep,
+    // Event Handler
+    handleOpenModalofFormforAddFlowstep, handleSetSelectedFlowstep,
   };
 };

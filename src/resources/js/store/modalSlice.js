@@ -8,6 +8,18 @@ const modalSlice = createSlice({
   name: 'modal',
   initialState,
   reducers: {
+    openModalofFormforAddFlowstep: (state) => {
+      state.showingModalofFormforAddFlowstep = true;
+    },
+    closeModalofFormforAddFlowstep: (state) => {
+      state.showingModalofFormforAddFlowstep = false;
+    },
+    openUpdateFlowstepModal: (state) => {
+      state.isUpdateFlowstepModalOpen = true;
+    },
+    closeUpdateFlowstepModal: (state) => {
+      state.isUpdateFlowstepModalOpen = false;
+    },
     openCheckListModal: (state, action) => {
       state.isCheckListModalOpen = true;
       state.selectedCheckList = action.payload.checkList;
@@ -15,18 +27,6 @@ const modalSlice = createSlice({
     closeCheckListModal: (state) => {
       state.isCheckListModalOpen = false;
       state.selectedCheckList = null;
-    },
-    openAddFlowstepModal: (state) => {
-      state.isAddFlowstepModalOpen = true;
-    },
-    closeAddFlowstepModal: (state) => {
-      state.isAddFlowstepModalOpen = false;
-    },
-    openUpdateFlowstepModal: (state) => {
-      state.isUpdateFlowstepModalOpen = true;
-    },
-    closeUpdateFlowstepModal: (state) => {
-      state.isUpdateFlowstepModalOpen = false;
     },
     openDocumentSettingsModal: (state) => {
       state.isDocumentSettingsModalOpen = true;
@@ -40,8 +40,8 @@ const modalSlice = createSlice({
 export const {
   openCheckListModal,
   closeCheckListModal,
-  openAddFlowstepModal,
-  closeAddFlowstepModal,
+  openModalofFormforAddFlowstep,
+  closeModalofFormforAddFlowstep,
   openUpdateFlowstepModal,
   closeUpdateFlowstepModal,
   openDocumentSettingsModal,

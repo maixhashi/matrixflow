@@ -1,22 +1,22 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { closeAddFlowstepModal } from '../store/modalSlice';
+import { closeModalofFormforAddFlowstep } from '../store/modalSlice';
 
 export const useModalofFormforAddFlowstep = () => {
   const dispatch = useDispatch();
 
   // Global State
-  const isAddFlowstepModalOpen = useSelector(state => state.modal.isAddFlowstepModalOpen);
+  const showingModalofFormforAddFlowstep = useSelector(state => state.modal.showingModalofFormforAddFlowstep);
 
   // Event Handler
-  const handleCloseAddFlowstepModal = () => {
-      dispatch(closeAddFlowstepModal());
+  const handleCloseModalofFormforAddFlowstep = () => {
+      dispatch(closeModalofFormforAddFlowstep());
   };
 
   return {
     // Local State
     // Global State
-    isAddFlowstepModalOpen,
+    showingModalofFormforAddFlowstep,
     // Event Handler
-    handleCloseAddFlowstepModal,
+    handleCloseModalofFormforAddFlowstep,
   };
 };

@@ -5,7 +5,7 @@ import { fetchFlowsteps, updateFlowStepNumber } from '../store/flowstepsSlice';
 import { updateToolsystemForFlowstep } from '../store/toolsystemSlice';
 import { setDataBaseIconPositions } from '../store/positionSlice';
 import { setSelectedMember, setSelectedToolsystem } from '../store/selectedSlice';
-import { openAddFlowstepModal } from '../store/modalSlice';
+import { openModalofFormforAddFlowstep } from '../store/modalSlice';
 
 export const useMatrixView = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -57,7 +57,7 @@ export const useMatrixView = () => {
   const selectedToolsystem = useSelector((state) => state.selected.selectedToolsystem);
   const members = useSelector((state) => state.members);
   const flowsteps = useSelector((state) => state.flowsteps);
-  const isAddFlowstepModalOpen = useSelector((state) => state.modal.isAddFlowstepModalOpen);
+  const showingModalofFormforAddFlowstep = useSelector((state) => state.modal.showingModalofFormforAddFlowstep);
   const isUpdateFlowstepModalOpen = useSelector((state) => state.modal.isUpdateFlowstepModalOpen);
   
   useEffect(() => {
@@ -83,10 +83,10 @@ export const useMatrixView = () => {
       dispatch(fetchMembers()); // Fetch updated members from the Redux store
   };
       
-  const handleOpenAddFlowstepModalonMatrixView = (member, stepNumber) => {
+  const handleOpenModalofFormforAddFlowsteponMatrixView = (member, stepNumber) => {
       dispatch(setSelectedMember(member));
       dispatch(setSelectedStepNumber(stepNumber));
-      dispatch(openAddFlowstepModal());
+      dispatch(openModalofFormforAddFlowstep());
   };
 
   const openAddCheckListModal = (member, stepNumber) => {
@@ -182,10 +182,10 @@ export const useMatrixView = () => {
 
     // Global State
     dataBaseIconPositions, flowstepPositions, selectedMember, selectedFlowstep, selectedToolsystem,
-    members, flowsteps, isAddFlowstepModalOpen, isUpdateFlowstepModalOpen, workflowId,
+    members, flowsteps, showingModalofFormforAddFlowstep, isUpdateFlowstepModalOpen, workflowId,
 
     // Event Handler
-    handleMemberAdded, handleOpenAddFlowstepModalonMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
+    handleMemberAdded, handleOpenModalofFormforAddFlowsteponMatrixView, openAddCheckListModal, closeAddCheckListModal, moveRow,
     handleUpdateFlowStepNumber, handleUpdateToolsystemName, handleMemberDelete, handleSetSelectedToolsystem,
   };
 };
